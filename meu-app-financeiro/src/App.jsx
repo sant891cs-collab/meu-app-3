@@ -386,7 +386,7 @@ function TelaInicialLogin({ onLogin }) {
         <p className="mt-3 text-sm text-slate-600 leading-relaxed">Seus dados são protegidos e você pode sair quando quiser.</p>
         <div className="mt-2 text-[13px] font-extrabold text-slate-400 tracking-wide"><span className="font-extrabold text-slate-500">Open</span><span className="font-normal text-slate-400">Finance</span></div>
         <div className="mt-8 grid gap-4 w-full">
-          <Button onClick={onLogin} className="w-full bg-white text-[#1e3a8a] border border-slate-200 hover:bg-slate-50 font-bold rounded-2xl shadow-sm">
+          <Button onClick={onLogin} className="w-full bg-white !text-[#1e3a8a] border border-slate-200 hover:bg-slate-50 font-bold rounded-2xl shadow-sm">
             <div className="flex items-center justify-center gap-3">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="w-5 h-5"><path fill="#EA4335" d="M24 9.5c3.54 0 6.69 1.22 9.18 3.61l6.85-6.85C35.9 2.36 30.4 0 24 0 14.64 0 6.46 5.48 2.69 13.44l7.98 6.2C12.52 13.09 17.76 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.63-.15-3.2-.43-4.71H24v9.02h12.68c-.55 2.96-2.23 5.47-4.75 7.15l7.29 5.67C43.98 37.73 46.5 31.64 46.5 24.5z"/><path fill="#FBBC05" d="M10.67 28.64a14.49 14.49 0 010-9.28l-7.98-6.2A23.93 23.93 0 000 24c0 3.9.94 7.58 2.69 10.84l7.98-6.2z"/><path fill="#34A853" d="M24 48c6.4 0 11.9-2.12 15.86-5.77l-7.29-5.67c-2.02 1.36-4.61 2.17-8.57 2.17-6.24 0-11.48-3.59-13.33-8.74l-7.98 6.2C6.46 42.52 14.64 48 24 48z"/></svg>
               <span>Continuar com Google</span>
