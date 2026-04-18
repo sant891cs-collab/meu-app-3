@@ -151,7 +151,7 @@ function buildMonthlyCategorySeries(lancamentos, months) {
 }
 
 // =====================================================
-// PERFIL DO USUÁRIO (sem alterações)
+// PERFIL DO USUÁRIO
 // =====================================================
 function UserProfile({ isOpen, onClose, onLogout, user, contas, cartoes, onDisconnectConta, onDisconnectCartao, onOpenPremium, onOpenPrivacy, onOpenDeleteAccount, onUpdateName }) {
   const [editingName, setEditingName] = useState(false);
@@ -307,26 +307,40 @@ function FitaMetalicaElite({ gastoAtual, metaMensal, receitaAtual = 0 }) {
 }
 
 // =====================================================
-// GAUGE - AMPLO E EXPANSIVO (600x200 viewBox)
+// GAUGE - AJUSTADO PARA CELULAR
 // =====================================================
 function TermometroGauge({ totalDespesas, totalReceitas, metaMensal }) {
   const percentualFinal = metaMensal > 0 ? Math.min((totalDespesas / metaMensal) * 100, 100) : 0;
   const anguloPonteiro = (percentualFinal - 50) * 1.8;
-  const width = 600, height = 200, strokeWidth = 14;
-  const innerRadius = (width / 2) - strokeWidth - 12;
-  const outerRadius = (width / 2) - 12;
-  const arcGenerator = d3.arc().innerRadius(innerRadius).outerRadius(outerRadius).startAngle(-Math.PI / 2).endAngle(Math.PI / 2).cornerRadius(12);
+  const width = 300, height = 140, strokeWidth = 8;
+  const innerRadius = (width / 2) - strokeWidth - 6;
+  const outerRadius = (width / 2) - 6;
+  const arcGenerator = d3.arc().innerRadius(innerRadius).outerRadius(outerRadius).startAngle(-Math.PI / 2).endAngle(Math.PI / 2).cornerRadius(6);
   const arcPath = arcGenerator();
+
   return (
-    <div className="relative w-full overflow-visible">
-      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto" preserveAspectRatio="xMidYMid meet">
-        <defs><linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor="#3399FF" /><stop offset="25%" stopColor="#6A6CDE" /><stop offset="50%" stopColor="#9B45C4" /><stop offset="75%" stopColor="#DA2C5B" /><stop offset="100%" stopColor="#FF0000" /></linearGradient></defs>
+    <div className="relative w-full min-h-[140px] flex justify-center items-center overflow-visible">
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        className="w-full h-full"
+        preserveAspectRatio="xMidYMid meet"
+        style={{ maxWidth: "100%", height: "auto" }}
+      >
+        <defs>
+          <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#3399FF" />
+            <stop offset="25%" stopColor="#6A6CDE" />
+            <stop offset="50%" stopColor="#9B45C4" />
+            <stop offset="75%" stopColor="#DA2C5B" />
+            <stop offset="100%" stopColor="#FF0000" />
+          </linearGradient>
+        </defs>
         <path d={arcPath || undefined} fill="#e2e8f0" transform={`translate(${width / 2}, ${height})`} />
         <path d={arcPath || undefined} fill="url(#gaugeGradient)" transform={`translate(${width / 2}, ${height})`} />
         <g transform={`translate(${width / 2}, ${height}) rotate(${anguloPonteiro})`} className="transition-transform duration-700 ease-out">
-          <path d={`M -7,0 A 7,7 0 1,1 7,0 L 0.7,-${outerRadius * 0.85} A 0.7,0.7 0 0,1 -0.7,-${outerRadius * 0.85} Z`} fill="#001f3f" stroke="white" strokeWidth="2.5" strokeOpacity="0.3" />
-          <circle cx="0" cy="0" r="10" fill="#001f3f" stroke="white" strokeWidth="3" />
-          <circle cx="0" cy="0" r="4" fill="white" fillOpacity="0.4" />
+          <path d={`M -4,0 A 4,4 0 1,1 4,0 L 0.4,-${outerRadius * 0.8} A 0.4,0.4 0 0,1 -0.4,-${outerRadius * 0.8} Z`} fill="#001f3f" stroke="white" strokeWidth="1.5" strokeOpacity="0.3" />
+          <circle cx="0" cy="0" r="7" fill="#001f3f" stroke="white" strokeWidth="2" />
+          <circle cx="0" cy="0" r="2.5" fill="white" fillOpacity="0.4" />
         </g>
       </svg>
     </div>
@@ -359,7 +373,7 @@ function TermometroSobrevivencia({ gastoAtual, metaMensal }) {
 }
 
 // =====================================================
-// TELA DE LOGIN
+// TELA DE LOGIN - CORREÇÃO DA COR DO TEXTO
 // =====================================================
 function TelaInicialLogin({ onLogin }) {
   return (
@@ -457,7 +471,7 @@ function ChatGemini() {
 }
 
 // =====================================================
-// COMPONENTE PRINCIPAL - ABA META COM GRÁFICO DOMINANTE
+// COMPONENTE PRINCIPAL
 // =====================================================
 export default function AppFinanceiroCompleto() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -914,21 +928,20 @@ export default function AppFinanceiroCompleto() {
             <CardContent className="p-3">
               <div className="text-base font-semibold mb-2">Meta de Gastos Mensal</div>
               
-              {/* Layout flex com proporção 3:1 */}
               <div className="flex flex-row gap-3 items-stretch">
-                {/* Coluna do gráfico: maior */}
-                <div className="flex-[3] rounded-2xl bg-slate-50 p-2 flex flex-col items-center justify-center overflow-hidden">
+                {/* Coluna do gráfico */}
+                <div className="flex-[6] rounded-2xl bg-slate-50 p-3 flex flex-col items-center justify-center overflow-visible">
                   <TermometroGauge totalDespesas={totalDespesasMes} totalReceitas={totalEntradasMes} metaMensal={metaMensal} />
-                  <div className="mt-1 text-center">
-                    <div className="text-xs text-slate-500">Uso da meta</div>
+                  <div className="mt-2 text-center">
+                    <div className="text-sm text-slate-500">Uso da meta</div>
                     <div className="text-2xl font-semibold">{percentualMeta.toFixed(0)}%</div>
                   </div>
-                  {percentualMeta >= 100 && <div className="text-red-600 font-medium mt-0.5 text-xs">Ultrapassou a meta!</div>}
-                  {percentualMeta >= 80 && percentualMeta < 100 && <div className="text-amber-600 font-medium mt-0.5 text-xs">Perto do limite.</div>}
+                  {percentualMeta >= 100 && <div className="text-red-600 font-medium mt-1 text-xs">Ultrapassou a meta!</div>}
+                  {percentualMeta >= 80 && percentualMeta < 100 && <div className="text-amber-600 font-medium mt-1 text-xs">Perto do limite.</div>}
                 </div>
 
-                {/* Coluna do formulário: menor */}
-                <div className="flex-1 rounded-2xl bg-slate-50 p-3 flex flex-col gap-2">
+                {/* Coluna do formulário */}
+                <div className="flex-[4] rounded-2xl bg-slate-50 p-3 flex flex-col gap-2">
                   <div className="text-xs text-slate-600">Valor máximo:</div>
                   <Input
                     type="text"
