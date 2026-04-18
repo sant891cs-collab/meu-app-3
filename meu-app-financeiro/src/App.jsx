@@ -11,10 +11,10 @@ import {
 import { supabase } from "./supabase";
 
 // =====================================================
-// COMPONENTES UI LOCAIS (ajustados para estilo glass)
+// COMPONENTES UI LOCAIS
 // =====================================================
 const Card = ({ children, className }) => (
-  <div className={`rounded-3xl border border-gray-200/50 bg-white/70 backdrop-blur-sm shadow-sm overflow-hidden ${className || ""}`}>
+  <div className={`rounded-3xl border border-slate-200/70 bg-white shadow-[0_18px_50px_rgba(15,23,42,0.08)] overflow-hidden ${className || ""}`}>
     {children}
   </div>
 );
@@ -22,18 +22,18 @@ const CardContent = ({ children, className }) => (
   <div className={`p-3 ${className || ""}`}>{children}</div>
 );
 const Button = ({ children, onClick, className, variant }) => {
-  let base = "px-3 py-1.5 rounded-2xl font-medium transition-all shadow-sm text-sm ";
+  let base = "px-3 py-1.5 rounded-2xl font-bold transition-all shadow-sm text-sm ";
   if (variant === "destructive") base += "bg-rose-500 hover:bg-rose-600 text-white ";
-  else if (variant === "secondary") base += "bg-gray-100 hover:bg-gray-200 text-gray-700 ";
-  else base += "bg-gray-900 hover:bg-gray-800 text-white ";
+  else if (variant === "secondary") base += "bg-slate-100 hover:bg-slate-200 text-slate-700 ";
+  else base += "bg-[#001f3f] hover:bg-[#0f2747] text-white ";
   return <button onClick={onClick} className={base + (className || "")}>{children}</button>;
 };
 const Input = (props) => (
-  <input {...props} className={`rounded-xl border border-gray-200 bg-white/80 backdrop-blur-sm py-2 px-3 text-base placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300 ${props.className || ""}`} />
+  <input {...props} className={`rounded-xl border border-slate-200 bg-white py-2 px-3 text-base ${props.className || ""}`} />
 );
 
 // =====================================================
-// FORMATAÇÃO DE MOEDA (inalterado)
+// FORMATAÇÃO DE MOEDA
 // =====================================================
 function formatCurrency(value) {
   const numeric = typeof value === "number"
@@ -76,7 +76,7 @@ const ANALISES_ESPECIAIS = [
 ];
 
 // =====================================================
-// FUNÇÕES AUXILIARES (inalterado)
+// FUNÇÕES AUXILIARES
 // =====================================================
 function categorize(text) {
   const t = text.toLowerCase();
@@ -151,7 +151,7 @@ function buildMonthlyCategorySeries(lancamentos, months) {
 }
 
 // =====================================================
-// PERFIL DO USUÁRIO (ajustado glass)
+// PERFIL DO USUÁRIO
 // =====================================================
 function UserProfile({ isOpen, onClose, onLogout, user, contas, cartoes, onDisconnectConta, onDisconnectCartao, onOpenPremium, onOpenPrivacy, onOpenDeleteAccount, onUpdateName }) {
   const [editingName, setEditingName] = useState(false);
@@ -159,9 +159,9 @@ function UserProfile({ isOpen, onClose, onLogout, user, contas, cartoes, onDisco
   useEffect(() => { setTempName(user.name); }, [user.name, isOpen]);
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 z-[240] bg-black/20 backdrop-blur-sm transition-opacity">
-      <motion.div initial={{ x: "-100%" }} animate={{ x: 0 }} className="absolute left-0 top-0 h-full w-full max-w-sm bg-white/80 backdrop-blur-md shadow-2xl overflow-y-auto flex flex-col border-r border-gray-200/50">
-        <div className="relative h-48 bg-gradient-to-br from-gray-800 via-gray-700 to-gray-600 p-6 text-white overflow-hidden">
+    <div className="fixed inset-0 z-[240] bg-slate-900/40 backdrop-blur-sm transition-opacity">
+      <motion.div initial={{ x: "-100%" }} animate={{ x: 0 }} className="absolute left-0 top-0 h-full w-full max-w-sm bg-[#f8fafc] shadow-2xl overflow-y-auto flex flex-col">
+        <div className="relative h-48 bg-gradient-to-br from-[#001f3f] via-[#08335e] to-[#1e3a8a] p-6 text-white overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl" />
           <div className="flex items-center justify-between relative z-10">
             <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors"><ArrowLeft size={24} /></button>
@@ -172,7 +172,7 @@ function UserProfile({ isOpen, onClose, onLogout, user, contas, cartoes, onDisco
               <div className="size-24 rounded-[32px] bg-white p-1 shadow-xl rotate-3 group-hover:rotate-0 transition-transform duration-500 overflow-hidden">
                 <img src={user.photo || DEFAULT_AVATAR} className="w-full h-full object-cover rounded-[28px]" alt="Avatar" />
               </div>
-              <label className="absolute -bottom-1 -right-1 bg-gray-900 text-white p-2 rounded-2xl cursor-pointer shadow-lg hover:scale-110 transition-transform border-2 border-white">
+              <label className="absolute -bottom-1 -right-1 bg-[#001f3f] text-white p-2 rounded-2xl cursor-pointer shadow-lg hover:scale-110 transition-transform border-2 border-white">
                 <Sparkles size={12} />
                 <input type="file" className="hidden" accept="image/*" onChange={(e) => {
                   const file = e.target.files?.[0];
@@ -195,46 +195,46 @@ function UserProfile({ isOpen, onClose, onLogout, user, contas, cartoes, onDisco
             <div className="flex items-center gap-2 flex-wrap">
               {editingName ? (
                 <div className="flex items-center gap-2 w-full">
-                  <input value={tempName} onChange={(e) => setTempName(e.target.value)} className="flex-1 rounded-2xl border border-gray-200 bg-white px-3 py-2 text-sm font-bold text-gray-800 outline-none focus:ring-2 focus:ring-gray-300" />
-                  <button onClick={() => { onUpdateName(tempName.trim() || "Usuário"); setEditingName(false); }} className="rounded-2xl bg-gray-900 px-3 py-2 text-xs font-black text-white shadow-sm">Salvar</button>
-                  <button onClick={() => { setTempName(user.name); setEditingName(false); }} className="rounded-2xl border border-gray-200 bg-white px-3 py-2 text-xs font-bold text-gray-500">Cancelar</button>
+                  <input value={tempName} onChange={(e) => setTempName(e.target.value)} className="flex-1 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-800 outline-none focus:ring-2 focus:ring-[#001f3f]/20" />
+                  <button onClick={() => { onUpdateName(tempName.trim() || "Usuário"); setEditingName(false); }} className="rounded-2xl bg-[#001f3f] px-3 py-2 text-xs font-black text-white shadow-sm">Salvar</button>
+                  <button onClick={() => { setTempName(user.name); setEditingName(false); }} className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-500">Cancelar</button>
                 </div>
               ) : (
-                <h3 className="text-2xl font-black text-gray-900 tracking-tight truncate cursor-pointer hover:opacity-70" onClick={() => setEditingName(true)} title="Toque para editar nome">{user.name}</h3>
+                <h3 className="text-2xl font-black text-[#001f3f] tracking-tight truncate cursor-pointer hover:opacity-70" onClick={() => setEditingName(true)} title="Toque para editar nome">{user.name}</h3>
               )}
               {user.isPro && <Crown size={18} className="text-amber-500 fill-amber-500" />}
             </div>
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-tighter">{user.email}</p>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter">{user.email}</p>
           </div>
-          <button onClick={onOpenPremium} className="w-full group relative bg-white/80 backdrop-blur-sm border border-gray-200/50 p-5 rounded-[28px] shadow-sm hover:shadow-md transition-all overflow-hidden">
-            <div className="absolute top-0 right-0 w-24 h-full bg-gradient-to-l from-gray-100 to-transparent opacity-50" />
+          <button onClick={onOpenPremium} className="w-full group relative bg-white border border-slate-200 p-5 rounded-[28px] shadow-sm hover:shadow-md transition-all overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-full bg-gradient-to-l from-amber-50 to-transparent opacity-50" />
             <div className="flex items-center gap-4 relative z-10">
-              <div className="size-12 bg-gray-100 rounded-2xl flex items-center justify-center text-gray-600 group-hover:rotate-12 transition-transform"><Crown size={24} /></div>
-              <div className="text-left"><h4 className="font-black text-gray-900 text-sm uppercase">Upgrade para Pro</h4><p className="text-[10px] font-bold text-gray-500 uppercase">Acesso total ao Manin Intelligence</p></div>
+              <div className="size-12 bg-amber-100 rounded-2xl flex items-center justify-center text-amber-600 group-hover:rotate-12 transition-transform"><Crown size={24} /></div>
+              <div className="text-left"><h4 className="font-black text-[#001f3f] text-sm uppercase">Upgrade para Pro</h4><p className="text-[10px] font-bold text-slate-400 uppercase">Acesso total ao Manin Intelligence</p></div>
             </div>
           </button>
           <div className="grid gap-2">
-            <p className="text-[10px] font-black text-gray-400 uppercase ml-2 tracking-widest">Configurações</p>
+            <p className="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Configurações</p>
             <MenuButton icon={<Bell size={18} />} label="Notificações" />
             <MenuButton icon={<Shield size={18} />} label="Privacidade" onClick={onOpenPrivacy} />
-            <div className="h-px bg-gray-100 my-2" />
-            <p className="text-[10px] font-black text-gray-400 uppercase ml-2 tracking-widest">Conexões</p>
+            <div className="h-px bg-slate-100 my-2" />
+            <p className="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Conexões</p>
             {contas.length ? contas.map((c) => (
-              <div key={c.id} className="w-full rounded-2xl bg-white/80 backdrop-blur-sm border border-gray-200/50 p-4 shadow-sm flex items-center justify-between gap-3">
-                <div className="min-w-0"><div className="text-sm font-bold text-gray-800 truncate">{c.descricao}</div><div className="text-xs text-gray-500 truncate">{c.banco || "Sem banco"}</div></div>
+              <div key={c.id} className="w-full rounded-2xl bg-white border border-slate-200 p-4 shadow-sm flex items-center justify-between gap-3">
+                <div className="min-w-0"><div className="text-sm font-bold text-slate-800 truncate">{c.descricao}</div><div className="text-xs text-slate-500 truncate">{c.banco || "Sem banco"}</div></div>
                 <Button variant="destructive" onClick={() => onDisconnectConta(c.id)}>Desconectar</Button>
               </div>
             )) : (
-              <div className="rounded-2xl border border-dashed border-gray-200 bg-white/50 p-5 text-center text-xs text-gray-500">Espaço reservado para suas contas conectadas via Open Banking.</div>
+              <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-5 text-center text-xs text-slate-500">Espaço reservado para suas contas conectadas via Open Banking.</div>
             )}
             {cartoes.length ? cartoes.map((cartao) => (
-              <div key={cartao.id} className="w-full rounded-2xl bg-white/80 backdrop-blur-sm border border-gray-200/50 p-4 shadow-sm flex items-center justify-between gap-3">
-                <div className="min-w-0"><div className="text-sm font-bold text-gray-800 truncate">{cartao.descricao}</div><div className="text-xs text-gray-500 truncate">Limite: R$ {cartao.limite.toFixed(2)}</div></div>
+              <div key={cartao.id} className="w-full rounded-2xl bg-white border border-slate-200 p-4 shadow-sm flex items-center justify-between gap-3">
+                <div className="min-w-0"><div className="text-sm font-bold text-slate-800 truncate">{cartao.descricao}</div><div className="text-xs text-slate-500 truncate">Limite: R$ {cartao.limite.toFixed(2)}</div></div>
                 <Button variant="destructive" onClick={() => onDisconnectCartao(cartao.id)}>Desconectar</Button>
               </div>
             )) : null}
-            <button onClick={onLogout} className="w-full p-4 bg-white/80 backdrop-blur-sm text-rose-600 rounded-2xl flex items-center gap-3 font-bold text-sm shadow-sm border border-gray-200/50 hover:bg-rose-50 transition-colors"><LogOut size={18} /> Sair da conta</button>
-            <button onClick={onOpenDeleteAccount} className="w-full p-4 bg-white/80 backdrop-blur-sm text-gray-500 rounded-2xl flex items-center gap-3 font-medium text-sm shadow-sm border border-gray-200/50 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-all opacity-80 hover:opacity-100"><Trash2 size={18} /> Excluir minha conta</button>
+            <button onClick={onLogout} className="w-full p-4 bg-white text-rose-600 rounded-2xl flex items-center gap-3 font-bold text-sm shadow-sm border border-slate-200 hover:bg-rose-50 transition-colors"><LogOut size={18} /> Sair da conta</button>
+            <button onClick={onOpenDeleteAccount} className="w-full p-4 bg-white text-slate-500 rounded-2xl flex items-center gap-3 font-medium text-sm shadow-sm border border-slate-200 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-all opacity-80 hover:opacity-100"><Trash2 size={18} /> Excluir minha conta</button>
           </div>
         </div>
       </motion.div>
@@ -244,7 +244,7 @@ function UserProfile({ isOpen, onClose, onLogout, user, contas, cartoes, onDisco
 
 function MenuButton({ icon, label, onClick }) {
   return (
-    <button onClick={onClick} className="w-full p-4 bg-white/80 backdrop-blur-sm text-gray-800 rounded-2xl flex items-center justify-between font-bold text-sm shadow-sm border border-gray-200/50 hover:bg-white transition-all">
+    <button onClick={onClick} className="w-full p-4 bg-white text-[#001f3f] rounded-2xl flex items-center justify-between font-bold text-sm shadow-sm border border-slate-200 hover:bg-slate-50 transition-all">
       <div className="flex items-center gap-3"><span className="opacity-60">{icon}</span>{label}</div>
       <ArrowLeft size={16} className="rotate-180 opacity-30" />
     </button>
@@ -252,23 +252,23 @@ function MenuButton({ icon, label, onClick }) {
 }
 
 // =====================================================
-// MODAL PREMIUM (glass)
+// MODAL PREMIUM
 // =====================================================
 function PremiumModal({ isOpen, onClose, onContinue }) {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 z-[260] bg-black/20 backdrop-blur-sm flex items-end md:items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white/90 backdrop-blur-md rounded-3xl p-6 shadow-2xl border border-gray-200/50">
+    <div className="fixed inset-0 z-[260] bg-black/50 flex items-end md:items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white rounded-t-3xl md:rounded-3xl p-6 shadow-2xl">
         <div className="flex items-start justify-between gap-4">
-          <div><div className="text-[10px] font-black uppercase text-gray-500 tracking-widest">Plano Premium</div><h3 className="text-2xl font-black text-gray-900">Desbloqueie tudo</h3></div>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100"><ArrowLeft size={20} /></button>
+          <div><div className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Plano Premium</div><h3 className="text-2xl font-black text-[#001f3f]">Desbloqueie tudo</h3></div>
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-slate-100"><ArrowLeft size={20} /></button>
         </div>
-        <div className="mt-5 rounded-2xl bg-gray-50/80 p-4 space-y-3">
-          <div className="text-sm font-semibold text-gray-700">O que fica desbloqueado:</div>
-          <ul className="space-y-2 text-sm text-gray-600 list-disc pl-5"><li>Contas conectadas via Open Banking</li><li>Visão consolidada das transações</li><li>Relatórios e análises avançadas</li><li>Automação e alertas inteligentes</li></ul>
-          <div className="text-xs text-gray-500">Cancele a qualquer momento.</div>
+        <div className="mt-5 rounded-2xl bg-slate-50 p-4 space-y-3">
+          <div className="text-sm font-semibold text-slate-700">O que fica desbloqueado:</div>
+          <ul className="space-y-2 text-sm text-slate-600 list-disc pl-5"><li>Contas conectadas via Open Banking</li><li>Visão consolidada das transações</li><li>Relatórios e análises avançadas</li><li>Automação e alertas inteligentes</li></ul>
+          <div className="text-xs text-slate-500">Cancele a qualquer momento.</div>
         </div>
-        <div className="mt-5 flex items-end justify-between gap-4"><div><div className="text-[10px] font-black uppercase text-gray-500">Valor</div><div className="text-3xl font-black text-gray-900">R$ 15,00</div><div className="text-xs text-gray-500">por mês</div></div></div>
+        <div className="mt-5 flex items-end justify-between gap-4"><div><div className="text-[10px] font-black uppercase text-slate-500">Valor</div><div className="text-3xl font-black text-[#001f3f]">R$ 15,00</div><div className="text-xs text-slate-500">por mês</div></div></div>
         <div className="mt-5 grid grid-cols-1 gap-3"><Button onClick={onContinue}>Continuar</Button></div>
       </div>
     </div>
@@ -276,7 +276,7 @@ function PremiumModal({ isOpen, onClose, onContinue }) {
 }
 
 // =====================================================
-// FITA DE SOBREVIVÊNCIA (ajustada cores neutras)
+// FITA DE SOBREVIVÊNCIA
 // =====================================================
 function FitaMetalicaElite({ gastoAtual, metaMensal, receitaAtual = 0 }) {
   const hoje = new Date();
@@ -291,14 +291,14 @@ function FitaMetalicaElite({ gastoAtual, metaMensal, receitaAtual = 0 }) {
   const risco = Math.max(percentualTempo, intensidadeMovimentacao);
   const larguraBarra = Math.max(0, Math.min(risco, 100));
   const getGradienteTermometro = () => {
-    if (receitaMes > 0 && gastoMes === 0) return "linear-gradient(to right, #374151 0%, #4b5563 55%, #6b7280 100%)";
-    if (saldoMesAtual >= 0) return "linear-gradient(to right, #374151 0%, #6b7280 55%, #9ca3af 100%)";
-    if (Math.abs(saldoMesAtual) <= Math.max(100, receitaMes * 0.15)) return "linear-gradient(to right, #4b5563 0%, #6b7280 55%, #9ca3af 100%)";
-    return "linear-gradient(to right, #374151 0%, #6b7280 55%, #dc2626 85%, #991b1b 100%)";
+    if (receitaMes > 0 && gastoMes === 0) return "linear-gradient(to right, #00c853 0%, #22c55e 55%, #7ee081 100%)";
+    if (saldoMesAtual >= 0) return "linear-gradient(to right, #00c853 0%, #7ee081 55%, #f4e26a 100%)";
+    if (Math.abs(saldoMesAtual) <= Math.max(100, receitaMes * 0.15)) return "linear-gradient(to right, #4ade80 0%, #facc15 55%, #f4c542 100%)";
+    return "linear-gradient(to right, #22c55e 0%, #facc15 55%, #ef4444 85%, #991b1b 100%)";
   };
   return (
-    <div className="fixed top-0 left-0 w-full z-[100] h-[4px] bg-gray-200">
-      <div className="relative w-full h-full shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
+    <div className="fixed top-0 left-0 w-full z-[100] h-[4px] bg-slate-300">
+      <div className="relative w-full h-full shadow-[0_2px_10px_rgba(0,0,0,0.4)]">
         <div className="h-full transition-all duration-1000 ease-in-out shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]" style={{ width: `${larguraBarra}%`, backgroundImage: getGradienteTermometro() }}><div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent opacity-50" /></div>
         <div className="absolute top-0 h-full w-[1.5px] bg-white z-20 shadow-[0_0_12px_2px_rgba(255,255,255,0.9)]" style={{ left: `${percentualTempo}%` }} />
       </div>
@@ -307,7 +307,7 @@ function FitaMetalicaElite({ gastoAtual, metaMensal, receitaAtual = 0 }) {
 }
 
 // =====================================================
-// GAUGE - cores neutras
+// GAUGE - AJUSTE FINAL CONTRA CORTES
 // =====================================================
 function TermometroGauge({ totalDespesas, totalReceitas, metaMensal }) {
   const percentualFinal = metaMensal > 0 ? Math.min((totalDespesas / metaMensal) * 100, 100) : 0;
@@ -328,18 +328,18 @@ function TermometroGauge({ totalDespesas, totalReceitas, metaMensal }) {
       >
         <defs>
           <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#4b5563" />
-            <stop offset="25%" stopColor="#6b7280" />
-            <stop offset="50%" stopColor="#9ca3af" />
-            <stop offset="75%" stopColor="#cbd5e1" />
-            <stop offset="100%" stopColor="#f87171" />
+            <stop offset="0%" stopColor="#3399FF" />
+            <stop offset="25%" stopColor="#6A6CDE" />
+            <stop offset="50%" stopColor="#9B45C4" />
+            <stop offset="75%" stopColor="#DA2C5B" />
+            <stop offset="100%" stopColor="#FF0000" />
           </linearGradient>
         </defs>
-        <path d={arcPath || undefined} fill="#e5e7eb" transform={`translate(${width / 2}, ${height})`} />
+        <path d={arcPath || undefined} fill="#e2e8f0" transform={`translate(${width / 2}, ${height})`} />
         <path d={arcPath || undefined} fill="url(#gaugeGradient)" transform={`translate(${width / 2}, ${height})`} />
         <g transform={`translate(${width / 2}, ${height}) rotate(${anguloPonteiro})`} className="transition-transform duration-700 ease-out">
-          <path d={`M -4,0 A 4,4 0 1,1 4,0 L 0.4,-${outerRadius * 0.8} A 0.4,0.4 0 0,1 -0.4,-${outerRadius * 0.8} Z`} fill="#1f2937" stroke="white" strokeWidth="1.5" strokeOpacity="0.3" />
-          <circle cx="0" cy="0" r="7" fill="#1f2937" stroke="white" strokeWidth="2" />
+          <path d={`M -4,0 A 4,4 0 1,1 4,0 L 0.4,-${outerRadius * 0.8} A 0.4,0.4 0 0,1 -0.4,-${outerRadius * 0.8} Z`} fill="#001f3f" stroke="white" strokeWidth="1.5" strokeOpacity="0.3" />
+          <circle cx="0" cy="0" r="7" fill="#001f3f" stroke="white" strokeWidth="2" />
           <circle cx="0" cy="0" r="2.5" fill="white" fillOpacity="0.4" />
         </g>
       </svg>
@@ -355,30 +355,30 @@ function TermometroSobrevivencia({ gastoAtual, metaMensal }) {
   const percentualGasto = metaMensal > 0 ? (gastoAtual / metaMensal) * 100 : 0;
   const taNoSufoco = percentualGasto > percentualTempo + 10;
   const getTermometroGradient = () => {
-    if (percentualGasto <= 10) return "linear-gradient(to right, #4b5563 0%, #6b7280 55%, #9ca3af 100%)";
-    if (taNoSufoco) return "linear-gradient(to right, #6b7280 0%, #9ca3af 45%, #f87171 100%)";
-    return "linear-gradient(to right, #4b5563 0%, #6b7280 55%, #9ca3af 100%)";
+    if (percentualGasto <= 10) return "linear-gradient(to right, #1d4ed8 0%, #3b82f6 55%, #60a5fa 100%)";
+    if (taNoSufoco) return "linear-gradient(to right, #7c3aed 0%, #c026d3 45%, #ef4444 100%)";
+    return "linear-gradient(to right, #2563eb 0%, #8b5cf6 55%, #a855f7 100%)";
   };
   return (
-    <div className="bg-white/70 backdrop-blur-sm p-3 rounded-2xl shadow-sm border border-gray-200/50 mt-3">
+    <div className="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 mt-3">
       <div className="flex justify-between items-center mb-2">
-        <h3 className="text-gray-700 font-semibold text-xs">Termômetro de sobrevivência</h3>
-        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${taNoSufoco ? "bg-rose-100 text-rose-600" : percentualGasto > 10 ? "bg-gray-100 text-gray-600" : "bg-blue-100 text-blue-600"}`}>{taNoSufoco ? "Situação crítica" : percentualGasto > 10 ? "Atenção" : "Estável"}</span>
+        <h3 className="text-slate-700 font-semibold text-xs">Termômetro de sobrevivência</h3>
+        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${taNoSufoco ? "bg-rose-100 text-rose-600" : percentualGasto > 10 ? "bg-violet-100 text-violet-600" : "bg-blue-100 text-blue-600"}`}>{taNoSufoco ? "Situação crítica" : percentualGasto > 10 ? "Atenção" : "Estável"}</span>
       </div>
-      <div className="relative h-5 w-full bg-gray-100 rounded-lg overflow-hidden border border-gray-200"><div className="h-full transition-all duration-500" style={{ width: `${Math.min(percentualGasto, 100)}%`, backgroundImage: getTermometroGradient() }} /></div>
-      <div className="flex justify-between mt-1.5 text-[10px] text-gray-500"><span>Gasto atual</span><span>Hoje (dia {diaAtual})</span></div>
-      <div className="mt-2 text-[10px] text-gray-700">{taNoSufoco ? "Você está gastando mais rápido que o tempo do mês. Atenção no ritmo." : percentualGasto > 10 ? "Você já passou da faixa azul. Começa a ficar mais sério daqui pra frente." : "Ritmo de gastos dentro do esperado para o período."}</div>
+      <div className="relative h-5 w-full bg-slate-100 rounded-lg overflow-hidden border"><div className="h-full transition-all duration-500" style={{ width: `${Math.min(percentualGasto, 100)}%`, backgroundImage: getTermometroGradient() }} /></div>
+      <div className="flex justify-between mt-1.5 text-[10px] text-slate-500"><span>Gasto atual</span><span>Hoje (dia {diaAtual})</span></div>
+      <div className="mt-2 text-[10px] text-slate-700">{taNoSufoco ? "Você está gastando mais rápido que o tempo do mês. Atenção no ritmo." : percentualGasto > 10 ? "Você já passou da faixa azul. Começa a ficar mais sério daqui pra frente." : "Ritmo de gastos dentro do esperado para o período."}</div>
     </div>
   );
 }
 
 // =====================================================
-// TELA DE LOGIN (glass + cores neutras)
+// TELA DE LOGIN - CORREÇÃO DA COR DO TEXTO
 // =====================================================
 function TelaInicialLogin({ onLogin }) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 via-gray-50 to-white p-6 text-center">
-      <div className="w-full max-w-md rounded-[32px] bg-white/70 backdrop-blur-md p-8 shadow-xl border border-gray-200/50">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#001f3f] via-[#3F7AD6] to-[#60a5fa] p-6 text-center">
+      <div className="w-full max-w-md rounded-[32px] bg-white/95 backdrop-blur p-8 shadow-[0_25px_70px_rgba(0,0,0,0.25)] ring-1 ring-white/70">
         <div className="mx-auto mb-6 flex items-center justify-center">
           <img
             src="/manyn_logo.png"
@@ -391,30 +391,30 @@ function TelaInicialLogin({ onLogin }) {
           />
           <div
             style={{ display: "none" }}
-            className="items-center justify-center rounded-full bg-gray-900 px-6 py-4"
+            className="items-center justify-center rounded-full bg-[#001f3f] px-6 py-4"
           >
             <span className="text-white text-2xl font-black lowercase tracking-tight">manyn</span>
           </div>
         </div>
-        <h1 className="text-3xl font-black text-gray-900">Bem-vindo</h1>
-        <p className="mt-3 text-sm text-gray-600 leading-relaxed">Seus dados são protegidos e você pode sair quando quiser.</p>
-        <div className="mt-2 text-[13px] font-extrabold text-gray-400 tracking-wide"><span className="font-extrabold text-gray-500">Open</span><span className="font-normal text-gray-400">Finance</span></div>
+        <h1 className="text-3xl font-black text-[#1e3a8a]">Bem-vindo</h1>
+        <p className="mt-3 text-sm text-slate-600 leading-relaxed">Seus dados são protegidos e você pode sair quando quiser.</p>
+        <div className="mt-2 text-[13px] font-extrabold text-slate-400 tracking-wide"><span className="font-extrabold text-slate-500">Open</span><span className="font-normal text-slate-400">Finance</span></div>
         <div className="mt-8 grid gap-4 w-full">
-          <Button onClick={onLogin} className="w-full bg-white !text-gray-900 border border-gray-200 hover:bg-gray-50 font-bold rounded-2xl shadow-sm">
+          <Button onClick={onLogin} className="w-full bg-white !text-[#1e3a8a] border border-slate-200 hover:bg-slate-50 font-bold rounded-2xl shadow-sm">
             <div className="flex items-center justify-center gap-3">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="w-5 h-5"><path fill="#EA4335" d="M24 9.5c3.54 0 6.69 1.22 9.18 3.61l6.85-6.85C35.9 2.36 30.4 0 24 0 14.64 0 6.46 5.48 2.69 13.44l7.98 6.2C12.52 13.09 17.76 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.63-.15-3.2-.43-4.71H24v9.02h12.68c-.55 2.96-2.23 5.47-4.75 7.15l7.29 5.67C43.98 37.73 46.5 31.64 46.5 24.5z"/><path fill="#FBBC05" d="M10.67 28.64a14.49 14.49 0 010-9.28l-7.98-6.2A23.93 23.93 0 000 24c0 3.9.94 7.58 2.69 10.84l7.98-6.2z"/><path fill="#34A853" d="M24 48c6.4 0 11.9-2.12 15.86-5.77l-7.29-5.67c-2.02 1.36-4.61 2.17-8.57 2.17-6.24 0-11.48-3.59-13.33-8.74l-7.98 6.2C6.46 42.52 14.64 48 24 48z"/></svg>
               <span>Continuar com Google</span>
             </div>
           </Button>
         </div>
-        <div className="mt-6 text-xs text-gray-500">Ao continuar, você concorda com os Termos de Uso e com a Política de Privacidade do aplicativo.</div>
+        <div className="mt-6 text-xs text-slate-500">Ao continuar, você concorda com os Termos de Uso e com a Política de Privacidade do aplicativo.</div>
       </div>
     </div>
   );
 }
 
 // =====================================================
-// CHAT GEMINI (inalterado)
+// CHAT GEMINI
 // =====================================================
 function ChatGemini() {
   const [isOpen, setIsOpen] = useState(false);
@@ -433,35 +433,35 @@ function ChatGemini() {
   function handleSend() { const trimmed = input.trim(); if (!trimmed && attachments.length === 0) return; const currentAttachments = attachments; setMensagens((prev) => [...prev, { id: `${Date.now()}`, role: "user", text: trimmed || "Anexo enviado", attachments: currentAttachments }]); setInput(""); setAttachments([]); setTimeout(() => { setMensagens((prev) => [...prev, { id: `bot-${Date.now()}`, role: "bot", text: "Entendido! Processando aqui... (Em breve vou integrar isso de verdade no seu banco de dados)." }]); }, 1000); }
   return (
     <>
-      <button onClick={() => setIsOpen(!isOpen)} className="fixed bottom-6 right-6 z-[300] size-14 rounded-full bg-gray-900 text-white shadow-lg flex items-center justify-center active:scale-90 transition-transform border border-white/20">{isOpen ? <ArrowLeft className="rotate-[-90deg]" /> : <Sparkles className="size-6" />}{!isOpen && <span className="absolute -top-2 -right-2 bg-rose-500 text-[10px] font-bold px-2 py-0.5 rounded-full animate-bounce">AI</span>}</button>
+      <button onClick={() => setIsOpen(!isOpen)} className="fixed bottom-6 right-6 z-[300] size-14 rounded-full bg-gradient-to-tr from-[#001f3f] to-[#003366] text-white shadow-2xl flex items-center justify-center active:scale-90 transition-transform border-2 border-white/20">{isOpen ? <ArrowLeft className="rotate-[-90deg]" /> : <Sparkles className="size-6" />}{!isOpen && <span className="absolute -top-2 -right-2 bg-rose-500 text-[10px] font-bold px-2 py-0.5 rounded-full animate-bounce">AI</span>}</button>
       <input ref={imageInputRef} type="file" accept="image/*" multiple className="hidden" onChange={(e) => { appendAttachments(e.currentTarget.files, "image"); e.currentTarget.value = ""; }} />
       <input ref={fileInputRef} type="file" accept="*/*" multiple className="hidden" onChange={(e) => { appendAttachments(e.currentTarget.files, "file"); e.currentTarget.value = ""; }} />
       {isOpen && (
-        <motion.div initial={{ opacity: 0, y: 20, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="fixed bottom-24 right-6 z-[300] w-[calc(100vw-48px)] max-w-[350px] bg-white/90 backdrop-blur-md rounded-[28px] shadow-2xl border border-gray-200/50 overflow-hidden flex flex-col" style={{ height: "450px" }}>
-          <div className="bg-gray-50/80 p-4 flex items-center justify-center border-b border-gray-200/50"><div className="size-8 bg-gray-100 rounded-full flex items-center justify-center"><Sparkles className="text-gray-400 size-4" /></div></div>
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-transparent flex flex-col">
-            {mensagens.length === 0 && (<div className="flex-1 flex flex-col justify-center px-2"><div className="w-full text-left text-gray-700 font-bold" style={{ fontSize: "18px", lineHeight: "1.2" }}>Olá,</div><div className="w-full text-left text-gray-600 font-normal" style={{ fontSize: "20px", lineHeight: "1.4", marginTop: "4px" }}>Por onde começamos?</div></div>)}
+        <motion.div initial={{ opacity: 0, y: 20, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="fixed bottom-24 right-6 z-[300] w-[calc(100vw-48px)] max-w-[350px] bg-white rounded-[28px] shadow-2xl border border-slate-200 overflow-hidden flex flex-col" style={{ height: "450px" }}>
+          <div className="bg-slate-50 p-4 flex items-center justify-center border-b border-slate-200"><div className="size-8 bg-slate-100 rounded-full flex items-center justify-center"><Sparkles className="text-slate-400 size-4" /></div></div>
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50 flex flex-col">
+            {mensagens.length === 0 && (<div className="flex-1 flex flex-col justify-center px-2"><div className="w-full text-left text-slate-700 font-bold" style={{ fontSize: "18px", lineHeight: "1.2" }}>Olá,</div><div className="w-full text-left text-slate-600 font-normal" style={{ fontSize: "20px", lineHeight: "1.4", marginTop: "4px" }}>Por onde começamos?</div></div>)}
             {mensagens.map((msg) => (
               <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                 {msg.role === "user" ? (
-                  <div className="max-w-[85%] rounded-2xl rounded-tr-none bg-gray-100 px-4 py-3 text-sm font-medium text-gray-700 shadow-sm border border-gray-200/50">
+                  <div className="max-w-[85%] rounded-2xl rounded-tr-none bg-slate-200 px-4 py-3 text-sm font-medium text-slate-700 shadow-sm border border-slate-200">
                     <div>{msg.text}</div>
-                    {msg.attachments?.length ? (<div className="mt-3 space-y-2">{msg.attachments.map((att) => { if (att.kind === "image") return <div key={att.id} className="overflow-hidden rounded-xl border border-gray-200 bg-white/70"><img src={att.url} alt={att.name} className="max-h-48 w-full object-cover" /><div className="px-3 py-2 text-[11px] text-gray-500 bg-white">{att.name}</div></div>; if (att.kind === "audio") return <div key={att.id} className="rounded-xl border border-gray-200 bg-white p-3"><div className="mb-2 flex items-center gap-2 text-xs text-gray-500"><Mic size={14} />{att.name}</div><audio controls src={att.url} className="w-full" /></div>; return <div key={att.id} className="rounded-xl border border-gray-200 bg-white p-3 flex items-center gap-2 text-xs text-gray-600"><Paperclip size={14} /><span className="truncate">{att.name}</span></div>; })}</div>) : null}
+                    {msg.attachments?.length ? (<div className="mt-3 space-y-2">{msg.attachments.map((att) => { if (att.kind === "image") return <div key={att.id} className="overflow-hidden rounded-xl border border-slate-200 bg-white/70"><img src={att.url} alt={att.name} className="max-h-48 w-full object-cover" /><div className="px-3 py-2 text-[11px] text-slate-500 bg-white">{att.name}</div></div>; if (att.kind === "audio") return <div key={att.id} className="rounded-xl border border-slate-200 bg-white p-3"><div className="mb-2 flex items-center gap-2 text-xs text-slate-500"><Mic size={14} />{att.name}</div><audio controls src={att.url} className="w-full" /></div>; return <div key={att.id} className="rounded-xl border border-slate-200 bg-white p-3 flex items-center gap-2 text-xs text-slate-600"><Paperclip size={14} /><span className="truncate">{att.name}</span></div>; })}</div>) : null}
                   </div>
                 ) : (
                   <div className="max-w-[85%] px-1 py-1 text-sm font-medium text-black leading-relaxed">
                     <div>{msg.text}</div>
-                    {msg.attachments?.length ? (<div className="mt-3 space-y-2">{msg.attachments.map((att) => { if (att.kind === "image") return <div key={att.id} className="overflow-hidden rounded-xl border border-gray-200 bg-white/70"><img src={att.url} alt={att.name} className="max-h-48 w-full object-cover" /><div className="px-3 py-2 text-[11px] text-gray-500 bg-white">{att.name}</div></div>; if (att.kind === "audio") return <div key={att.id} className="rounded-xl border border-gray-200 bg-white p-3"><div className="mb-2 flex items-center gap-2 text-xs text-gray-500"><Mic size={14} />{att.name}</div><audio controls src={att.url} className="w-full" /></div>; return <div key={att.id} className="rounded-xl border border-gray-200 bg-white p-3 flex items-center gap-2 text-xs text-gray-600"><Paperclip size={14} /><span className="truncate">{att.name}</span></div>; })}</div>) : null}
+                    {msg.attachments?.length ? (<div className="mt-3 space-y-2">{msg.attachments.map((att) => { if (att.kind === "image") return <div key={att.id} className="overflow-hidden rounded-xl border border-slate-200 bg-white/70"><img src={att.url} alt={att.name} className="max-h-48 w-full object-cover" /><div className="px-3 py-2 text-[11px] text-slate-500 bg-white">{att.name}</div></div>; if (att.kind === "audio") return <div key={att.id} className="rounded-xl border border-slate-200 bg-white p-3"><div className="mb-2 flex items-center gap-2 text-xs text-slate-500"><Mic size={14} />{att.name}</div><audio controls src={att.url} className="w-full" /></div>; return <div key={att.id} className="rounded-xl border border-slate-200 bg-white p-3 flex items-center gap-2 text-xs text-slate-600"><Paperclip size={14} /><span className="truncate">{att.name}</span></div>; })}</div>) : null}
                   </div>
                 )}
               </div>
             ))}
           </div>
-          {attachments.length > 0 && (<div className="px-4 pt-3 pb-2 flex flex-wrap gap-2 bg-white border-t border-gray-100">{attachments.map((att) => (<div key={att.id} className="relative">{att.kind === "image" ? (<img src={att.url} alt={att.name} className="h-16 w-16 rounded-2xl object-cover border border-gray-200 shadow-sm" />) : (<div className="h-16 max-w-[180px] rounded-2xl border border-gray-200 bg-gray-50 px-3 py-2 shadow-sm flex items-center gap-2 text-xs text-gray-600">{att.kind === "audio" ? <Mic size={14} /> : <Paperclip size={14} />}<span className="truncate">{att.name}</span></div>)}<button onClick={() => removeAttachment(att.id)} className="absolute -top-2 -right-2 size-5 rounded-full bg-gray-900 text-white flex items-center justify-center shadow"><X size={11} /></button></div>))}</div>)}
-          <div className="p-4 bg-white border-t border-gray-200/50 flex gap-2">
-            <div className="relative flex items-center"><button type="button" onClick={() => setMenuOpen((prev) => !prev)} className="size-10 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center hover:bg-gray-200 transition-colors" title="Adicionar anexo"><span className="text-xl font-bold">+</span></button>{menuOpen && (<div className="absolute bottom-12 left-0 bg-white border border-gray-200 rounded-2xl shadow-lg p-2 flex flex-col gap-2 z-50"><button type="button" onClick={async () => { try { const stream = await navigator.mediaDevices.getUserMedia({ video: true }); const track = stream.getVideoTracks()[0]; const imageCapture = new ImageCapture(track); const blob = await imageCapture.takePhoto(); const url = URL.createObjectURL(blob); const now = new Date(); setAttachments((prev) => [...prev, { id: `${Date.now()}-${Math.random().toString(36).slice(2)}`, kind: "image", name: `Foto ${now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`, url }]); track.stop(); setMenuOpen(false); } catch (err) { console.error(err); } }} className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-100 text-sm text-gray-700"><Camera size={16} className="text-gray-600" /> Câmera</button><button type="button" onClick={() => { imageInputRef.current?.click(); setMenuOpen(false); }} className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-100 text-sm text-gray-700"><Image size={16} /> Galeria</button><button type="button" onClick={() => { fileInputRef.current?.click(); setMenuOpen(false); }} className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-100 text-sm text-gray-700"><Paperclip size={16} className="text-gray-600" /> Arquivo</button></div>)}</div>
-            <div className="relative flex-1"><input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSend()} placeholder="Ex: Gastei 50 no mercado..." className="w-full bg-white border border-gray-200 rounded-full px-4 pr-12 py-2 text-sm text-gray-700 placeholder:text-gray-400 shadow-[0_6px_18px_rgba(0,0,0,0.04)] focus:outline-none focus:ring-0 focus:border-gray-300" /><button type="button" onClick={toggleRecording} className={`absolute right-2 top-1/2 -translate-y-1/2 size-8 rounded-full flex items-center justify-center transition-colors ${isRecording ? "bg-rose-500 text-white animate-pulse" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`} title={isRecording ? "Parar gravação" : "Gravar áudio"}>{isRecording ? <Square size={14} /> : <Mic size={16} />}</button></div>
-            <button onClick={handleSend} className="bg-gray-900 text-white p-2 rounded-full active:scale-90 transition-transform hover:bg-gray-800"><ArrowLeft className="rotate-180 size-5" /></button>
+          {attachments.length > 0 && (<div className="px-4 pt-3 pb-2 flex flex-wrap gap-2 bg-white border-t border-slate-100">{attachments.map((att) => (<div key={att.id} className="relative">{att.kind === "image" ? (<img src={att.url} alt={att.name} className="h-16 w-16 rounded-2xl object-cover border border-slate-200 shadow-sm" />) : (<div className="h-16 max-w-[180px] rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 shadow-sm flex items-center gap-2 text-xs text-slate-600">{att.kind === "audio" ? <Mic size={14} /> : <Paperclip size={14} />}<span className="truncate">{att.name}</span></div>)}<button onClick={() => removeAttachment(att.id)} className="absolute -top-2 -right-2 size-5 rounded-full bg-slate-900 text-white flex items-center justify-center shadow"><X size={11} /></button></div>))}</div>)}
+          <div className="p-4 bg-white border-t flex gap-2">
+            <div className="relative flex items-center"><button type="button" onClick={() => setMenuOpen((prev) => !prev)} className="size-10 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-200 transition-colors" title="Adicionar anexo"><span className="text-xl font-bold">+</span></button>{menuOpen && (<div className="absolute bottom-12 left-0 bg-white border border-slate-200 rounded-2xl shadow-lg p-2 flex flex-col gap-2 z-50"><button type="button" onClick={async () => { try { const stream = await navigator.mediaDevices.getUserMedia({ video: true }); const track = stream.getVideoTracks()[0]; const imageCapture = new ImageCapture(track); const blob = await imageCapture.takePhoto(); const url = URL.createObjectURL(blob); const now = new Date(); setAttachments((prev) => [...prev, { id: `${Date.now()}-${Math.random().toString(36).slice(2)}`, kind: "image", name: `Foto ${now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`, url }]); track.stop(); setMenuOpen(false); } catch (err) { console.error(err); } }} className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-100 text-sm text-slate-700"><Camera size={16} className="text-slate-600" /> Câmera</button><button type="button" onClick={() => { imageInputRef.current?.click(); setMenuOpen(false); }} className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-100 text-sm text-slate-700"><Image size={16} /> Galeria</button><button type="button" onClick={() => { fileInputRef.current?.click(); setMenuOpen(false); }} className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-100 text-sm text-slate-700"><Paperclip size={16} className="text-slate-600" /> Arquivo</button></div>)}</div>
+            <div className="relative flex-1"><input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSend()} placeholder="Ex: Gastei 50 no mercado..." className="w-full bg-white border border-slate-200 rounded-full px-4 pr-12 py-2 text-sm text-slate-700 placeholder:text-slate-400 shadow-[0_6px_18px_rgba(0,0,0,0.12)] focus:outline-none focus:ring-0 focus:border-slate-200" /><button type="button" onClick={toggleRecording} className={`absolute right-2 top-1/2 -translate-y-1/2 size-8 rounded-full flex items-center justify-center transition-colors ${isRecording ? "bg-rose-500 text-white animate-pulse" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`} title={isRecording ? "Parar gravação" : "Gravar áudio"}>{isRecording ? <Square size={14} /> : <Mic size={16} />}</button></div>
+            <button onClick={handleSend} className="bg-slate-600 text-white p-2 rounded-full active:scale-90 transition-transform hover:bg-slate-700"><ArrowLeft className="rotate-180 size-5" /></button>
           </div>
         </motion.div>
       )}
@@ -471,7 +471,7 @@ function ChatGemini() {
 }
 
 // =====================================================
-// COMPONENTE PRINCIPAL (com estilo glass e cores neutras)
+// COMPONENTE PRINCIPAL
 // =====================================================
 export default function AppFinanceiroCompleto() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -841,8 +841,8 @@ export default function AppFinanceiroCompleto() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-gray-900 font-bold">Carregando...</div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100">
+        <div className="text-[#001f3f] font-bold">Carregando...</div>
       </div>
     );
   }
@@ -852,10 +852,10 @@ export default function AppFinanceiroCompleto() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-gray-100 via-gray-50 to-white">
+    <div className="h-screen flex flex-col bg-gradient-to-br from-slate-50 via-white to-slate-100">
       <FitaMetalicaElite gastoAtual={totalDespesasMes} receitaAtual={totalEntradasMes} metaMensal={metaMensal} />
       <div className="fixed top-4 left-4 z-[200]">
-        <button onClick={() => setProfileOpen(true)} className="size-10 rounded-full border-2 border-gray-200 overflow-hidden bg-white/80 backdrop-blur-sm shadow-md active:scale-90 transition-transform">
+        <button onClick={() => setProfileOpen(true)} className="size-10 rounded-full border-2 border-[#001f3f] overflow-hidden bg-white shadow-lg active:scale-90 transition-transform">
           <img src={userPhoto} alt="Perfil" className="w-full h-full object-cover" />
         </button>
       </div>
@@ -863,12 +863,12 @@ export default function AppFinanceiroCompleto() {
       {/* Área fixa superior */}
       <div className="flex-shrink-0 pt-14 px-3 sm:px-6 max-w-6xl mx-auto w-full">
         {aviso && (
-          <div className="text-xs text-gray-500 text-center rounded-full bg-white/70 backdrop-blur-sm px-3 py-1 border border-gray-200/50 mb-1">
+          <div className="text-xs text-slate-500 text-center rounded-full bg-slate-100 px-3 py-1 border border-slate-200 mb-1">
             {aviso}
           </div>
         )}
 
-        <Card className="mb-2">
+        <Card className="rounded-3xl border border-slate-200/70 bg-white shadow-[0_12px_30px_rgba(15,23,42,0.06)] overflow-hidden mb-2">
           <CardContent className="grid gap-2 p-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <Input
@@ -876,13 +876,13 @@ export default function AppFinanceiroCompleto() {
                 inputMode="numeric"
                 value={valorInput}
                 onChange={(e) => setValorInput(formatCurrencyInput(e.target.value))}
-                className="text-right font-semibold"
+                className="rounded-xl bg-white py-1.5 px-3 text-right font-semibold text-base"
               />
               <Input
                 placeholder="Descrição do gasto"
                 value={descricaoInput}
                 onChange={(e) => setDescricaoInput(e.target.value)}
-                className="text-center shadow-sm"
+                className="rounded-xl bg-white py-1.5 px-3 text-base font-semibold text-center shadow-sm"
               />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -896,51 +896,53 @@ export default function AppFinanceiroCompleto() {
           </CardContent>
         </Card>
 
-        <div className="flex overflow-x-auto whitespace-nowrap gap-1 rounded-2xl bg-gray-100/80 backdrop-blur-sm p-1 shadow-sm mb-2">
-          <button onClick={() => setActiveTab("inicio")} className={`flex-shrink-0 px-3 py-1.5 rounded-xl font-medium text-sm transition-all ${activeTab === "inicio" ? "bg-white shadow-sm text-gray-900" : "text-gray-500"}`}>Início</button>
-          <button onClick={() => setActiveTab("movimentos")} className={`flex-shrink-0 px-3 py-1.5 rounded-xl font-medium text-sm transition-all ${activeTab === "movimentos" ? "bg-white shadow-sm text-gray-900" : "text-gray-500"}`}>Movimentos</button>
-          <button onClick={() => setActiveTab("fixos")} className={`flex-shrink-0 px-3 py-1.5 rounded-xl font-medium text-sm transition-all ${activeTab === "fixos" ? "bg-white shadow-sm text-gray-900" : "text-gray-500"}`}>Fixos</button>
-          <button onClick={() => setActiveTab("analises")} className={`flex-shrink-0 px-3 py-1.5 rounded-xl font-medium text-sm transition-all ${activeTab === "analises" ? "bg-white shadow-sm text-gray-900" : "text-gray-500"}`}>Análises</button>
-          <button onClick={() => setActiveTab("meta")} className={`flex-shrink-0 px-3 py-1.5 rounded-xl font-medium text-sm transition-all ${activeTab === "meta" ? "bg-white shadow-sm text-gray-900" : "text-gray-500"}`}>Meta</button>
+        <div className="flex overflow-x-auto whitespace-nowrap gap-1 rounded-2xl bg-slate-100 p-1 shadow-sm mb-2">
+          <button onClick={() => setActiveTab("inicio")} className={`flex-shrink-0 px-3 py-1.5 rounded-xl font-medium text-sm transition-all ${activeTab === "inicio" ? "bg-white shadow-sm text-slate-800" : "text-slate-500"}`}>Início</button>
+          <button onClick={() => setActiveTab("movimentos")} className={`flex-shrink-0 px-3 py-1.5 rounded-xl font-medium text-sm transition-all ${activeTab === "movimentos" ? "bg-white shadow-sm text-slate-800" : "text-slate-500"}`}>Movimentos</button>
+          <button onClick={() => setActiveTab("fixos")} className={`flex-shrink-0 px-3 py-1.5 rounded-xl font-medium text-sm transition-all ${activeTab === "fixos" ? "bg-white shadow-sm text-slate-800" : "text-slate-500"}`}>Fixos</button>
+          <button onClick={() => setActiveTab("analises")} className={`flex-shrink-0 px-3 py-1.5 rounded-xl font-medium text-sm transition-all ${activeTab === "analises" ? "bg-white shadow-sm text-slate-800" : "text-slate-500"}`}>Análises</button>
+          <button onClick={() => setActiveTab("meta")} className={`flex-shrink-0 px-3 py-1.5 rounded-xl font-medium text-sm transition-all ${activeTab === "meta" ? "bg-white shadow-sm text-slate-800" : "text-slate-500"}`}>Meta</button>
         </div>
       </div>
 
       {/* Área rolável */}
       <div className="flex-1 overflow-y-auto px-3 sm:px-6 max-w-6xl mx-auto w-full pb-4">
         {activeTab === "inicio" && (
-          <Card>
+          <Card className="rounded-3xl border border-slate-200/70 bg-white shadow-[0_12px_30px_rgba(15,23,42,0.06)] overflow-hidden">
             <CardContent className="p-3">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
-                <div className="rounded-2xl bg-white/50 backdrop-blur-sm p-2 border border-gray-200/50 shadow-sm"><div className="text-xs text-gray-500">Entradas do mês</div><div className="text-base font-semibold text-gray-900">{formatCurrency(totalEntradasMes)}</div></div>
-                <div className="rounded-2xl bg-white/50 backdrop-blur-sm p-2 border border-gray-200/50 shadow-sm"><div className="text-xs text-gray-500">Despesas do mês</div><div className="text-base font-semibold text-gray-900">{formatCurrency(totalDespesasMes)}</div></div>
-                <div className="rounded-2xl bg-white/50 backdrop-blur-sm p-2 border border-gray-200/50 shadow-sm"><div className="text-xs text-gray-500">Saldo do mês</div><div className="text-base font-semibold text-gray-900">{formatCurrency(saldoMes)}</div></div>
-                <div className="rounded-2xl bg-white/50 backdrop-blur-sm p-2 border border-gray-200/50 shadow-sm"><div className="text-xs text-gray-500">Meta de gastos</div><div className="text-base font-semibold text-gray-900">{formatCurrency(metaMensal)}</div><div className="text-[10px] mt-0.5 text-gray-500">Usado: {percentualMeta.toFixed(0)}%</div></div>
+                <div className="rounded-2xl bg-emerald-50 p-2 border border-emerald-100 shadow-sm"><div className="text-xs">Entradas do mês</div><div className="text-base font-semibold">{formatCurrency(totalEntradasMes)}</div></div>
+                <div className="rounded-2xl bg-rose-50 p-2 border border-rose-100 shadow-sm"><div className="text-xs">Despesas do mês</div><div className="text-base font-semibold">{formatCurrency(totalDespesasMes)}</div></div>
+                <div className="rounded-2xl bg-blue-50 p-2 border border-blue-100 shadow-sm"><div className="text-xs">Saldo do mês</div><div className="text-base font-semibold">{formatCurrency(saldoMes)}</div></div>
+                <div className="rounded-2xl bg-amber-50 p-2 border border-amber-100 shadow-sm"><div className="text-xs">Meta de gastos</div><div className="text-base font-semibold">{formatCurrency(metaMensal)}</div><div className="text-[10px] mt-0.5">Usado: {percentualMeta.toFixed(0)}%</div></div>
               </div>
               <ResponsiveContainer width="100%" height={250}>
-                <PieChart><Tooltip /><Legend /><Pie data={dadosPizza} dataKey="valor" nameKey="categoria" cx="50%" cy="50%" outerRadius={80} innerRadius={45} paddingAngle={3}>{dadosPizza.map((_, index) => { const cores = ["#4b5563", "#6b7280", "#9ca3af", "#cbd5e1", "#f87171", "#94a3b8", "#64748b", "#475569"]; return <Cell key={index} fill={cores[index % cores.length]} />; })}</Pie></PieChart>
+                <PieChart><Tooltip /><Legend /><Pie data={dadosPizza} dataKey="valor" nameKey="categoria" cx="50%" cy="50%" outerRadius={80} innerRadius={45} paddingAngle={3}>{dadosPizza.map((_, index) => { const cores = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4", "#84cc16", "#64748b"]; return <Cell key={index} fill={cores[index % cores.length]} />; })}</Pie></PieChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
         )}
 
         {activeTab === "meta" && (
-          <Card>
+          <Card className="rounded-3xl border border-slate-200/70 bg-white shadow-[0_12px_30px_rgba(15,23,42,0.06)] overflow-hidden">
             <CardContent className="p-3">
-              <div className="text-base font-semibold mb-2 text-gray-900">Meta de Gastos Mensal</div>
+              <div className="text-base font-semibold mb-2">Meta de Gastos Mensal</div>
               
               <div className="flex flex-row gap-2 items-stretch">
-                <div className="flex-[8] rounded-2xl bg-white/40 backdrop-blur-sm p-2 flex flex-col items-center justify-center overflow-visible">
+                {/* Coluna do gráfico - maior proporção */}
+                <div className="flex-[8] rounded-2xl bg-slate-50 p-2 flex flex-col items-center justify-center overflow-visible">
                   <TermometroGauge totalDespesas={totalDespesasMes} totalReceitas={totalEntradasMes} metaMensal={metaMensal} />
                   <div className="mt-1 text-center">
-                    <div className="text-xs text-gray-500">Uso da meta</div>
-                    <div className="text-xl font-semibold text-gray-900">{percentualMeta.toFixed(0)}%</div>
+                    <div className="text-xs text-slate-500">Uso da meta</div>
+                    <div className="text-xl font-semibold">{percentualMeta.toFixed(0)}%</div>
                   </div>
-                  {percentualMeta >= 100 && <div className="text-rose-600 font-medium mt-0.5 text-[10px]">Ultrapassou a meta!</div>}
+                  {percentualMeta >= 100 && <div className="text-red-600 font-medium mt-0.5 text-[10px]">Ultrapassou a meta!</div>}
                   {percentualMeta >= 80 && percentualMeta < 100 && <div className="text-amber-600 font-medium mt-0.5 text-[10px]">Perto do limite.</div>}
                 </div>
 
-                <div className="flex-[3] rounded-2xl bg-white/40 backdrop-blur-sm p-2 flex flex-col gap-1.5 min-w-[120px]">
-                  <div className="text-[10px] text-gray-600">Valor máximo:</div>
+                {/* Coluna do formulário - menor proporção */}
+                <div className="flex-[3] rounded-2xl bg-slate-50 p-2 flex flex-col gap-1.5 min-w-[120px]">
+                  <div className="text-[10px] text-slate-600">Valor máximo:</div>
                   <Input
                     type="text"
                     inputMode="decimal"
@@ -953,7 +955,7 @@ export default function AppFinanceiroCompleto() {
                       const numeric = parseFloat(cleaned.replace(",", "."));
                       setMetaMensal(Number.isNaN(numeric) ? 0 : numeric);
                     }}
-                    className="bg-white px-2 py-1.5 font-bold text-center shadow-sm text-sm"
+                    className="rounded-xl bg-white px-2 py-1.5 font-bold text-center shadow-sm text-sm"
                     style={{ fontSize: "16px", height: "40px" }}
                   />
                   <Button
@@ -967,7 +969,7 @@ export default function AppFinanceiroCompleto() {
                   >
                     Salvar meta
                   </Button>
-                  <div className="text-[8px] text-gray-400 text-center">Aviso de limite</div>
+                  <div className="text-[8px] text-slate-400 text-center">Aviso de limite</div>
                 </div>
               </div>
 
@@ -979,23 +981,23 @@ export default function AppFinanceiroCompleto() {
         )}
 
         {activeTab === "movimentos" && (
-          <Card>
+          <Card className="rounded-3xl border border-slate-200/70 bg-white shadow-[0_12px_30px_rgba(15,23,42,0.06)] overflow-hidden">
             <CardContent className="grid gap-2 p-3">
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-700">Selecionar mês:</span>
+                <span className="text-sm">Selecionar mês:</span>
                 <Input type="month" value={mesFiltro} onChange={(e) => setMesFiltro(e.target.value)} className="w-40 text-sm py-1" />
               </div>
               {Object.entries(lancamentosFiltrados.reduce((acc, l) => { if (!acc[l.data]) acc[l.data] = []; acc[l.data].push(l); return acc; }, {})).sort((a, b) => (a[0] < b[0] ? 1 : -1)).map(([data, itens]) => (
                 <div key={data} className="grid gap-1.5">
-                  <div className="text-xs font-bold text-gray-400 mt-1">{new Date(data).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })}</div>
+                  <div className="text-xs font-bold text-slate-400 mt-1">{new Date(data).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })}</div>
                   {itens.map((l) => (
-                    <div key={l.id} className="rounded-xl bg-white/50 backdrop-blur-sm p-2 flex justify-between items-center border border-gray-200/50">
+                    <div key={l.id} className="rounded-xl bg-slate-50 p-2 flex justify-between items-center">
                       <div>
-                        <div className="flex items-center gap-1.5 font-medium text-sm text-gray-800">
+                        <div className="flex items-center gap-1.5 font-medium text-sm">
                           <span className={`w-2.5 h-2.5 rounded-full ${l.tipo === "receita" ? "bg-emerald-500" : "bg-rose-500"}`} />
                           {l.descricao}
                         </div>
-                        <div className="text-[10px] text-gray-500">{l.categoria} • {l.natureza}{l.conta_id ? ` • ${getContaNomeById(l.conta_id)}` : ""}</div>
+                        <div className="text-[10px] text-slate-500">{l.categoria} • {l.natureza}{l.conta_id ? ` • ${getContaNomeById(l.conta_id)}` : ""}</div>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className={`font-semibold text-base ${l.tipo === "receita" ? "text-emerald-600" : "text-rose-600"}`}>
@@ -1015,9 +1017,9 @@ export default function AppFinanceiroCompleto() {
         )}
 
         {activeTab === "fixos" && (
-          <Card>
+          <Card className="rounded-3xl border border-slate-200/70 bg-white shadow-[0_12px_30px_rgba(15,23,42,0.06)] overflow-hidden">
             <CardContent className="grid gap-3 p-3">
-              <div className="text-base font-semibold text-gray-900">Despesas Fixas</div>
+              <div className="text-base font-semibold">Despesas Fixas</div>
               <div className="grid md:grid-cols-4 gap-2">
                 <Input placeholder="Nome da despesa" value={gastoFixoNome} onChange={(e) => setGastoFixoNome(e.target.value)} className="text-sm py-1.5" />
                 <Input inputMode="decimal" placeholder="Valor" value={gastoFixoValor} onChange={(e) => setGastoFixoValor(e.target.value.replace(/[^0-9.,]/g, ""))} className="text-sm py-1.5" />
@@ -1027,10 +1029,10 @@ export default function AppFinanceiroCompleto() {
               <Button onClick={async () => { if (!gastoFixoNome || !gastoFixoValor || !gastoFixoDia) return; const userId = user?.id; if (!userId) return; const novo = { user_id: userId, nome: gastoFixoNome, valor: Number(gastoFixoValor.replace(",", ".")), dia_vencimento: Number(gastoFixoDia), dias_aviso: Number(gastoFixoAviso || 3), ativa: true, categoria: null }; const { data, error } = await supabase.from('fixed_expenses').insert([novo]).select(); if (!error && data) { setGastosFixos(prev => [...prev, data[0]]); setGastoFixoNome(""); setGastoFixoValor(""); setGastoFixoDia(""); setGastoFixoAviso("3"); setAviso("Despesa fixa cadastrada."); } }}>Adicionar despesa fixa</Button>
               <div className="grid gap-2">
                 {gastosFixos.map((g) => (
-                  <div key={g.id} className="rounded-xl bg-white/50 backdrop-blur-sm p-2 flex justify-between items-center border border-gray-200/50">
+                  <div key={g.id} className="rounded-xl bg-slate-50 p-2 flex justify-between items-center">
                     <div>
-                      <div className="font-medium text-sm text-gray-800">{g.nome}</div>
-                      <div className="text-xs text-gray-500">{formatCurrency(g.valor)} • vence dia {g.dia_vencimento} • próximo: {calcularProximaData(g.dia_vencimento)} • aviso {g.dias_aviso} dias antes</div>
+                      <div className="font-medium text-sm">{g.nome}</div>
+                      <div className="text-xs text-slate-500">{formatCurrency(g.valor)} • vence dia {g.dia_vencimento} • próximo: {calcularProximaData(g.dia_vencimento)} • aviso {g.dias_aviso} dias antes</div>
                     </div>
                     <Button variant="destructive" className="px-2 py-1 text-xs" onClick={async () => { await supabase.from('fixed_expenses').delete().eq('id', g.id); setGastosFixos(prev => prev.filter(x => x.id !== g.id)); setAviso("Despesa fixa removida."); }}>Excluir</Button>
                   </div>
@@ -1041,25 +1043,25 @@ export default function AppFinanceiroCompleto() {
         )}
 
         {activeTab === "analises" && (
-          <Card>
+          <Card className="rounded-3xl border border-slate-200/70 bg-white shadow-[0_12px_30px_rgba(15,23,42,0.06)] overflow-hidden">
             <CardContent className="p-3 grid gap-2">
               <div className="grid md:grid-cols-3 gap-2 items-end">
                 <div className="grid gap-0.5">
-                  <div className="text-[10px] text-gray-500">Tipo</div>
-                  <select value={tipoAnalise} onChange={(e) => setTipoAnalise(e.target.value)} className="rounded-xl bg-white/80 backdrop-blur-sm p-1.5 text-sm text-gray-700 border border-gray-200">
+                  <div className="text-[10px] text-slate-500">Tipo</div>
+                  <select value={tipoAnalise} onChange={(e) => setTipoAnalise(e.target.value)} className="rounded-xl bg-slate-100 p-1.5 text-sm text-slate-700 border border-slate-200">
                     <option value="despesa">Despesas</option>
                     <option value="receita">Receitas</option>
                   </select>
                 </div>
                 <div className="grid gap-0.5">
-                  <div className="text-[10px] text-gray-500">Categoria</div>
-                  <select value={analiseSelecionada} onChange={(e) => { const valor = e.target.value; if (tipoAnalise === "receita") setAnaliseSelecionadaReceita(valor); else setAnaliseSelecionadaDespesa(valor); }} className="rounded-xl bg-white/80 backdrop-blur-sm p-1.5 text-sm text-gray-700 border border-gray-200">
+                  <div className="text-[10px] text-slate-500">Categoria</div>
+                  <select value={analiseSelecionada} onChange={(e) => { const valor = e.target.value; if (tipoAnalise === "receita") setAnaliseSelecionadaReceita(valor); else setAnaliseSelecionadaDespesa(valor); }} className="rounded-xl bg-slate-100 p-1.5 text-sm text-slate-700 border border-slate-200">
                     {(tipoAnalise === "receita" ? categoriasReceita : [...ANALISES_ESPECIAIS.map(a => a.id), ...categoriasDespesa]).map(op => <option key={op} value={op}>{op}</option>)}
                   </select>
                 </div>
                 <div className="grid gap-0.5">
-                  <div className="text-[10px] text-gray-500">Período</div>
-                  <select value={periodoAnalise} onChange={(e) => setPeriodoAnalise(Number(e.target.value))} className="rounded-xl bg-white/80 backdrop-blur-sm p-1.5 text-sm text-gray-700 border border-gray-200">
+                  <div className="text-[10px] text-slate-500">Período</div>
+                  <select value={periodoAnalise} onChange={(e) => setPeriodoAnalise(Number(e.target.value))} className="rounded-xl bg-slate-100 p-1.5 text-sm text-slate-700 border border-slate-200">
                     <option value={1}>Mês atual</option>
                     <option value={2}>Últimos 2 meses</option>
                     <option value={3}>Últimos 3 meses</option>
@@ -1069,7 +1071,7 @@ export default function AppFinanceiroCompleto() {
                   </select>
                 </div>
               </div>
-              <div className="text-xs text-gray-500">Evolução mensal da categoria selecionada</div>
+              <div className="text-xs text-slate-500">Evolução mensal da categoria selecionada</div>
               <ResponsiveContainer width="100%" height={180}>
                 <AreaChart data={serieAnaliseEspecial}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
@@ -1079,14 +1081,14 @@ export default function AppFinanceiroCompleto() {
                   <Area type="linear" dataKey="valor" stroke={tipoAnalise === "receita" ? "#10b981" : "#ef4444"} fill={tipoAnalise === "receita" ? "#10b981" : "#ef4444"} fillOpacity={0.3} />
                 </AreaChart>
               </ResponsiveContainer>
-              <div className="text-xs text-gray-600">Total no período: <strong>{formatCurrency(totalAnaliseEspecial)}</strong> • Quantidade: <strong>{quantidadeAnaliseEspecial}</strong></div>
+              <div className="text-xs text-slate-600">Total no período: <strong>{formatCurrency(totalAnaliseEspecial)}</strong> • Quantidade: <strong>{quantidadeAnaliseEspecial}</strong></div>
             </CardContent>
           </Card>
         )}
 
         <div className="w-full text-center mt-3 pb-2">
-          <div className="inline-block bg-white/50 backdrop-blur-sm px-3 py-1 rounded-full border border-gray-200/50 shadow-sm">
-            <span className="text-[10px] text-gray-400 tracking-wide font-bold">
+          <div className="inline-block bg-slate-100/90 px-3 py-1 rounded-full border border-slate-200 shadow-sm">
+            <span className="text-[10px] text-slate-400 tracking-wide font-bold">
               Segue em frente... a cada passo de confiança a luz aparece.
             </span>
           </div>
@@ -1094,18 +1096,18 @@ export default function AppFinanceiroCompleto() {
       </div>
 
       {previewLancamento && (
-        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white/90 backdrop-blur-md rounded-[32px] p-5 w-full max-w-md grid gap-3 shadow-xl border border-gray-200/50">
-            <div className="flex items-center justify-between"><h2 className="text-base font-bold text-gray-800">Prévia do lançamento</h2><div className="text-[10px] font-semibold text-gray-400 uppercase">Revise antes de salvar</div></div>
-            <div className="flex items-center justify-between rounded-2xl bg-gray-50/80 px-3 py-3 border border-gray-200"><span className="text-sm font-semibold text-gray-500">Valor do lançamento</span><Input inputMode="decimal" pattern="[0-9.,]*" value={formatCurrency(previewLancamento.valor)} onChange={(e) => setPreviewLancamento(prev => prev ? { ...prev, valor: parseCurrencyInput(e.target.value) } : prev)} className="w-24 border-none bg-transparent text-right text-lg font-bold focus:ring-0" /></div>
-            <div className="flex items-center justify-between rounded-2xl bg-gray-50/80 px-3 py-2 border border-gray-200"><span className="text-sm font-semibold text-gray-500">Descrição</span><Input value={previewLancamento.descricao} onChange={(e) => setPreviewLancamento(prev => prev ? { ...prev, descricao: e.target.value } : prev)} className="w-40 border-none bg-transparent text-right font-bold focus:ring-0" /></div>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-[4px] flex items-center justify-center z-50">
+          <div className="bg-white rounded-[32px] p-5 w-full max-w-md grid gap-3 shadow-[0_25px_80px_rgba(0,0,0,0.25)] border border-slate-200">
+            <div className="flex items-center justify-between"><h2 className="text-base font-bold text-slate-800">Prévia do lançamento</h2><div className="text-[10px] font-semibold text-slate-400 uppercase">Revise antes de salvar</div></div>
+            <div className="flex items-center justify-between rounded-2xl bg-slate-50 px-3 py-3 border border-slate-200"><span className="text-sm font-semibold text-slate-500">Valor do lançamento</span><Input inputMode="decimal" pattern="[0-9.,]*" value={formatCurrency(previewLancamento.valor)} onChange={(e) => setPreviewLancamento(prev => prev ? { ...prev, valor: parseCurrencyInput(e.target.value) } : prev)} className="w-24 border-none bg-transparent text-right text-lg font-bold focus:ring-0 text-base" /></div>
+            <div className="flex items-center justify-between rounded-2xl bg-slate-50 px-3 py-2 border border-slate-200"><span className="text-sm font-semibold text-slate-500">Descrição</span><Input value={previewLancamento.descricao} onChange={(e) => setPreviewLancamento(prev => prev ? { ...prev, descricao: e.target.value } : prev)} className="w-40 border-none bg-transparent text-right font-bold focus:ring-0 text-base" /></div>
             <div className="grid grid-cols-2 gap-2">
-              <div className="grid gap-0.5"><span className="text-xs text-gray-400">Data</span><div className="relative group"><input type="date" value={previewLancamento.data} onChange={(e) => { const novaData = e.target.value; setDataSelecionada(novaData); setPreviewLancamento(prev => prev ? { ...prev, data: novaData } : prev); }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" /><div className="flex items-center justify-between rounded-xl bg-gray-50 px-2 py-1.5 border border-gray-200 group-hover:border-gray-300 transition-all"><span className="text-sm font-semibold text-gray-700">{new Date(previewLancamento.data).toLocaleDateString("pt-BR")}</span><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 group-hover:text-gray-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></div></div></div>
-              <div className="grid gap-0.5"><span className="text-xs text-gray-400">Tipo</span><div className="flex bg-gray-100 rounded-xl p-0.5"><button onClick={() => setPreviewLancamento(prev => prev ? { ...prev, tipo: "receita" } : prev)} className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${previewLancamento.tipo === "receita" ? "bg-white text-emerald-600 shadow" : "text-gray-500"}`}>Receita</button><button onClick={() => setPreviewLancamento(prev => prev ? { ...prev, tipo: "despesa" } : prev)} className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${previewLancamento.tipo === "despesa" ? "bg-white text-rose-600 shadow" : "text-gray-500"}`}>Despesa</button></div></div>
+              <div className="grid gap-0.5"><span className="text-xs text-slate-400">Data</span><div className="relative group"><input type="date" value={previewLancamento.data} onChange={(e) => { const novaData = e.target.value; setDataSelecionada(novaData); setPreviewLancamento(prev => prev ? { ...prev, data: novaData } : prev); }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" /><div className="flex items-center justify-between rounded-xl bg-slate-50 px-2 py-1.5 border border-slate-200 group-hover:border-slate-300 transition-all"><span className="text-sm font-semibold text-slate-700">{new Date(previewLancamento.data).toLocaleDateString("pt-BR")}</span><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-slate-400 group-hover:text-slate-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></div></div></div>
+              <div className="grid gap-0.5"><span className="text-xs text-slate-400">Tipo</span><div className="flex bg-slate-100 rounded-xl p-0.5"><button onClick={() => setPreviewLancamento(prev => prev ? { ...prev, tipo: "receita" } : prev)} className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${previewLancamento.tipo === "receita" ? "bg-white text-emerald-600 shadow" : "text-slate-500"}`}>Receita</button><button onClick={() => setPreviewLancamento(prev => prev ? { ...prev, tipo: "despesa" } : prev)} className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${previewLancamento.tipo === "despesa" ? "bg-white text-rose-600 shadow" : "text-slate-500"}`}>Despesa</button></div></div>
             </div>
-            <div className="grid gap-0.5"><span className="text-xs text-gray-400">Categoria</span><select value={previewLancamento.categoria} onChange={(e) => setPreviewLancamento(prev => prev ? { ...prev, categoria: e.target.value } : prev)} className="rounded-xl bg-gray-100 p-2 text-sm">{(previewLancamento?.tipo === "receita" ? categoriasReceita : categoriasDespesa).map((cat) => (<option key={cat} value={cat}>{cat}</option>))}</select></div>
-            <div className="flex gap-2"><Input placeholder="Nova categoria" value={novaCategoriaInput} onChange={(e) => setNovaCategoriaInput(e.target.value)} className="rounded-xl bg-gray-50 p-2 text-sm" /><Button onClick={() => { const nova = novaCategoriaInput.trim().toLowerCase(); if (nova && !categoriasReceita.includes(nova) && !categoriasDespesa.includes(nova)) { setCategorias(prev => [...prev, { nome: nova, tipo: previewLancamento?.tipo || "despesa" }]); setNovaCategoriaInput(""); } }} className="px-3 bg-gray-900 hover:bg-gray-800 text-white text-sm">+</Button></div>
-            <div className="grid grid-cols-2 gap-2 pt-1"><Button variant="secondary" onClick={cancelarLancamentoPreview} className="rounded-xl font-semibold text-sm">Cancelar</Button><Button onClick={confirmarLancamentoPreview} className="rounded-xl font-semibold bg-gray-900 hover:bg-gray-800 text-sm">Confirmar</Button></div>
+            <div className="grid gap-0.5"><span className="text-xs text-slate-400">Categoria</span><select value={previewLancamento.categoria} onChange={(e) => setPreviewLancamento(prev => prev ? { ...prev, categoria: e.target.value } : prev)} className="rounded-xl bg-slate-200 p-2 text-sm">{(previewLancamento?.tipo === "receita" ? categoriasReceita : categoriasDespesa).map((cat) => (<option key={cat} value={cat}>{cat}</option>))}</select></div>
+            <div className="flex gap-2"><Input placeholder="Nova categoria" value={novaCategoriaInput} onChange={(e) => setNovaCategoriaInput(e.target.value)} className="rounded-xl bg-slate-50 p-2 text-sm" /><Button onClick={() => { const nova = novaCategoriaInput.trim().toLowerCase(); if (nova && !categoriasReceita.includes(nova) && !categoriasDespesa.includes(nova)) { setCategorias(prev => [...prev, { nome: nova, tipo: previewLancamento?.tipo || "despesa" }]); setNovaCategoriaInput(""); } }} className="px-3 bg-[#001f3f] hover:bg-[#0f2747] text-white text-sm">+</Button></div>
+            <div className="grid grid-cols-2 gap-2 pt-1"><Button variant="secondary" onClick={cancelarLancamentoPreview} className="rounded-xl font-semibold text-sm">Cancelar</Button><Button onClick={confirmarLancamentoPreview} className="rounded-xl font-semibold bg-[#001f3f] hover:bg-[#0f2747] text-sm">Confirmar</Button></div>
           </div>
         </div>
       )}
@@ -1113,10 +1115,10 @@ export default function AppFinanceiroCompleto() {
       <UserProfile isOpen={profileOpen} onClose={() => setProfileOpen(false)} onLogout={handleLogout} user={{ name: userName, email: user?.email || "usuario@email.com", photo: userPhoto, isPro: false }} contas={contas.filter(c => c.tipo === 'conta')} cartoes={cartoes} onDisconnectConta={desconectarConta} onDisconnectCartao={desconectarCartao} onOpenPremium={() => setPremiumOpen(true)} onOpenPrivacy={() => setPrivacyOpen(true)} onOpenDeleteAccount={() => setDeleteAccountModalOpen(true)} onUpdateName={(name) => setUserName(name)} />
 
       {privacyOpen && (
-        <div className="fixed inset-0 z-[270] bg-black/20 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-white/90 backdrop-blur-md rounded-2xl p-5 shadow-2xl overflow-y-auto max-h-[80vh] border border-gray-200/50">
-            <h3 className="text-lg font-bold mb-3 text-gray-900">Política de Privacidade</h3>
-            <div className="text-sm text-gray-600 space-y-2 text-left">
+        <div className="fixed inset-0 z-[270] bg-black/50 flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-white rounded-2xl p-5 shadow-2xl overflow-y-auto max-h-[80vh]">
+            <h3 className="text-lg font-bold mb-3">Política de Privacidade</h3>
+            <div className="text-sm text-slate-600 space-y-2 text-left">
               <p><strong>1. Coleta e Armazenamento de Dados</strong><br/>O aplicativo armazena informações financeiras fornecidas pelo usuário...</p>
             </div>
             <Button className="mt-4" onClick={() => setPrivacyOpen(false)}>Fechar</Button>
@@ -1125,15 +1127,15 @@ export default function AppFinanceiroCompleto() {
       )}
 
       {deleteAccountModalOpen && (
-        <div className="fixed inset-0 z-[280] bg-black/20 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-white/90 backdrop-blur-md rounded-2xl p-5 shadow-2xl space-y-3 border border-gray-200/50">
+        <div className="fixed inset-0 z-[280] bg-black/50 flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-white rounded-2xl p-5 shadow-2xl space-y-3">
             <h3 className="text-lg font-bold text-rose-600">Excluir conta permanentemente</h3>
-            <div className="text-sm text-gray-600 space-y-2">
+            <div className="text-sm text-slate-600 space-y-2">
               <p>Ao excluir sua conta, todos os dados armazenados no aplicativo serão removidos permanentemente deste dispositivo.</p>
               <p>Isso inclui:</p>
               <ul className="list-disc pl-5 space-y-0.5 text-sm"><li>Movimentações financeiras</li><li>Categorias</li><li>Contas e cartões</li><li>Metas e configurações</li></ul>
-              <p className="text-xs text-gray-500">Esta ação não pode ser desfeita.</p>
-              <p className="text-xs text-gray-400">Para suporte ou solicitações adicionais, entre em contato:<br /><strong>suporte@manin.app</strong></p>
+              <p className="text-xs text-slate-500">Esta ação não pode ser desfeita.</p>
+              <p className="text-xs text-slate-400">Para suporte ou solicitações adicionais, entre em contato:<br /><strong>suporte@manin.app</strong></p>
             </div>
             <div className="grid grid-cols-2 gap-2 pt-1">
               <Button variant="secondary" onClick={() => setDeleteAccountModalOpen(false)} className="flex-1 text-sm">Cancelar</Button>
