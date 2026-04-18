@@ -307,24 +307,24 @@ function FitaMetalicaElite({ gastoAtual, metaMensal, receitaAtual = 0 }) {
 }
 
 // =====================================================
-// GAUGE - AJUSTADO PARA CELULAR
+// GAUGE - AJUSTE FINAL CONTRA CORTES
 // =====================================================
 function TermometroGauge({ totalDespesas, totalReceitas, metaMensal }) {
   const percentualFinal = metaMensal > 0 ? Math.min((totalDespesas / metaMensal) * 100, 100) : 0;
   const anguloPonteiro = (percentualFinal - 50) * 1.8;
-  const width = 300, height = 140, strokeWidth = 8;
+  const width = 320, height = 150, strokeWidth = 8;
   const innerRadius = (width / 2) - strokeWidth - 6;
   const outerRadius = (width / 2) - 6;
   const arcGenerator = d3.arc().innerRadius(innerRadius).outerRadius(outerRadius).startAngle(-Math.PI / 2).endAngle(Math.PI / 2).cornerRadius(6);
   const arcPath = arcGenerator();
 
   return (
-    <div className="relative w-full min-h-[140px] flex justify-center items-center overflow-visible">
+    <div className="relative w-full min-h-[150px] flex justify-center items-center overflow-visible pr-1">
       <svg
         viewBox={`0 0 ${width} ${height}`}
         className="w-full h-full"
         preserveAspectRatio="xMidYMid meet"
-        style={{ width: "100%", height: "auto" }}
+        style={{ width: "100%", height: "auto", overflow: "visible" }}
       >
         <defs>
           <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
