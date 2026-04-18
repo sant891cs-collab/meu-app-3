@@ -324,7 +324,7 @@ function TermometroGauge({ totalDespesas, totalReceitas, metaMensal }) {
         viewBox={`0 0 ${width} ${height}`}
         className="w-full h-full"
         preserveAspectRatio="xMidYMid meet"
-        style={{ maxWidth: "100%", height: "auto" }}
+        style={{ width: "100%", height: "auto" }}
       >
         <defs>
           <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -928,21 +928,21 @@ export default function AppFinanceiroCompleto() {
             <CardContent className="p-3">
               <div className="text-base font-semibold mb-2">Meta de Gastos Mensal</div>
               
-              <div className="flex flex-row gap-3 items-stretch">
-                {/* Coluna do gráfico */}
-                <div className="flex-[6] rounded-2xl bg-slate-50 p-3 flex flex-col items-center justify-center overflow-visible">
+              <div className="flex flex-row gap-2 items-stretch">
+                {/* Coluna do gráfico - maior proporção */}
+                <div className="flex-[8] rounded-2xl bg-slate-50 p-2 flex flex-col items-center justify-center overflow-visible">
                   <TermometroGauge totalDespesas={totalDespesasMes} totalReceitas={totalEntradasMes} metaMensal={metaMensal} />
-                  <div className="mt-2 text-center">
-                    <div className="text-sm text-slate-500">Uso da meta</div>
-                    <div className="text-2xl font-semibold">{percentualMeta.toFixed(0)}%</div>
+                  <div className="mt-1 text-center">
+                    <div className="text-xs text-slate-500">Uso da meta</div>
+                    <div className="text-xl font-semibold">{percentualMeta.toFixed(0)}%</div>
                   </div>
-                  {percentualMeta >= 100 && <div className="text-red-600 font-medium mt-1 text-xs">Ultrapassou a meta!</div>}
-                  {percentualMeta >= 80 && percentualMeta < 100 && <div className="text-amber-600 font-medium mt-1 text-xs">Perto do limite.</div>}
+                  {percentualMeta >= 100 && <div className="text-red-600 font-medium mt-0.5 text-[10px]">Ultrapassou a meta!</div>}
+                  {percentualMeta >= 80 && percentualMeta < 100 && <div className="text-amber-600 font-medium mt-0.5 text-[10px]">Perto do limite.</div>}
                 </div>
 
-                {/* Coluna do formulário */}
-                <div className="flex-[4] rounded-2xl bg-slate-50 p-3 flex flex-col gap-2">
-                  <div className="text-xs text-slate-600">Valor máximo:</div>
+                {/* Coluna do formulário - menor proporção */}
+                <div className="flex-[3] rounded-2xl bg-slate-50 p-2 flex flex-col gap-1.5 min-w-[120px]">
+                  <div className="text-[10px] text-slate-600">Valor máximo:</div>
                   <Input
                     type="text"
                     inputMode="decimal"
@@ -955,11 +955,11 @@ export default function AppFinanceiroCompleto() {
                       const numeric = parseFloat(cleaned.replace(",", "."));
                       setMetaMensal(Number.isNaN(numeric) ? 0 : numeric);
                     }}
-                    className="rounded-xl bg-white px-2 py-2 font-bold text-center shadow-sm text-base"
-                    style={{ fontSize: "18px", height: "44px" }}
+                    className="rounded-xl bg-white px-2 py-1.5 font-bold text-center shadow-sm text-sm"
+                    style={{ fontSize: "16px", height: "40px" }}
                   />
                   <Button
-                    className="text-xs py-1.5"
+                    className="text-[10px] py-1"
                     onClick={async () => {
                       if (user?.id) {
                         await supabase.from('user_settings').upsert({ user_id: user.id, meta_mensal: metaMensal });
