@@ -23,8 +23,9 @@ const CardContent = ({ children, className }) => (
 );
 const Button = ({ children, onClick, className, variant }) => {
   let base = "px-3 py-1.5 rounded-2xl font-bold transition-all shadow-md text-sm backdrop-blur-md border border-white/50 ";
-  if (variant === "destructive") base += "bg-rose-500/80 hover:bg-rose-600/90 text-white ";
+  if (variant === "destructive") base += "bg-rose-400/70 hover:bg-rose-500/80 text-white ";
   else if (variant === "secondary") base += "bg-white/40 hover:bg-white/60 text-gray-800 ";
+  else if (variant === "success") base += "bg-emerald-400/70 hover:bg-emerald-500/80 text-white ";
   else base += "bg-white/40 hover:bg-white/60 text-gray-800 ";
   return <button onClick={onClick} className={base + (className || "")}>{children}</button>;
 };
@@ -414,7 +415,7 @@ function TelaInicialLogin({ onLogin }) {
 }
 
 // =====================================================
-// CHAT GEMINI (ESTILO "CRIAR AGENTE")
+// CHAT GEMINI (BOTÃO CENTRALIZADO, PRETO VIDRO)
 // =====================================================
 function ChatGemini() {
   const [isOpen, setIsOpen] = useState(false);
@@ -510,10 +511,10 @@ function ChatGemini() {
 
   return (
     <>
-      {/* Botão flutuante estilo "Criar agente" */}
+      {/* Botão flutuante centralizado na parte inferior */}
       <button 
         onClick={() => setIsOpen(!isOpen)} 
-        className="fixed bottom-6 right-6 z-[300] px-5 py-3 rounded-full bg-white/30 backdrop-blur-md border border-white/40 text-gray-800 font-semibold shadow-xl flex items-center gap-2 active:scale-95 transition-transform"
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[300] px-6 py-3 rounded-full bg-white/30 backdrop-blur-md border border-white/40 text-gray-800 font-semibold shadow-xl flex items-center gap-2 active:scale-95 transition-transform"
       >
         <Sparkles className="size-5" />
         <span className="text-sm">Manin AI</span>
@@ -529,13 +530,13 @@ function ChatGemini() {
         <motion.div 
           initial={{ opacity: 0, y: 20, scale: 0.95 }} 
           animate={{ opacity: 1, y: 0, scale: 1 }} 
-          className="fixed bottom-28 right-6 z-[300] w-[calc(100vw-48px)] max-w-[380px] bg-white/40 backdrop-blur-xl rounded-[32px] shadow-2xl border border-white/40 overflow-hidden flex flex-col" 
+          className="fixed bottom-28 left-1/2 -translate-x-1/2 z-[300] w-[calc(100vw-48px)] max-w-[380px] bg-white/40 backdrop-blur-xl rounded-[32px] shadow-2xl border border-white/40 overflow-hidden flex flex-col" 
           style={{ height: "520px" }}
         >
           {/* Header do chat */}
           <div className="bg-white/20 p-4 flex items-center justify-between border-b border-white/30">
             <div className="flex items-center gap-3">
-              <div className="size-10 bg-gradient-to-br from-blue-500/40 to-purple-500/40 rounded-full flex items-center justify-center border border-white/40">
+              <div className="size-10 bg-gradient-to-br from-gray-600/40 to-gray-800/40 rounded-full flex items-center justify-center border border-white/40">
                 <Sparkles className="text-white size-5" />
               </div>
               <div>
@@ -555,7 +556,7 @@ function ChatGemini() {
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {mensagens.length === 0 && (
               <div className="flex-1 flex flex-col justify-center items-center text-center px-4 h-full">
-                <div className="size-16 bg-gradient-to-br from-blue-400/30 to-purple-400/30 rounded-full flex items-center justify-center mb-3 border border-white/40">
+                <div className="size-16 bg-gradient-to-br from-gray-400/30 to-gray-600/30 rounded-full flex items-center justify-center mb-3 border border-white/40">
                   <Sparkles className="text-gray-700 size-8" />
                 </div>
                 <div className="text-gray-800 font-semibold text-lg">Olá! 👋</div>
@@ -709,7 +710,7 @@ function ChatGemini() {
             </div>
             <button 
               onClick={handleSend} 
-              className="bg-gradient-to-br from-blue-500/60 to-purple-500/60 text-white p-2 rounded-full active:scale-90 transition-transform hover:from-blue-500/80 hover:to-purple-500/80 border border-white/40 shadow-md"
+              className="bg-gray-800/60 backdrop-blur-md text-white p-2 rounded-full active:scale-90 transition-transform hover:bg-gray-900/70 border border-white/40 shadow-md"
             >
               <ArrowLeft className="rotate-180 size-5" />
             </button>
@@ -1141,10 +1142,10 @@ export default function AppFinanceiroCompleto() {
                 />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <Button onClick={() => registrarMovimentoManual("receita")} className="bg-emerald-500/80 hover:bg-emerald-600/90 text-white shadow-md">
+                <Button variant="success" onClick={() => registrarMovimentoManual("receita")} className="shadow-md">
                   Adicionar Receita
                 </Button>
-                <Button onClick={() => registrarMovimentoManual("despesa")} className="bg-rose-500/80 hover:bg-rose-600/90 text-white shadow-md">
+                <Button variant="destructive" onClick={() => registrarMovimentoManual("despesa")} className="shadow-md">
                   Adicionar Despesa
                 </Button>
               </div>
