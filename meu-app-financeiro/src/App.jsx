@@ -1152,13 +1152,14 @@ export default function AppFinanceiroCompleto() {
             </div>
           </div>
 
-          {/* Barra de abas vidro claro */}
+          {/* Barra de abas vidro claro - agora com 6 abas */}
           <div className="flex overflow-x-auto whitespace-nowrap gap-1 rounded-2xl bg-white/40 backdrop-blur-md border border-white/40 p-1.5 shadow-lg">
             <button onClick={() => setActiveTab("inicio")} className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-all ${activeTab === "inicio" ? "bg-white/80 shadow-md text-gray-800 border border-white" : "text-gray-700 hover:bg-white/60"}`}>Início</button>
             <button onClick={() => setActiveTab("movimentos")} className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-all ${activeTab === "movimentos" ? "bg-white/80 shadow-md text-gray-800 border border-white" : "text-gray-700 hover:bg-white/60"}`}>Movimentos</button>
             <button onClick={() => setActiveTab("fixos")} className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-all ${activeTab === "fixos" ? "bg-white/80 shadow-md text-gray-800 border border-white" : "text-gray-700 hover:bg-white/60"}`}>Fixos</button>
             <button onClick={() => setActiveTab("analises")} className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-all ${activeTab === "analises" ? "bg-white/80 shadow-md text-gray-800 border border-white" : "text-gray-700 hover:bg-white/60"}`}>Análises</button>
             <button onClick={() => setActiveTab("meta")} className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-all ${activeTab === "meta" ? "bg-white/80 shadow-md text-gray-800 border border-white" : "text-gray-700 hover:bg-white/60"}`}>Meta</button>
+            <button onClick={() => setActiveTab("conexoes")} className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-all ${activeTab === "conexoes" ? "bg-white/80 shadow-md text-gray-800 border border-white" : "text-gray-700 hover:bg-white/60"}`}>Conexões</button>
           </div>
         </div>
       </div>
@@ -1344,6 +1345,51 @@ export default function AppFinanceiroCompleto() {
                 </AreaChart>
               </ResponsiveContainer>
               <div className="text-xs text-gray-700">Total no período: <strong>{formatCurrency(totalAnaliseEspecial)}</strong> • Quantidade: <strong>{quantidadeAnaliseEspecial}</strong></div>
+            </CardContent>
+          </Card>
+        )}
+
+        {activeTab === "conexoes" && (
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-base font-semibold text-gray-800">Conexões</h3>
+                <Button className="!bg-white/60 !text-gray-800 text-xs px-3 py-1">+ Conectar</Button>
+              </div>
+              <p className="text-xs text-gray-600 mb-4">Monitore seus bancos conectados e veja as movimentações detectadas.</p>
+              
+              {/* Lista de bancos conectados (mock) */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-white/30 backdrop-blur-md border border-white/40">
+                  <div className="size-10 rounded-full bg-purple-500/30 flex items-center justify-center text-purple-700 font-bold text-lg border border-white/40">N</div>
+                  <div className="flex-1">
+                    <div className="font-medium text-gray-800">Nubank</div>
+                    <div className="text-[10px] text-gray-600">3 movimentações • Total: R$ 127,80</div>
+                  </div>
+                  <ArrowLeft className="rotate-180 size-4 text-gray-500" />
+                </div>
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-white/30 backdrop-blur-md border border-white/40">
+                  <div className="size-10 rounded-full bg-orange-500/30 flex items-center justify-center text-orange-700 font-bold text-lg border border-white/40">I</div>
+                  <div className="flex-1">
+                    <div className="font-medium text-gray-800">Itaú</div>
+                    <div className="text-[10px] text-gray-600">1 movimentação • Total: R$ 42,50</div>
+                  </div>
+                  <ArrowLeft className="rotate-180 size-4 text-gray-500" />
+                </div>
+              </div>
+
+              {/* Sugestões */}
+              <div className="mt-5">
+                <h4 className="text-xs font-semibold text-gray-700 mb-2">Sugestões para conectar</h4>
+                <div className="flex flex-wrap gap-2">
+                  {["Bradesco", "Banco do Brasil", "Caixa", "Inter", "C6", "Santander"].map((banco) => (
+                    <button key={banco} className="px-3 py-1.5 rounded-full bg-white/40 backdrop-blur-md border border-white/40 text-xs text-gray-800 hover:bg-white/60 transition-colors">
+                      {banco}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <p className="text-[10px] text-gray-500 mt-4 text-center">Em breve: Open Finance e notificações automáticas.</p>
             </CardContent>
           </Card>
         )}
