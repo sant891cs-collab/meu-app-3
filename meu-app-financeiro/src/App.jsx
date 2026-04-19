@@ -841,8 +841,8 @@ export default function AppFinanceiroCompleto() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900">
-        <div className="text-white font-bold">Carregando...</div>
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-gray-600 font-bold">Carregando...</div>
       </div>
     );
   }
@@ -852,62 +852,66 @@ export default function AppFinanceiroCompleto() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-gray-900">
+    <div className="h-screen flex flex-col bg-white">
       <FitaMetalicaElite gastoAtual={totalDespesasMes} receitaAtual={totalEntradasMes} metaMensal={metaMensal} />
+      
+      {/* Botão de perfil com estilo vidro */}
       <div className="fixed top-4 left-4 z-[200]">
-        <button onClick={() => setProfileOpen(true)} className="size-10 rounded-full border-2 border-white/30 overflow-hidden bg-white/10 backdrop-blur-sm shadow-lg active:scale-90 transition-transform">
+        <button onClick={() => setProfileOpen(true)} className="size-10 rounded-full border border-white/60 bg-white/30 backdrop-blur-sm shadow-lg active:scale-90 transition-transform overflow-hidden">
           <img src={userPhoto} alt="Perfil" className="w-full h-full object-cover" />
         </button>
       </div>
 
-      {/* Área fixa superior - com efeito vidro */}
+      {/* Área fixa superior - fundo cinza claro com blur e borda brilhante */}
       <div className="flex-shrink-0 pt-14 px-3 sm:px-6 max-w-6xl mx-auto w-full">
-        {aviso && (
-          <div className="text-xs text-white/70 text-center rounded-full bg-black/20 backdrop-blur-sm px-3 py-1 border border-white/10 mb-2">
-            {aviso}
-          </div>
-        )}
-
-        {/* Card de entrada com blur */}
-        <div className="rounded-3xl bg-white/80 backdrop-blur-md shadow-xl border-0 overflow-hidden mb-3">
-          <div className="grid gap-2 p-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <Input
-                placeholder="Valor (R$)"
-                inputMode="numeric"
-                value={valorInput}
-                onChange={(e) => setValorInput(formatCurrencyInput(e.target.value))}
-                className="rounded-xl bg-white/50 backdrop-blur-sm border-gray-200/50 py-2 px-4 text-right font-semibold text-base placeholder:text-gray-400"
-              />
-              <Input
-                placeholder="Descrição do gasto"
-                value={descricaoInput}
-                onChange={(e) => setDescricaoInput(e.target.value)}
-                className="rounded-xl bg-white/50 backdrop-blur-sm border-gray-200/50 py-2 px-4 text-base font-semibold text-center shadow-sm placeholder:text-gray-400"
-              />
+        <div className="bg-gray-100/70 backdrop-blur-md rounded-3xl border border-white/50 shadow-lg p-3">
+          {aviso && (
+            <div className="text-xs text-gray-600 text-center rounded-full bg-white/50 backdrop-blur-sm px-3 py-1 border border-white/30 mb-2">
+              {aviso}
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <Button onClick={() => registrarMovimentoManual("receita")} className="bg-emerald-500/90 backdrop-blur-sm text-white hover:bg-emerald-600 shadow-md rounded-2xl py-2 text-sm font-semibold">
-                Adicionar Receita
-              </Button>
-              <Button onClick={() => registrarMovimentoManual("despesa")} className="bg-rose-500/90 backdrop-blur-sm text-white hover:bg-rose-600 shadow-md rounded-2xl py-2 text-sm font-semibold">
-                Adicionar Despesa
-              </Button>
+          )}
+
+          {/* Card de entrada com vidro */}
+          <div className="rounded-2xl bg-white/60 backdrop-blur-sm border border-white/50 shadow-md overflow-hidden mb-3">
+            <div className="grid gap-2 p-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <Input
+                  placeholder="Valor (R$)"
+                  inputMode="numeric"
+                  value={valorInput}
+                  onChange={(e) => setValorInput(formatCurrencyInput(e.target.value))}
+                  className="rounded-xl bg-white/70 backdrop-blur-sm border-gray-200/50 py-2 px-4 text-right font-semibold text-base placeholder:text-gray-400"
+                />
+                <Input
+                  placeholder="Descrição do gasto"
+                  value={descricaoInput}
+                  onChange={(e) => setDescricaoInput(e.target.value)}
+                  className="rounded-xl bg-white/70 backdrop-blur-sm border-gray-200/50 py-2 px-4 text-base font-semibold text-center shadow-sm placeholder:text-gray-400"
+                />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <Button onClick={() => registrarMovimentoManual("receita")} className="bg-emerald-500/90 backdrop-blur-sm text-white hover:bg-emerald-600 shadow-md rounded-2xl py-2 text-sm font-semibold border border-white/30">
+                  Adicionar Receita
+                </Button>
+                <Button onClick={() => registrarMovimentoManual("despesa")} className="bg-rose-500/90 backdrop-blur-sm text-white hover:bg-rose-600 shadow-md rounded-2xl py-2 text-sm font-semibold border border-white/30">
+                  Adicionar Despesa
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Barra de abas com blur */}
-        <div className="flex overflow-x-auto whitespace-nowrap gap-1 rounded-2xl bg-white/70 backdrop-blur-md p-1.5 shadow-lg mb-2">
-          <button onClick={() => setActiveTab("inicio")} className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-all ${activeTab === "inicio" ? "bg-white shadow-md text-gray-800" : "text-gray-700 hover:bg-white/40"}`}>Início</button>
-          <button onClick={() => setActiveTab("movimentos")} className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-all ${activeTab === "movimentos" ? "bg-white shadow-md text-gray-800" : "text-gray-700 hover:bg-white/40"}`}>Movimentos</button>
-          <button onClick={() => setActiveTab("fixos")} className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-all ${activeTab === "fixos" ? "bg-white shadow-md text-gray-800" : "text-gray-700 hover:bg-white/40"}`}>Fixos</button>
-          <button onClick={() => setActiveTab("analises")} className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-all ${activeTab === "analises" ? "bg-white shadow-md text-gray-800" : "text-gray-700 hover:bg-white/40"}`}>Análises</button>
-          <button onClick={() => setActiveTab("meta")} className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-all ${activeTab === "meta" ? "bg-white shadow-md text-gray-800" : "text-gray-700 hover:bg-white/40"}`}>Meta</button>
+          {/* Barra de abas com vidro */}
+          <div className="flex overflow-x-auto whitespace-nowrap gap-1 rounded-2xl bg-white/60 backdrop-blur-sm border border-white/50 p-1.5 shadow-md">
+            <button onClick={() => setActiveTab("inicio")} className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-all ${activeTab === "inicio" ? "bg-white shadow-md text-gray-800 border border-white/50" : "text-gray-700 hover:bg-white/40"}`}>Início</button>
+            <button onClick={() => setActiveTab("movimentos")} className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-all ${activeTab === "movimentos" ? "bg-white shadow-md text-gray-800 border border-white/50" : "text-gray-700 hover:bg-white/40"}`}>Movimentos</button>
+            <button onClick={() => setActiveTab("fixos")} className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-all ${activeTab === "fixos" ? "bg-white shadow-md text-gray-800 border border-white/50" : "text-gray-700 hover:bg-white/40"}`}>Fixos</button>
+            <button onClick={() => setActiveTab("analises")} className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-all ${activeTab === "analises" ? "bg-white shadow-md text-gray-800 border border-white/50" : "text-gray-700 hover:bg-white/40"}`}>Análises</button>
+            <button onClick={() => setActiveTab("meta")} className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-all ${activeTab === "meta" ? "bg-white shadow-md text-gray-800 border border-white/50" : "text-gray-700 hover:bg-white/40"}`}>Meta</button>
+          </div>
         </div>
       </div>
 
-      {/* Área rolável */}
+      {/* Área rolável - fundo branco */}
       <div className="flex-1 overflow-y-auto px-3 sm:px-6 max-w-6xl mx-auto w-full pb-4 pt-2">
         {activeTab === "inicio" && (
           <Card className="rounded-3xl border border-slate-200/70 bg-white shadow-[0_12px_30px_rgba(15,23,42,0.06)] overflow-hidden">
