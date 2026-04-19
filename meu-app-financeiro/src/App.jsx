@@ -11,10 +11,10 @@ import {
 import { supabase } from "./supabase";
 
 // =====================================================
-// COMPONENTES UI LOCAIS (ESTILO VIDRO CLARO)
+// COMPONENTES UI LOCAIS (VIDRO ACINZENTADO)
 // =====================================================
 const Card = ({ children, className }) => (
-  <div className={`rounded-3xl border border-white/80 bg-white/40 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.05)] overflow-hidden ${className || ""}`}>
+  <div className={`rounded-3xl border border-gray-200/60 bg-white/60 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.03)] overflow-hidden ${className || ""}`}>
     {children}
   </div>
 );
@@ -22,14 +22,14 @@ const CardContent = ({ children, className }) => (
   <div className={`p-3 ${className || ""}`}>{children}</div>
 );
 const Button = ({ children, onClick, className, variant }) => {
-  let base = "px-3 py-1.5 rounded-2xl font-bold transition-all shadow-md text-sm backdrop-blur-md border border-white/60 ";
-  if (variant === "destructive") base += "bg-rose-500/80 hover:bg-rose-600/90 text-white ";
-  else if (variant === "secondary") base += "bg-white/50 hover:bg-white/70 text-gray-800 ";
-  else base += "bg-white/50 hover:bg-white/70 text-gray-800 ";
+  let base = "px-3 py-1.5 rounded-2xl font-bold transition-all shadow-sm text-sm backdrop-blur-md border ";
+  if (variant === "destructive") base += "bg-rose-500/80 hover:bg-rose-600/90 text-white border-rose-300/50 ";
+  else if (variant === "secondary") base += "bg-white/60 hover:bg-white/80 text-gray-800 border-gray-200/60 ";
+  else base += "bg-white/60 hover:bg-white/80 text-gray-800 border-gray-200/60 ";
   return <button onClick={onClick} className={base + (className || "")}>{children}</button>;
 };
 const Input = (props) => (
-  <input {...props} className={`rounded-xl border border-white/60 bg-white/50 backdrop-blur-sm py-2 px-3 text-gray-800 placeholder:text-gray-500 ${props.className || ""}`} />
+  <input {...props} className={`rounded-xl border border-gray-200/60 bg-white/60 backdrop-blur-sm py-2 px-3 text-gray-800 placeholder:text-gray-400 ${props.className || ""}`} />
 );
 
 // =====================================================
@@ -151,7 +151,7 @@ function buildMonthlyCategorySeries(lancamentos, months) {
 }
 
 // =====================================================
-// PERFIL DO USUÁRIO (ESTILO VIDRO CLARO)
+// PERFIL DO USUÁRIO (VIDRO ACINZENTADO)
 // =====================================================
 function UserProfile({ isOpen, onClose, onLogout, user, contas, cartoes, onDisconnectConta, onDisconnectCartao, onOpenPremium, onOpenPrivacy, onOpenDeleteAccount, onUpdateName }) {
   const [editingName, setEditingName] = useState(false);
@@ -159,20 +159,20 @@ function UserProfile({ isOpen, onClose, onLogout, user, contas, cartoes, onDisco
   useEffect(() => { setTempName(user.name); }, [user.name, isOpen]);
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 z-[240] bg-black/20 backdrop-blur-md transition-opacity">
-      <motion.div initial={{ x: "-100%" }} animate={{ x: 0 }} className="absolute left-0 top-0 h-full w-full max-w-sm bg-white/30 backdrop-blur-xl border-r border-white/60 shadow-2xl overflow-y-auto flex flex-col">
-        <div className="relative h-48 bg-gradient-to-br from-white/40 via-white/20 to-white/40 p-6 text-gray-800 overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/30 rounded-full -mr-16 -mt-16 blur-2xl" />
+    <div className="fixed inset-0 z-[240] bg-black/10 backdrop-blur-md transition-opacity">
+      <motion.div initial={{ x: "-100%" }} animate={{ x: 0 }} className="absolute left-0 top-0 h-full w-full max-w-sm bg-white/40 backdrop-blur-xl border-r border-gray-200/50 shadow-2xl overflow-y-auto flex flex-col">
+        <div className="relative h-48 bg-gradient-to-br from-gray-100/60 via-white/40 to-gray-100/60 p-6 text-gray-800 overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gray-200/30 rounded-full -mr-16 -mt-16 blur-2xl" />
           <div className="flex items-center justify-between relative z-10">
-            <button onClick={onClose} className="p-2 hover:bg-white/40 rounded-full transition-colors"><ArrowLeft size={24} /></button>
+            <button onClick={onClose} className="p-2 hover:bg-white/60 rounded-full transition-colors"><ArrowLeft size={24} /></button>
             <div className="size-6" />
           </div>
           <div className="absolute top-full -translate-y-[105%] left-8 z-20">
             <div className="relative group">
-              <div className="size-24 rounded-[32px] bg-white/50 backdrop-blur-md p-1 shadow-xl rotate-3 group-hover:rotate-0 transition-transform duration-500 overflow-hidden border border-white/80">
+              <div className="size-24 rounded-[32px] bg-white/60 backdrop-blur-md p-1 shadow-xl rotate-3 group-hover:rotate-0 transition-transform duration-500 overflow-hidden border border-gray-200/60">
                 <img src={user.photo || DEFAULT_AVATAR} className="w-full h-full object-cover rounded-[28px]" alt="Avatar" />
               </div>
-              <label className="absolute -bottom-1 -right-1 bg-white/60 backdrop-blur-md text-gray-800 p-2 rounded-2xl cursor-pointer shadow-lg hover:scale-110 transition-transform border border-white/80">
+              <label className="absolute -bottom-1 -right-1 bg-white/70 backdrop-blur-md text-gray-800 p-2 rounded-2xl cursor-pointer shadow-lg hover:scale-110 transition-transform border border-gray-200/60">
                 <Sparkles size={12} />
                 <input type="file" className="hidden" accept="image/*" onChange={(e) => {
                   const file = e.target.files?.[0];
@@ -195,46 +195,46 @@ function UserProfile({ isOpen, onClose, onLogout, user, contas, cartoes, onDisco
             <div className="flex items-center gap-2 flex-wrap">
               {editingName ? (
                 <div className="flex items-center gap-2 w-full">
-                  <input value={tempName} onChange={(e) => setTempName(e.target.value)} className="flex-1 rounded-2xl border border-white/60 bg-white/60 backdrop-blur-md px-3 py-2 text-sm font-bold text-gray-800 outline-none focus:ring-2 focus:ring-white/50" />
-                  <button onClick={() => { onUpdateName(tempName.trim() || "Usuário"); setEditingName(false); }} className="rounded-2xl bg-white/60 backdrop-blur-md border border-white/80 px-3 py-2 text-xs font-black text-gray-800 shadow-sm">Salvar</button>
-                  <button onClick={() => { setTempName(user.name); setEditingName(false); }} className="rounded-2xl border border-white/60 bg-white/40 backdrop-blur-md px-3 py-2 text-xs font-bold text-gray-800">Cancelar</button>
+                  <input value={tempName} onChange={(e) => setTempName(e.target.value)} className="flex-1 rounded-2xl border border-gray-200/60 bg-white/60 backdrop-blur-md px-3 py-2 text-sm font-bold text-gray-800 outline-none focus:ring-2 focus:ring-gray-300/50" />
+                  <button onClick={() => { onUpdateName(tempName.trim() || "Usuário"); setEditingName(false); }} className="rounded-2xl bg-white/70 backdrop-blur-md border border-gray-200/60 px-3 py-2 text-xs font-black text-gray-800 shadow-sm">Salvar</button>
+                  <button onClick={() => { setTempName(user.name); setEditingName(false); }} className="rounded-2xl border border-gray-200/60 bg-white/50 backdrop-blur-md px-3 py-2 text-xs font-bold text-gray-800">Cancelar</button>
                 </div>
               ) : (
                 <h3 className="text-2xl font-black text-gray-800 tracking-tight truncate cursor-pointer hover:opacity-70" onClick={() => setEditingName(true)} title="Toque para editar nome">{user.name}</h3>
               )}
               {user.isPro && <Crown size={18} className="text-amber-600 fill-amber-600" />}
             </div>
-            <p className="text-xs font-bold text-gray-600 uppercase tracking-tighter">{user.email}</p>
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-tighter">{user.email}</p>
           </div>
-          <button onClick={onOpenPremium} className="w-full group relative bg-white/40 backdrop-blur-md border border-white/60 p-5 rounded-[28px] shadow-sm hover:shadow-md transition-all overflow-hidden">
+          <button onClick={onOpenPremium} className="w-full group relative bg-white/50 backdrop-blur-md border border-gray-200/60 p-5 rounded-[28px] shadow-sm hover:shadow-md transition-all overflow-hidden">
             <div className="absolute top-0 right-0 w-24 h-full bg-gradient-to-l from-amber-200/30 to-transparent opacity-50" />
             <div className="flex items-center gap-4 relative z-10">
-              <div className="size-12 bg-amber-200/50 rounded-2xl flex items-center justify-center text-amber-800 group-hover:rotate-12 transition-transform border border-amber-400/50"><Crown size={24} /></div>
-              <div className="text-left"><h4 className="font-black text-gray-800 text-sm uppercase">Upgrade para Pro</h4><p className="text-[10px] font-bold text-gray-600 uppercase">Acesso total ao Manin Intelligence</p></div>
+              <div className="size-12 bg-amber-200/50 rounded-2xl flex items-center justify-center text-amber-800 group-hover:rotate-12 transition-transform border border-amber-300/50"><Crown size={24} /></div>
+              <div className="text-left"><h4 className="font-black text-gray-800 text-sm uppercase">Upgrade para Pro</h4><p className="text-[10px] font-bold text-gray-500 uppercase">Acesso total ao Manin Intelligence</p></div>
             </div>
           </button>
           <div className="grid gap-2">
-            <p className="text-[10px] font-black text-gray-500 uppercase ml-2 tracking-widest">Configurações</p>
+            <p className="text-[10px] font-black text-gray-400 uppercase ml-2 tracking-widest">Configurações</p>
             <MenuButton icon={<Bell size={18} />} label="Notificações" />
             <MenuButton icon={<Shield size={18} />} label="Privacidade" onClick={onOpenPrivacy} />
-            <div className="h-px bg-white/40 my-2" />
-            <p className="text-[10px] font-black text-gray-500 uppercase ml-2 tracking-widest">Conexões</p>
+            <div className="h-px bg-gray-200/40 my-2" />
+            <p className="text-[10px] font-black text-gray-400 uppercase ml-2 tracking-widest">Conexões</p>
             {contas.length ? contas.map((c) => (
-              <div key={c.id} className="w-full rounded-2xl bg-white/40 backdrop-blur-md border border-white/60 p-4 shadow-sm flex items-center justify-between gap-3">
-                <div className="min-w-0"><div className="text-sm font-bold text-gray-800 truncate">{c.descricao}</div><div className="text-xs text-gray-600 truncate">{c.banco || "Sem banco"}</div></div>
+              <div key={c.id} className="w-full rounded-2xl bg-white/50 backdrop-blur-md border border-gray-200/60 p-4 shadow-sm flex items-center justify-between gap-3">
+                <div className="min-w-0"><div className="text-sm font-bold text-gray-800 truncate">{c.descricao}</div><div className="text-xs text-gray-500 truncate">{c.banco || "Sem banco"}</div></div>
                 <Button variant="destructive" onClick={() => onDisconnectConta(c.id)}>Desconectar</Button>
               </div>
             )) : (
-              <div className="rounded-2xl border border-dashed border-white/60 bg-white/30 backdrop-blur-md p-5 text-center text-xs text-gray-600">Espaço reservado para suas contas conectadas via Open Banking.</div>
+              <div className="rounded-2xl border border-dashed border-gray-200/60 bg-white/40 backdrop-blur-md p-5 text-center text-xs text-gray-500">Espaço reservado para suas contas conectadas via Open Banking.</div>
             )}
             {cartoes.length ? cartoes.map((cartao) => (
-              <div key={cartao.id} className="w-full rounded-2xl bg-white/40 backdrop-blur-md border border-white/60 p-4 shadow-sm flex items-center justify-between gap-3">
-                <div className="min-w-0"><div className="text-sm font-bold text-gray-800 truncate">{cartao.descricao}</div><div className="text-xs text-gray-600 truncate">Limite: R$ {cartao.limite.toFixed(2)}</div></div>
+              <div key={cartao.id} className="w-full rounded-2xl bg-white/50 backdrop-blur-md border border-gray-200/60 p-4 shadow-sm flex items-center justify-between gap-3">
+                <div className="min-w-0"><div className="text-sm font-bold text-gray-800 truncate">{cartao.descricao}</div><div className="text-xs text-gray-500 truncate">Limite: R$ {cartao.limite.toFixed(2)}</div></div>
                 <Button variant="destructive" onClick={() => onDisconnectCartao(cartao.id)}>Desconectar</Button>
               </div>
             )) : null}
-            <button onClick={onLogout} className="w-full p-4 bg-white/40 backdrop-blur-md text-rose-600 rounded-2xl flex items-center gap-3 font-bold text-sm shadow-sm border border-white/60 hover:bg-rose-100/50 transition-colors"><LogOut size={18} /> Sair da conta</button>
-            <button onClick={onOpenDeleteAccount} className="w-full p-4 bg-white/30 backdrop-blur-md text-gray-600 rounded-2xl flex items-center gap-3 font-medium text-sm shadow-sm border border-white/60 hover:bg-rose-100/50 hover:text-rose-600 hover:border-rose-300/50 transition-all opacity-80 hover:opacity-100"><Trash2 size={18} /> Excluir minha conta</button>
+            <button onClick={onLogout} className="w-full p-4 bg-white/50 backdrop-blur-md text-rose-600 rounded-2xl flex items-center gap-3 font-bold text-sm shadow-sm border border-gray-200/60 hover:bg-rose-100/50 transition-colors"><LogOut size={18} /> Sair da conta</button>
+            <button onClick={onOpenDeleteAccount} className="w-full p-4 bg-white/40 backdrop-blur-md text-gray-500 rounded-2xl flex items-center gap-3 font-medium text-sm shadow-sm border border-gray-200/60 hover:bg-rose-100/50 hover:text-rose-600 hover:border-rose-300/50 transition-all opacity-80 hover:opacity-100"><Trash2 size={18} /> Excluir minha conta</button>
           </div>
         </div>
       </motion.div>
@@ -244,7 +244,7 @@ function UserProfile({ isOpen, onClose, onLogout, user, contas, cartoes, onDisco
 
 function MenuButton({ icon, label, onClick }) {
   return (
-    <button onClick={onClick} className="w-full p-4 bg-white/40 backdrop-blur-md text-gray-800 rounded-2xl flex items-center justify-between font-bold text-sm shadow-sm border border-white/60 hover:bg-white/60 transition-all">
+    <button onClick={onClick} className="w-full p-4 bg-white/50 backdrop-blur-md text-gray-800 rounded-2xl flex items-center justify-between font-bold text-sm shadow-sm border border-gray-200/60 hover:bg-white/70 transition-all">
       <div className="flex items-center gap-3"><span className="opacity-80">{icon}</span>{label}</div>
       <ArrowLeft size={16} className="rotate-180 opacity-60" />
     </button>
@@ -257,18 +257,18 @@ function MenuButton({ icon, label, onClick }) {
 function PremiumModal({ isOpen, onClose, onContinue }) {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 z-[260] bg-black/20 backdrop-blur-md flex items-end md:items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white/50 backdrop-blur-xl border border-white/80 rounded-t-3xl md:rounded-3xl p-6 shadow-2xl">
+    <div className="fixed inset-0 z-[260] bg-black/10 backdrop-blur-md flex items-end md:items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white/60 backdrop-blur-xl border border-gray-200/60 rounded-t-3xl md:rounded-3xl p-6 shadow-2xl">
         <div className="flex items-start justify-between gap-4">
-          <div><div className="text-[10px] font-black uppercase text-gray-500 tracking-widest">Plano Premium</div><h3 className="text-2xl font-black text-gray-800">Desbloqueie tudo</h3></div>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-white/60 text-gray-800"><ArrowLeft size={20} /></button>
+          <div><div className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Plano Premium</div><h3 className="text-2xl font-black text-gray-800">Desbloqueie tudo</h3></div>
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-white/70 text-gray-800"><ArrowLeft size={20} /></button>
         </div>
-        <div className="mt-5 rounded-2xl bg-white/40 border border-white/60 p-4 space-y-3">
+        <div className="mt-5 rounded-2xl bg-white/40 border border-gray-200/60 p-4 space-y-3">
           <div className="text-sm font-semibold text-gray-800">O que fica desbloqueado:</div>
           <ul className="space-y-2 text-sm text-gray-700 list-disc pl-5"><li>Contas conectadas via Open Banking</li><li>Visão consolidada das transações</li><li>Relatórios e análises avançadas</li><li>Automação e alertas inteligentes</li></ul>
           <div className="text-xs text-gray-500">Cancele a qualquer momento.</div>
         </div>
-        <div className="mt-5 flex items-end justify-between gap-4"><div><div className="text-[10px] font-black uppercase text-gray-500">Valor</div><div className="text-3xl font-black text-gray-800">R$ 15,00</div><div className="text-xs text-gray-500">por mês</div></div></div>
+        <div className="mt-5 flex items-end justify-between gap-4"><div><div className="text-[10px] font-black uppercase text-gray-400">Valor</div><div className="text-3xl font-black text-gray-800">R$ 15,00</div><div className="text-xs text-gray-500">por mês</div></div></div>
         <div className="mt-5 grid grid-cols-1 gap-3"><Button onClick={onContinue}>Continuar</Button></div>
       </div>
     </div>
@@ -276,7 +276,7 @@ function PremiumModal({ isOpen, onClose, onContinue }) {
 }
 
 // =====================================================
-// FITA DE SOBREVIVÊNCIA (inalterada)
+// FITA DE SOBREVIVÊNCIA
 // =====================================================
 function FitaMetalicaElite({ gastoAtual, metaMensal, receitaAtual = 0 }) {
   const hoje = new Date();
@@ -297,17 +297,17 @@ function FitaMetalicaElite({ gastoAtual, metaMensal, receitaAtual = 0 }) {
     return "linear-gradient(to right, #22c55e 0%, #facc15 55%, #ef4444 85%, #991b1b 100%)";
   };
   return (
-    <div className="fixed top-0 left-0 w-full z-[100] h-[4px] bg-white/40 backdrop-blur-sm">
-      <div className="relative w-full h-full shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
+    <div className="fixed top-0 left-0 w-full z-[100] h-[4px] bg-gray-200/50 backdrop-blur-sm">
+      <div className="relative w-full h-full shadow-[0_2px_10px_rgba(0,0,0,0.05)]">
         <div className="h-full transition-all duration-1000 ease-in-out shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]" style={{ width: `${larguraBarra}%`, backgroundImage: getGradienteTermometro() }}><div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent opacity-50" /></div>
-        <div className="absolute top-0 h-full w-[1.5px] bg-gray-600 z-20 shadow-[0_0_12px_2px_rgba(0,0,0,0.2)]" style={{ left: `${percentualTempo}%` }} />
+        <div className="absolute top-0 h-full w-[1.5px] bg-gray-500 z-20 shadow-[0_0_12px_2px_rgba(0,0,0,0.1)]" style={{ left: `${percentualTempo}%` }} />
       </div>
     </div>
   );
 }
 
 // =====================================================
-// GAUGE - AJUSTADO PARA TEMA CLARO
+// GAUGE
 // =====================================================
 function TermometroGauge({ totalDespesas, totalReceitas, metaMensal }) {
   const percentualFinal = metaMensal > 0 ? Math.min((totalDespesas / metaMensal) * 100, 100) : 0;
@@ -360,14 +360,14 @@ function TermometroSobrevivencia({ gastoAtual, metaMensal }) {
     return "linear-gradient(to right, #2563eb 0%, #8b5cf6 55%, #a855f7 100%)";
   };
   return (
-    <div className="bg-white/40 backdrop-blur-md p-3 rounded-2xl shadow-sm border border-white/60 mt-3">
+    <div className="bg-white/50 backdrop-blur-md p-3 rounded-2xl shadow-sm border border-gray-200/60 mt-3">
       <div className="flex justify-between items-center mb-2">
         <h3 className="text-gray-800 font-semibold text-xs">Termômetro de sobrevivência</h3>
         <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${taNoSufoco ? "bg-rose-200/50 text-rose-700" : percentualGasto > 10 ? "bg-violet-200/50 text-violet-700" : "bg-blue-200/50 text-blue-700"}`}>{taNoSufoco ? "Situação crítica" : percentualGasto > 10 ? "Atenção" : "Estável"}</span>
       </div>
-      <div className="relative h-5 w-full bg-white/40 rounded-lg overflow-hidden border border-white/60"><div className="h-full transition-all duration-500" style={{ width: `${Math.min(percentualGasto, 100)}%`, backgroundImage: getTermometroGradient() }} /></div>
-      <div className="flex justify-between mt-1.5 text-[10px] text-gray-600"><span>Gasto atual</span><span>Hoje (dia {diaAtual})</span></div>
-      <div className="mt-2 text-[10px] text-gray-700">{taNoSufoco ? "Você está gastando mais rápido que o tempo do mês. Atenção no ritmo." : percentualGasto > 10 ? "Você já passou da faixa azul. Começa a ficar mais sério daqui pra frente." : "Ritmo de gastos dentro do esperado para o período."}</div>
+      <div className="relative h-5 w-full bg-gray-100/50 rounded-lg overflow-hidden border border-gray-200/60"><div className="h-full transition-all duration-500" style={{ width: `${Math.min(percentualGasto, 100)}%`, backgroundImage: getTermometroGradient() }} /></div>
+      <div className="flex justify-between mt-1.5 text-[10px] text-gray-500"><span>Gasto atual</span><span>Hoje (dia {diaAtual})</span></div>
+      <div className="mt-2 text-[10px] text-gray-600">{taNoSufoco ? "Você está gastando mais rápido que o tempo do mês. Atenção no ritmo." : percentualGasto > 10 ? "Você já passou da faixa azul. Começa a ficar mais sério daqui pra frente." : "Ritmo de gastos dentro do esperado para o período."}</div>
     </div>
   );
 }
@@ -377,8 +377,8 @@ function TermometroSobrevivencia({ gastoAtual, metaMensal }) {
 // =====================================================
 function TelaInicialLogin({ onLogin }) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-100 p-6 text-center">
-      <div className="w-full max-w-md rounded-[32px] bg-white/50 backdrop-blur-xl border border-white/80 p-8 shadow-[0_25px_70px_rgba(0,0,0,0.1)]">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100 p-6 text-center">
+      <div className="w-full max-w-md rounded-[32px] bg-white/60 backdrop-blur-xl border border-gray-200/60 p-8 shadow-[0_25px_70px_rgba(0,0,0,0.05)]">
         <div className="mx-auto mb-6 flex items-center justify-center">
           <img
             src="/manyn_logo.png"
@@ -391,16 +391,16 @@ function TelaInicialLogin({ onLogin }) {
           />
           <div
             style={{ display: "none" }}
-            className="items-center justify-center rounded-full bg-white/60 backdrop-blur-md px-6 py-4 border border-white/80"
+            className="items-center justify-center rounded-full bg-white/70 backdrop-blur-md px-6 py-4 border border-gray-200/60"
           >
             <span className="text-gray-800 text-2xl font-black lowercase tracking-tight">manyn</span>
           </div>
         </div>
         <h1 className="text-3xl font-black text-gray-800">Bem-vindo</h1>
         <p className="mt-3 text-sm text-gray-600 leading-relaxed">Seus dados são protegidos e você pode sair quando quiser.</p>
-        <div className="mt-2 text-[13px] font-extrabold text-gray-500 tracking-wide"><span className="font-extrabold text-gray-700">Open</span><span className="font-normal text-gray-500">Finance</span></div>
+        <div className="mt-2 text-[13px] font-extrabold text-gray-400 tracking-wide"><span className="font-extrabold text-gray-600">Open</span><span className="font-normal text-gray-400">Finance</span></div>
         <div className="mt-8 grid gap-4 w-full">
-          <Button onClick={onLogin} className="w-full bg-white/60 !text-gray-800 border border-white/80 hover:bg-white/80 font-bold rounded-2xl shadow-lg">
+          <Button onClick={onLogin} className="w-full bg-white/70 !text-gray-800 border border-gray-200/60 hover:bg-white/90 font-bold rounded-2xl shadow-md">
             <div className="flex items-center justify-center gap-3">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="w-5 h-5"><path fill="#EA4335" d="M24 9.5c3.54 0 6.69 1.22 9.18 3.61l6.85-6.85C35.9 2.36 30.4 0 24 0 14.64 0 6.46 5.48 2.69 13.44l7.98 6.2C12.52 13.09 17.76 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.63-.15-3.2-.43-4.71H24v9.02h12.68c-.55 2.96-2.23 5.47-4.75 7.15l7.29 5.67C43.98 37.73 46.5 31.64 46.5 24.5z"/><path fill="#FBBC05" d="M10.67 28.64a14.49 14.49 0 010-9.28l-7.98-6.2A23.93 23.93 0 000 24c0 3.9.94 7.58 2.69 10.84l7.98-6.2z"/><path fill="#34A853" d="M24 48c6.4 0 11.9-2.12 15.86-5.77l-7.29-5.67c-2.02 1.36-4.61 2.17-8.57 2.17-6.24 0-11.48-3.59-13.33-8.74l-7.98 6.2C6.46 42.52 14.64 48 24 48z"/></svg>
               <span>Continuar com Google</span>
@@ -414,7 +414,7 @@ function TelaInicialLogin({ onLogin }) {
 }
 
 // =====================================================
-// CHAT GEMINI (ESTILO VIDRO CLARO)
+// CHAT GEMINI (VIDRO ACINZENTADO)
 // =====================================================
 function ChatGemini() {
   const [isOpen, setIsOpen] = useState(false);
@@ -433,45 +433,45 @@ function ChatGemini() {
   function handleSend() { const trimmed = input.trim(); if (!trimmed && attachments.length === 0) return; const currentAttachments = attachments; setMensagens((prev) => [...prev, { id: `${Date.now()}`, role: "user", text: trimmed || "Anexo enviado", attachments: currentAttachments }]); setInput(""); setAttachments([]); setTimeout(() => { setMensagens((prev) => [...prev, { id: `bot-${Date.now()}`, role: "bot", text: "Entendido! Processando aqui... (Em breve vou integrar isso de verdade no seu banco de dados)." }]); }, 1000); }
   return (
     <>
-      <button onClick={() => setIsOpen(!isOpen)} className="fixed bottom-6 right-6 z-[300] size-14 rounded-full bg-white/60 backdrop-blur-md border border-white/80 text-gray-800 shadow-2xl flex items-center justify-center active:scale-90 transition-transform">{isOpen ? <ArrowLeft className="rotate-[-90deg]" /> : <Sparkles className="size-6" />}{!isOpen && <span className="absolute -top-2 -right-2 bg-rose-500/80 text-[10px] font-bold px-2 py-0.5 rounded-full animate-bounce text-white">AI</span>}</button>
+      <button onClick={() => setIsOpen(!isOpen)} className="fixed bottom-6 right-6 z-[300] size-14 rounded-full bg-white/70 backdrop-blur-md border border-gray-200/60 text-gray-800 shadow-2xl flex items-center justify-center active:scale-90 transition-transform">{isOpen ? <ArrowLeft className="rotate-[-90deg]" /> : <Sparkles className="size-6" />}{!isOpen && <span className="absolute -top-2 -right-2 bg-rose-500/80 text-[10px] font-bold px-2 py-0.5 rounded-full animate-bounce text-white">AI</span>}</button>
       <input ref={imageInputRef} type="file" accept="image/*" multiple className="hidden" onChange={(e) => { appendAttachments(e.currentTarget.files, "image"); e.currentTarget.value = ""; }} />
       <input ref={fileInputRef} type="file" accept="*/*" multiple className="hidden" onChange={(e) => { appendAttachments(e.currentTarget.files, "file"); e.currentTarget.value = ""; }} />
       {isOpen && (
-        <motion.div initial={{ opacity: 0, y: 20, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="fixed bottom-24 right-6 z-[300] w-[calc(100vw-48px)] max-w-[350px] bg-white/60 backdrop-blur-xl rounded-[28px] shadow-2xl border border-white/80 overflow-hidden flex flex-col" style={{ height: "450px" }}>
-          <div className="bg-white/40 p-4 flex items-center justify-center border-b border-white/60"><div className="size-8 bg-white/60 rounded-full flex items-center justify-center"><Sparkles className="text-gray-600 size-4" /></div></div>
+        <motion.div initial={{ opacity: 0, y: 20, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="fixed bottom-24 right-6 z-[300] w-[calc(100vw-48px)] max-w-[350px] bg-white/70 backdrop-blur-xl rounded-[28px] shadow-2xl border border-gray-200/60 overflow-hidden flex flex-col" style={{ height: "450px" }}>
+          <div className="bg-white/50 p-4 flex items-center justify-center border-b border-gray-200/60"><div className="size-8 bg-white/70 rounded-full flex items-center justify-center"><Sparkles className="text-gray-600 size-4" /></div></div>
           <div className="flex-1 overflow-y-auto p-4 space-y-4 flex flex-col">
             {mensagens.length === 0 && (<div className="flex-1 flex flex-col justify-center px-2"><div className="w-full text-left text-gray-800 font-bold" style={{ fontSize: "18px", lineHeight: "1.2" }}>Olá,</div><div className="w-full text-left text-gray-600 font-normal" style={{ fontSize: "20px", lineHeight: "1.4", marginTop: "4px" }}>Por onde começamos?</div></div>)}
             {mensagens.map((msg) => (
               <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                 {msg.role === "user" ? (
-                  <div className="max-w-[85%] rounded-2xl rounded-tr-none bg-white/60 backdrop-blur-md px-4 py-3 text-sm font-medium text-gray-800 shadow-sm border border-white/80">
+                  <div className="max-w-[85%] rounded-2xl rounded-tr-none bg-white/70 backdrop-blur-md px-4 py-3 text-sm font-medium text-gray-800 shadow-sm border border-gray-200/60">
                     <div>{msg.text}</div>
-                    {msg.attachments?.length ? (<div className="mt-3 space-y-2">{msg.attachments.map((att) => { if (att.kind === "image") return <div key={att.id} className="overflow-hidden rounded-xl border border-white/60 bg-white/40"><img src={att.url} alt={att.name} className="max-h-48 w-full object-cover" /><div className="px-3 py-2 text-[11px] text-gray-600 bg-white/40">{att.name}</div></div>; if (att.kind === "audio") return <div key={att.id} className="rounded-xl border border-white/60 bg-white/40 p-3"><div className="mb-2 flex items-center gap-2 text-xs text-gray-600"><Mic size={14} />{att.name}</div><audio controls src={att.url} className="w-full" /></div>; return <div key={att.id} className="rounded-xl border border-white/60 bg-white/40 p-3 flex items-center gap-2 text-xs text-gray-600"><Paperclip size={14} /><span className="truncate">{att.name}</span></div>; })}</div>) : null}
+                    {msg.attachments?.length ? (<div className="mt-3 space-y-2">{msg.attachments.map((att) => { if (att.kind === "image") return <div key={att.id} className="overflow-hidden rounded-xl border border-gray-200/60 bg-white/50"><img src={att.url} alt={att.name} className="max-h-48 w-full object-cover" /><div className="px-3 py-2 text-[11px] text-gray-600 bg-white/50">{att.name}</div></div>; if (att.kind === "audio") return <div key={att.id} className="rounded-xl border border-gray-200/60 bg-white/50 p-3"><div className="mb-2 flex items-center gap-2 text-xs text-gray-600"><Mic size={14} />{att.name}</div><audio controls src={att.url} className="w-full" /></div>; return <div key={att.id} className="rounded-xl border border-gray-200/60 bg-white/50 p-3 flex items-center gap-2 text-xs text-gray-600"><Paperclip size={14} /><span className="truncate">{att.name}</span></div>; })}</div>) : null}
                   </div>
                 ) : (
                   <div className="max-w-[85%] px-1 py-1 text-sm font-medium text-gray-800 leading-relaxed">
                     <div>{msg.text}</div>
-                    {msg.attachments?.length ? (<div className="mt-3 space-y-2">{msg.attachments.map((att) => { if (att.kind === "image") return <div key={att.id} className="overflow-hidden rounded-xl border border-white/60 bg-white/40"><img src={att.url} alt={att.name} className="max-h-48 w-full object-cover" /><div className="px-3 py-2 text-[11px] text-gray-600 bg-white/40">{att.name}</div></div>; if (att.kind === "audio") return <div key={att.id} className="rounded-xl border border-white/60 bg-white/40 p-3"><div className="mb-2 flex items-center gap-2 text-xs text-gray-600"><Mic size={14} />{att.name}</div><audio controls src={att.url} className="w-full" /></div>; return <div key={att.id} className="rounded-xl border border-white/60 bg-white/40 p-3 flex items-center gap-2 text-xs text-gray-600"><Paperclip size={14} /><span className="truncate">{att.name}</span></div>; })}</div>) : null}
+                    {msg.attachments?.length ? (<div className="mt-3 space-y-2">{msg.attachments.map((att) => { if (att.kind === "image") return <div key={att.id} className="overflow-hidden rounded-xl border border-gray-200/60 bg-white/50"><img src={att.url} alt={att.name} className="max-h-48 w-full object-cover" /><div className="px-3 py-2 text-[11px] text-gray-600 bg-white/50">{att.name}</div></div>; if (att.kind === "audio") return <div key={att.id} className="rounded-xl border border-gray-200/60 bg-white/50 p-3"><div className="mb-2 flex items-center gap-2 text-xs text-gray-600"><Mic size={14} />{att.name}</div><audio controls src={att.url} className="w-full" /></div>; return <div key={att.id} className="rounded-xl border border-gray-200/60 bg-white/50 p-3 flex items-center gap-2 text-xs text-gray-600"><Paperclip size={14} /><span className="truncate">{att.name}</span></div>; })}</div>) : null}
                   </div>
                 )}
               </div>
             ))}
           </div>
-          {attachments.length > 0 && (<div className="px-4 pt-3 pb-2 flex flex-wrap gap-2 bg-white/40 border-t border-white/60">{attachments.map((att) => (<div key={att.id} className="relative">{att.kind === "image" ? (<img src={att.url} alt={att.name} className="h-16 w-16 rounded-2xl object-cover border border-white/80 shadow-sm" />) : (<div className="h-16 max-w-[180px] rounded-2xl border border-white/80 bg-white/50 px-3 py-2 shadow-sm flex items-center gap-2 text-xs text-gray-800">{att.kind === "audio" ? <Mic size={14} /> : <Paperclip size={14} />}<span className="truncate">{att.name}</span></div>)}<button onClick={() => removeAttachment(att.id)} className="absolute -top-2 -right-2 size-5 rounded-full bg-white/80 text-gray-800 flex items-center justify-center shadow border border-white"><X size={11} /></button></div>))}</div>)}
-          <div className="p-4 bg-white/40 border-t border-white/60 flex gap-2">
-            <div className="relative flex items-center"><button type="button" onClick={() => setMenuOpen((prev) => !prev)} className="size-10 rounded-full bg-white/60 text-gray-800 flex items-center justify-center hover:bg-white/80 transition-colors border border-white/80" title="Adicionar anexo"><span className="text-xl font-bold">+</span></button>{menuOpen && (<div className="absolute bottom-12 left-0 bg-white/80 backdrop-blur-xl border border-white rounded-2xl shadow-lg p-2 flex flex-col gap-2 z-50"><button type="button" onClick={async () => { try { const stream = await navigator.mediaDevices.getUserMedia({ video: true }); const track = stream.getVideoTracks()[0]; const imageCapture = new ImageCapture(track); const blob = await imageCapture.takePhoto(); const url = URL.createObjectURL(blob); const now = new Date(); setAttachments((prev) => [...prev, { id: `${Date.now()}-${Math.random().toString(36).slice(2)}`, kind: "image", name: `Foto ${now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`, url }]); track.stop(); setMenuOpen(false); } catch (err) { console.error(err); } }} className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white text-sm text-gray-800"><Camera size={16} /> Câmera</button><button type="button" onClick={() => { imageInputRef.current?.click(); setMenuOpen(false); }} className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white text-sm text-gray-800"><Image size={16} /> Galeria</button><button type="button" onClick={() => { fileInputRef.current?.click(); setMenuOpen(false); }} className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white text-sm text-gray-800"><Paperclip size={16} /> Arquivo</button></div>)}</div>
-            <div className="relative flex-1"><input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSend()} placeholder="Ex: Gastei 50 no mercado..." className="w-full bg-white/50 border border-white/80 rounded-full px-4 pr-12 py-2 text-sm text-gray-800 placeholder:text-gray-500 shadow-[0_6px_18px_rgba(0,0,0,0.05)] focus:outline-none focus:ring-0 focus:border-gray-300" /><button type="button" onClick={toggleRecording} className={`absolute right-2 top-1/2 -translate-y-1/2 size-8 rounded-full flex items-center justify-center transition-colors ${isRecording ? "bg-rose-500/80 text-white animate-pulse" : "bg-white/60 text-gray-800 hover:bg-white/80"} border border-white/80`} title={isRecording ? "Parar gravação" : "Gravar áudio"}>{isRecording ? <Square size={14} /> : <Mic size={16} />}</button></div>
-            <button onClick={handleSend} className="bg-white/60 text-gray-800 p-2 rounded-full active:scale-90 transition-transform hover:bg-white/80 border border-white/80"><ArrowLeft className="rotate-180 size-5" /></button>
+          {attachments.length > 0 && (<div className="px-4 pt-3 pb-2 flex flex-wrap gap-2 bg-white/50 border-t border-gray-200/60">{attachments.map((att) => (<div key={att.id} className="relative">{att.kind === "image" ? (<img src={att.url} alt={att.name} className="h-16 w-16 rounded-2xl object-cover border border-gray-200/60 shadow-sm" />) : (<div className="h-16 max-w-[180px] rounded-2xl border border-gray-200/60 bg-white/60 px-3 py-2 shadow-sm flex items-center gap-2 text-xs text-gray-800">{att.kind === "audio" ? <Mic size={14} /> : <Paperclip size={14} />}<span className="truncate">{att.name}</span></div>)}<button onClick={() => removeAttachment(att.id)} className="absolute -top-2 -right-2 size-5 rounded-full bg-white/90 text-gray-800 flex items-center justify-center shadow border border-gray-200"><X size={11} /></button></div>))}</div>)}
+          <div className="p-4 bg-white/50 border-t border-gray-200/60 flex gap-2">
+            <div className="relative flex items-center"><button type="button" onClick={() => setMenuOpen((prev) => !prev)} className="size-10 rounded-full bg-white/70 text-gray-800 flex items-center justify-center hover:bg-white/90 transition-colors border border-gray-200/60" title="Adicionar anexo"><span className="text-xl font-bold">+</span></button>{menuOpen && (<div className="absolute bottom-12 left-0 bg-white/90 backdrop-blur-xl border border-gray-200 rounded-2xl shadow-lg p-2 flex flex-col gap-2 z-50"><button type="button" onClick={async () => { try { const stream = await navigator.mediaDevices.getUserMedia({ video: true }); const track = stream.getVideoTracks()[0]; const imageCapture = new ImageCapture(track); const blob = await imageCapture.takePhoto(); const url = URL.createObjectURL(blob); const now = new Date(); setAttachments((prev) => [...prev, { id: `${Date.now()}-${Math.random().toString(36).slice(2)}`, kind: "image", name: `Foto ${now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`, url }]); track.stop(); setMenuOpen(false); } catch (err) { console.error(err); } }} className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white text-sm text-gray-800"><Camera size={16} /> Câmera</button><button type="button" onClick={() => { imageInputRef.current?.click(); setMenuOpen(false); }} className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white text-sm text-gray-800"><Image size={16} /> Galeria</button><button type="button" onClick={() => { fileInputRef.current?.click(); setMenuOpen(false); }} className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white text-sm text-gray-800"><Paperclip size={16} /> Arquivo</button></div>)}</div>
+            <div className="relative flex-1"><input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSend()} placeholder="Ex: Gastei 50 no mercado..." className="w-full bg-white/60 border border-gray-200/60 rounded-full px-4 pr-12 py-2 text-sm text-gray-800 placeholder:text-gray-400 shadow-[0_6px_18px_rgba(0,0,0,0.03)] focus:outline-none focus:ring-0 focus:border-gray-300" /><button type="button" onClick={toggleRecording} className={`absolute right-2 top-1/2 -translate-y-1/2 size-8 rounded-full flex items-center justify-center transition-colors ${isRecording ? "bg-rose-500/80 text-white animate-pulse" : "bg-white/70 text-gray-800 hover:bg-white/90"} border border-gray-200/60`} title={isRecording ? "Parar gravação" : "Gravar áudio"}>{isRecording ? <Square size={14} /> : <Mic size={16} />}</button></div>
+            <button onClick={handleSend} className="bg-white/70 text-gray-800 p-2 rounded-full active:scale-90 transition-transform hover:bg-white/90 border border-gray-200/60"><ArrowLeft className="rotate-180 size-5" /></button>
           </div>
         </motion.div>
       )}
-      {isOpen && <div className="fixed inset-0 z-[290] bg-black/10 backdrop-blur-[2px]" onClick={() => setIsOpen(false)} />}
+      {isOpen && <div className="fixed inset-0 z-[290] bg-black/5 backdrop-blur-[2px]" onClick={() => setIsOpen(false)} />}
     </>
   );
 }
 
 // =====================================================
-// COMPONENTE PRINCIPAL - TEMA VIDRO CLARO COMPLETO
+// COMPONENTE PRINCIPAL - TEMA VIDRO ACINZENTADO
 // =====================================================
 export default function AppFinanceiroCompleto() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -841,7 +841,7 @@ export default function AppFinanceiroCompleto() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-100">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100">
         <div className="text-gray-800 font-bold">Carregando...</div>
       </div>
     );
@@ -852,26 +852,26 @@ export default function AppFinanceiroCompleto() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-gray-50 via-white to-gray-100">
+    <div className="h-screen flex flex-col bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100">
       <FitaMetalicaElite gastoAtual={totalDespesasMes} receitaAtual={totalEntradasMes} metaMensal={metaMensal} />
       
       <div className="fixed top-4 left-4 z-[200]">
-        <button onClick={() => setProfileOpen(true)} className="size-10 rounded-full border border-white/80 bg-white/50 backdrop-blur-md shadow-lg active:scale-90 transition-transform overflow-hidden">
+        <button onClick={() => setProfileOpen(true)} className="size-10 rounded-full border border-gray-200/60 bg-white/60 backdrop-blur-md shadow-lg active:scale-90 transition-transform overflow-hidden">
           <img src={userPhoto} alt="Perfil" className="w-full h-full object-cover" />
         </button>
       </div>
 
-      {/* Header fixo com glass claro forte */}
+      {/* Header fixo com vidro acinzentado */}
       <div className="flex-shrink-0 pt-14 px-3 sm:px-6 max-w-6xl mx-auto w-full">
-        <div className="bg-white/30 backdrop-blur-xl rounded-3xl border border-white/80 shadow-2xl p-3">
+        <div className="bg-white/40 backdrop-blur-xl rounded-3xl border border-gray-200/60 shadow-2xl p-3">
           {aviso && (
-            <div className="text-xs text-gray-700 text-center rounded-full bg-white/50 backdrop-blur-md px-3 py-1 border border-white/80 mb-2">
+            <div className="text-xs text-gray-700 text-center rounded-full bg-white/60 backdrop-blur-md px-3 py-1 border border-gray-200/60 mb-2">
               {aviso}
             </div>
           )}
 
-          {/* Card de entrada vidro claro */}
-          <div className="rounded-2xl bg-white/50 backdrop-blur-md border border-white/80 shadow-lg overflow-hidden mb-3">
+          {/* Card de entrada */}
+          <div className="rounded-2xl bg-white/60 backdrop-blur-md border border-gray-200/60 shadow-lg overflow-hidden mb-3">
             <div className="grid gap-2 p-3">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <Input
@@ -899,27 +899,27 @@ export default function AppFinanceiroCompleto() {
             </div>
           </div>
 
-          {/* Barra de abas vidro claro */}
-          <div className="flex overflow-x-auto whitespace-nowrap gap-1 rounded-2xl bg-white/50 backdrop-blur-md border border-white/80 p-1.5 shadow-lg">
-            <button onClick={() => setActiveTab("inicio")} className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-all ${activeTab === "inicio" ? "bg-white/80 shadow-md text-gray-800 border border-white" : "text-gray-700 hover:bg-white/60"}`}>Início</button>
-            <button onClick={() => setActiveTab("movimentos")} className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-all ${activeTab === "movimentos" ? "bg-white/80 shadow-md text-gray-800 border border-white" : "text-gray-700 hover:bg-white/60"}`}>Movimentos</button>
-            <button onClick={() => setActiveTab("fixos")} className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-all ${activeTab === "fixos" ? "bg-white/80 shadow-md text-gray-800 border border-white" : "text-gray-700 hover:bg-white/60"}`}>Fixos</button>
-            <button onClick={() => setActiveTab("analises")} className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-all ${activeTab === "analises" ? "bg-white/80 shadow-md text-gray-800 border border-white" : "text-gray-700 hover:bg-white/60"}`}>Análises</button>
-            <button onClick={() => setActiveTab("meta")} className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-all ${activeTab === "meta" ? "bg-white/80 shadow-md text-gray-800 border border-white" : "text-gray-700 hover:bg-white/60"}`}>Meta</button>
+          {/* Barra de abas */}
+          <div className="flex overflow-x-auto whitespace-nowrap gap-1 rounded-2xl bg-white/60 backdrop-blur-md border border-gray-200/60 p-1.5 shadow-lg">
+            <button onClick={() => setActiveTab("inicio")} className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-all ${activeTab === "inicio" ? "bg-white/90 shadow-md text-gray-800 border border-gray-200" : "text-gray-700 hover:bg-white/70"}`}>Início</button>
+            <button onClick={() => setActiveTab("movimentos")} className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-all ${activeTab === "movimentos" ? "bg-white/90 shadow-md text-gray-800 border border-gray-200" : "text-gray-700 hover:bg-white/70"}`}>Movimentos</button>
+            <button onClick={() => setActiveTab("fixos")} className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-all ${activeTab === "fixos" ? "bg-white/90 shadow-md text-gray-800 border border-gray-200" : "text-gray-700 hover:bg-white/70"}`}>Fixos</button>
+            <button onClick={() => setActiveTab("analises")} className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-all ${activeTab === "analises" ? "bg-white/90 shadow-md text-gray-800 border border-gray-200" : "text-gray-700 hover:bg-white/70"}`}>Análises</button>
+            <button onClick={() => setActiveTab("meta")} className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-all ${activeTab === "meta" ? "bg-white/90 shadow-md text-gray-800 border border-gray-200" : "text-gray-700 hover:bg-white/70"}`}>Meta</button>
           </div>
         </div>
       </div>
 
-      {/* Área rolável - vidro claro nos cards */}
+      {/* Área rolável */}
       <div className="flex-1 overflow-y-auto px-3 sm:px-6 max-w-6xl mx-auto w-full pb-4 pt-2">
         {activeTab === "inicio" && (
           <Card>
             <CardContent className="p-3">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
-                <div className="rounded-2xl bg-white/40 backdrop-blur-md p-2 border border-white/60 shadow-sm"><div className="text-xs text-gray-600">Entradas do mês</div><div className="text-base font-semibold text-gray-800">{formatCurrency(totalEntradasMes)}</div></div>
-                <div className="rounded-2xl bg-white/40 backdrop-blur-md p-2 border border-white/60 shadow-sm"><div className="text-xs text-gray-600">Despesas do mês</div><div className="text-base font-semibold text-gray-800">{formatCurrency(totalDespesasMes)}</div></div>
-                <div className="rounded-2xl bg-white/40 backdrop-blur-md p-2 border border-white/60 shadow-sm"><div className="text-xs text-gray-600">Saldo do mês</div><div className="text-base font-semibold text-gray-800">{formatCurrency(saldoMes)}</div></div>
-                <div className="rounded-2xl bg-white/40 backdrop-blur-md p-2 border border-white/60 shadow-sm"><div className="text-xs text-gray-600">Meta de gastos</div><div className="text-base font-semibold text-gray-800">{formatCurrency(metaMensal)}</div><div className="text-[10px] mt-0.5 text-gray-500">Usado: {percentualMeta.toFixed(0)}%</div></div>
+                <div className="rounded-2xl bg-white/50 backdrop-blur-md p-2 border border-gray-200/60 shadow-sm"><div className="text-xs text-gray-600">Entradas do mês</div><div className="text-base font-semibold text-gray-800">{formatCurrency(totalEntradasMes)}</div></div>
+                <div className="rounded-2xl bg-white/50 backdrop-blur-md p-2 border border-gray-200/60 shadow-sm"><div className="text-xs text-gray-600">Despesas do mês</div><div className="text-base font-semibold text-gray-800">{formatCurrency(totalDespesasMes)}</div></div>
+                <div className="rounded-2xl bg-white/50 backdrop-blur-md p-2 border border-gray-200/60 shadow-sm"><div className="text-xs text-gray-600">Saldo do mês</div><div className="text-base font-semibold text-gray-800">{formatCurrency(saldoMes)}</div></div>
+                <div className="rounded-2xl bg-white/50 backdrop-blur-md p-2 border border-gray-200/60 shadow-sm"><div className="text-xs text-gray-600">Meta de gastos</div><div className="text-base font-semibold text-gray-800">{formatCurrency(metaMensal)}</div><div className="text-[10px] mt-0.5 text-gray-500">Usado: {percentualMeta.toFixed(0)}%</div></div>
               </div>
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
@@ -940,7 +940,7 @@ export default function AppFinanceiroCompleto() {
               <div className="text-base font-semibold mb-2 text-gray-800">Meta de Gastos Mensal</div>
               
               <div className="flex flex-row gap-2 items-stretch">
-                <div className="flex-[8] rounded-2xl bg-white/40 backdrop-blur-md border border-white/60 p-2 flex flex-col items-center justify-center overflow-visible">
+                <div className="flex-[8] rounded-2xl bg-white/50 backdrop-blur-md border border-gray-200/60 p-2 flex flex-col items-center justify-center overflow-visible">
                   <TermometroGauge totalDespesas={totalDespesasMes} totalReceitas={totalEntradasMes} metaMensal={metaMensal} />
                   <div className="mt-1 text-center">
                     <div className="text-xs text-gray-600">Uso da meta</div>
@@ -950,7 +950,7 @@ export default function AppFinanceiroCompleto() {
                   {percentualMeta >= 80 && percentualMeta < 100 && <div className="text-amber-600 font-medium mt-0.5 text-[10px]">Perto do limite.</div>}
                 </div>
 
-                <div className="flex-[3] rounded-2xl bg-white/40 backdrop-blur-md border border-white/60 p-2 flex flex-col gap-1.5 min-w-[120px]">
+                <div className="flex-[3] rounded-2xl bg-white/50 backdrop-blur-md border border-gray-200/60 p-2 flex flex-col gap-1.5 min-w-[120px]">
                   <div className="text-[10px] text-gray-600">Valor máximo:</div>
                   <Input
                     type="text"
@@ -1000,7 +1000,7 @@ export default function AppFinanceiroCompleto() {
                 <div key={data} className="grid gap-1.5">
                   <div className="text-xs font-bold text-gray-500 mt-1">{new Date(data).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })}</div>
                   {itens.map((l) => (
-                    <div key={l.id} className="rounded-xl bg-white/40 backdrop-blur-md border border-white/60 p-2 flex justify-between items-center">
+                    <div key={l.id} className="rounded-xl bg-white/50 backdrop-blur-md border border-gray-200/60 p-2 flex justify-between items-center">
                       <div>
                         <div className="flex items-center gap-1.5 font-medium text-sm text-gray-800">
                           <span className={`w-2.5 h-2.5 rounded-full ${l.tipo === "receita" ? "bg-emerald-500" : "bg-rose-500"}`} />
@@ -1038,7 +1038,7 @@ export default function AppFinanceiroCompleto() {
               <Button onClick={async () => { if (!gastoFixoNome || !gastoFixoValor || !gastoFixoDia) return; const userId = user?.id; if (!userId) return; const novo = { user_id: userId, nome: gastoFixoNome, valor: Number(gastoFixoValor.replace(",", ".")), dia_vencimento: Number(gastoFixoDia), dias_aviso: Number(gastoFixoAviso || 3), ativa: true, categoria: null }; const { data, error } = await supabase.from('fixed_expenses').insert([novo]).select(); if (!error && data) { setGastosFixos(prev => [...prev, data[0]]); setGastoFixoNome(""); setGastoFixoValor(""); setGastoFixoDia(""); setGastoFixoAviso("3"); setAviso("Despesa fixa cadastrada."); } }}>Adicionar despesa fixa</Button>
               <div className="grid gap-2">
                 {gastosFixos.map((g) => (
-                  <div key={g.id} className="rounded-xl bg-white/40 backdrop-blur-md border border-white/60 p-2 flex justify-between items-center">
+                  <div key={g.id} className="rounded-xl bg-white/50 backdrop-blur-md border border-gray-200/60 p-2 flex justify-between items-center">
                     <div>
                       <div className="font-medium text-sm text-gray-800">{g.nome}</div>
                       <div className="text-xs text-gray-600">{formatCurrency(g.valor)} • vence dia {g.dia_vencimento} • próximo: {calcularProximaData(g.dia_vencimento)} • aviso {g.dias_aviso} dias antes</div>
@@ -1057,20 +1057,20 @@ export default function AppFinanceiroCompleto() {
               <div className="grid md:grid-cols-3 gap-2 items-end">
                 <div className="grid gap-0.5">
                   <div className="text-[10px] text-gray-600">Tipo</div>
-                  <select value={tipoAnalise} onChange={(e) => setTipoAnalise(e.target.value)} className="rounded-xl bg-white/50 backdrop-blur-md border border-white/80 p-1.5 text-sm text-gray-800">
+                  <select value={tipoAnalise} onChange={(e) => setTipoAnalise(e.target.value)} className="rounded-xl bg-white/60 backdrop-blur-md border border-gray-200/60 p-1.5 text-sm text-gray-800">
                     <option value="despesa" className="bg-white">Despesas</option>
                     <option value="receita" className="bg-white">Receitas</option>
                   </select>
                 </div>
                 <div className="grid gap-0.5">
                   <div className="text-[10px] text-gray-600">Categoria</div>
-                  <select value={analiseSelecionada} onChange={(e) => { const valor = e.target.value; if (tipoAnalise === "receita") setAnaliseSelecionadaReceita(valor); else setAnaliseSelecionadaDespesa(valor); }} className="rounded-xl bg-white/50 backdrop-blur-md border border-white/80 p-1.5 text-sm text-gray-800">
+                  <select value={analiseSelecionada} onChange={(e) => { const valor = e.target.value; if (tipoAnalise === "receita") setAnaliseSelecionadaReceita(valor); else setAnaliseSelecionadaDespesa(valor); }} className="rounded-xl bg-white/60 backdrop-blur-md border border-gray-200/60 p-1.5 text-sm text-gray-800">
                     {(tipoAnalise === "receita" ? categoriasReceita : [...ANALISES_ESPECIAIS.map(a => a.id), ...categoriasDespesa]).map(op => <option key={op} value={op} className="bg-white">{op}</option>)}
                   </select>
                 </div>
                 <div className="grid gap-0.5">
                   <div className="text-[10px] text-gray-600">Período</div>
-                  <select value={periodoAnalise} onChange={(e) => setPeriodoAnalise(Number(e.target.value))} className="rounded-xl bg-white/50 backdrop-blur-md border border-white/80 p-1.5 text-sm text-gray-800">
+                  <select value={periodoAnalise} onChange={(e) => setPeriodoAnalise(Number(e.target.value))} className="rounded-xl bg-white/60 backdrop-blur-md border border-gray-200/60 p-1.5 text-sm text-gray-800">
                     <option value={1} className="bg-white">Mês atual</option>
                     <option value={2} className="bg-white">Últimos 2 meses</option>
                     <option value={3} className="bg-white">Últimos 3 meses</option>
@@ -1096,7 +1096,7 @@ export default function AppFinanceiroCompleto() {
         )}
 
         <div className="w-full text-center mt-3 pb-2">
-          <div className="inline-block bg-white/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/80 shadow-sm">
+          <div className="inline-block bg-white/50 backdrop-blur-md px-3 py-1 rounded-full border border-gray-200/60 shadow-sm">
             <span className="text-[10px] text-gray-600 tracking-wide font-bold">
               Segue em frente... a cada passo de confiança a luz aparece.
             </span>
@@ -1105,16 +1105,16 @@ export default function AppFinanceiroCompleto() {
       </div>
 
       {previewLancamento && (
-        <div className="fixed inset-0 bg-black/20 backdrop-blur-md flex items-center justify-center z-50">
-          <div className="bg-white/60 backdrop-blur-xl rounded-[32px] p-5 w-full max-w-md grid gap-3 shadow-2xl border border-white/80">
+        <div className="fixed inset-0 bg-black/10 backdrop-blur-md flex items-center justify-center z-50">
+          <div className="bg-white/70 backdrop-blur-xl rounded-[32px] p-5 w-full max-w-md grid gap-3 shadow-2xl border border-gray-200/60">
             <div className="flex items-center justify-between"><h2 className="text-base font-bold text-gray-800">Prévia do lançamento</h2><div className="text-[10px] font-semibold text-gray-500 uppercase">Revise antes de salvar</div></div>
-            <div className="flex items-center justify-between rounded-2xl bg-white/40 backdrop-blur-md px-3 py-3 border border-white/60"><span className="text-sm font-semibold text-gray-700">Valor do lançamento</span><Input inputMode="decimal" pattern="[0-9.,]*" value={formatCurrency(previewLancamento.valor)} onChange={(e) => setPreviewLancamento(prev => prev ? { ...prev, valor: parseCurrencyInput(e.target.value) } : prev)} className="w-24 border-none bg-transparent text-right text-lg font-bold focus:ring-0 text-gray-800" /></div>
-            <div className="flex items-center justify-between rounded-2xl bg-white/40 backdrop-blur-md px-3 py-2 border border-white/60"><span className="text-sm font-semibold text-gray-700">Descrição</span><Input value={previewLancamento.descricao} onChange={(e) => setPreviewLancamento(prev => prev ? { ...prev, descricao: e.target.value } : prev)} className="w-40 border-none bg-transparent text-right font-bold focus:ring-0 text-gray-800" /></div>
+            <div className="flex items-center justify-between rounded-2xl bg-white/50 backdrop-blur-md px-3 py-3 border border-gray-200/60"><span className="text-sm font-semibold text-gray-700">Valor do lançamento</span><Input inputMode="decimal" pattern="[0-9.,]*" value={formatCurrency(previewLancamento.valor)} onChange={(e) => setPreviewLancamento(prev => prev ? { ...prev, valor: parseCurrencyInput(e.target.value) } : prev)} className="w-24 border-none bg-transparent text-right text-lg font-bold focus:ring-0 text-gray-800" /></div>
+            <div className="flex items-center justify-between rounded-2xl bg-white/50 backdrop-blur-md px-3 py-2 border border-gray-200/60"><span className="text-sm font-semibold text-gray-700">Descrição</span><Input value={previewLancamento.descricao} onChange={(e) => setPreviewLancamento(prev => prev ? { ...prev, descricao: e.target.value } : prev)} className="w-40 border-none bg-transparent text-right font-bold focus:ring-0 text-gray-800" /></div>
             <div className="grid grid-cols-2 gap-2">
-              <div className="grid gap-0.5"><span className="text-xs text-gray-500">Data</span><div className="relative group"><input type="date" value={previewLancamento.data} onChange={(e) => { const novaData = e.target.value; setDataSelecionada(novaData); setPreviewLancamento(prev => prev ? { ...prev, data: novaData } : prev); }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" /><div className="flex items-center justify-between rounded-xl bg-white/40 backdrop-blur-md px-2 py-1.5 border border-white/60 group-hover:border-gray-300 transition-all"><span className="text-sm font-semibold text-gray-800">{new Date(previewLancamento.data).toLocaleDateString("pt-BR")}</span><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500 group-hover:text-gray-700 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></div></div></div>
-              <div className="grid gap-0.5"><span className="text-xs text-gray-500">Tipo</span><div className="flex bg-white/40 backdrop-blur-md rounded-xl p-0.5 border border-white/60"><button onClick={() => setPreviewLancamento(prev => prev ? { ...prev, tipo: "receita" } : prev)} className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${previewLancamento.tipo === "receita" ? "bg-white/80 text-gray-800 shadow" : "text-gray-600"}`}>Receita</button><button onClick={() => setPreviewLancamento(prev => prev ? { ...prev, tipo: "despesa" } : prev)} className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${previewLancamento.tipo === "despesa" ? "bg-white/80 text-gray-800 shadow" : "text-gray-600"}`}>Despesa</button></div></div>
+              <div className="grid gap-0.5"><span className="text-xs text-gray-500">Data</span><div className="relative group"><input type="date" value={previewLancamento.data} onChange={(e) => { const novaData = e.target.value; setDataSelecionada(novaData); setPreviewLancamento(prev => prev ? { ...prev, data: novaData } : prev); }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" /><div className="flex items-center justify-between rounded-xl bg-white/50 backdrop-blur-md px-2 py-1.5 border border-gray-200/60 group-hover:border-gray-300 transition-all"><span className="text-sm font-semibold text-gray-800">{new Date(previewLancamento.data).toLocaleDateString("pt-BR")}</span><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500 group-hover:text-gray-700 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></div></div></div>
+              <div className="grid gap-0.5"><span className="text-xs text-gray-500">Tipo</span><div className="flex bg-white/50 backdrop-blur-md rounded-xl p-0.5 border border-gray-200/60"><button onClick={() => setPreviewLancamento(prev => prev ? { ...prev, tipo: "receita" } : prev)} className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${previewLancamento.tipo === "receita" ? "bg-white/90 text-gray-800 shadow" : "text-gray-600"}`}>Receita</button><button onClick={() => setPreviewLancamento(prev => prev ? { ...prev, tipo: "despesa" } : prev)} className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${previewLancamento.tipo === "despesa" ? "bg-white/90 text-gray-800 shadow" : "text-gray-600"}`}>Despesa</button></div></div>
             </div>
-            <div className="grid gap-0.5"><span className="text-xs text-gray-500">Categoria</span><select value={previewLancamento.categoria} onChange={(e) => setPreviewLancamento(prev => prev ? { ...prev, categoria: e.target.value } : prev)} className="rounded-xl bg-white/40 backdrop-blur-md border border-white/60 p-2 text-sm text-gray-800">{(previewLancamento?.tipo === "receita" ? categoriasReceita : categoriasDespesa).map((cat) => (<option key={cat} value={cat} className="bg-white">{cat}</option>))}</select></div>
+            <div className="grid gap-0.5"><span className="text-xs text-gray-500">Categoria</span><select value={previewLancamento.categoria} onChange={(e) => setPreviewLancamento(prev => prev ? { ...prev, categoria: e.target.value } : prev)} className="rounded-xl bg-white/50 backdrop-blur-md border border-gray-200/60 p-2 text-sm text-gray-800">{(previewLancamento?.tipo === "receita" ? categoriasReceita : categoriasDespesa).map((cat) => (<option key={cat} value={cat} className="bg-white">{cat}</option>))}</select></div>
             <div className="flex gap-2"><Input placeholder="Nova categoria" value={novaCategoriaInput} onChange={(e) => setNovaCategoriaInput(e.target.value)} className="text-sm" /><Button onClick={() => { const nova = novaCategoriaInput.trim().toLowerCase(); if (nova && !categoriasReceita.includes(nova) && !categoriasDespesa.includes(nova)) { setCategorias(prev => [...prev, { nome: nova, tipo: previewLancamento?.tipo || "despesa" }]); setNovaCategoriaInput(""); } }} className="px-3 text-gray-800 text-sm">+</Button></div>
             <div className="grid grid-cols-2 gap-2 pt-1"><Button variant="secondary" onClick={cancelarLancamentoPreview} className="font-semibold text-sm">Cancelar</Button><Button onClick={confirmarLancamentoPreview} className="font-semibold text-sm">Confirmar</Button></div>
           </div>
@@ -1124,8 +1124,8 @@ export default function AppFinanceiroCompleto() {
       <UserProfile isOpen={profileOpen} onClose={() => setProfileOpen(false)} onLogout={handleLogout} user={{ name: userName, email: user?.email || "usuario@email.com", photo: userPhoto, isPro: false }} contas={contas.filter(c => c.tipo === 'conta')} cartoes={cartoes} onDisconnectConta={desconectarConta} onDisconnectCartao={desconectarCartao} onOpenPremium={() => setPremiumOpen(true)} onOpenPrivacy={() => setPrivacyOpen(true)} onOpenDeleteAccount={() => setDeleteAccountModalOpen(true)} onUpdateName={(name) => setUserName(name)} />
 
       {privacyOpen && (
-        <div className="fixed inset-0 z-[270] bg-black/20 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-white/60 backdrop-blur-xl border border-white/80 rounded-2xl p-5 shadow-2xl overflow-y-auto max-h-[80vh]">
+        <div className="fixed inset-0 z-[270] bg-black/10 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-white/70 backdrop-blur-xl border border-gray-200/60 rounded-2xl p-5 shadow-2xl overflow-y-auto max-h-[80vh]">
             <h3 className="text-lg font-bold mb-3 text-gray-800">Política de Privacidade</h3>
             <div className="text-sm text-gray-700 space-y-2 text-left">
               <p><strong>1. Coleta e Armazenamento de Dados</strong><br/>O aplicativo armazena informações financeiras fornecidas pelo usuário...</p>
@@ -1136,8 +1136,8 @@ export default function AppFinanceiroCompleto() {
       )}
 
       {deleteAccountModalOpen && (
-        <div className="fixed inset-0 z-[280] bg-black/20 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-white/60 backdrop-blur-xl border border-white/80 rounded-2xl p-5 shadow-2xl space-y-3">
+        <div className="fixed inset-0 z-[280] bg-black/10 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-white/70 backdrop-blur-xl border border-gray-200/60 rounded-2xl p-5 shadow-2xl space-y-3">
             <h3 className="text-lg font-bold text-rose-600">Excluir conta permanentemente</h3>
             <div className="text-sm text-gray-700 space-y-2">
               <p>Ao excluir sua conta, todos os dados armazenados no aplicativo serão removidos permanentemente deste dispositivo.</p>
