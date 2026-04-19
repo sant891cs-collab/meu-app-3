@@ -11,10 +11,10 @@ import {
 import { supabase } from "./supabase";
 
 // =====================================================
-// COMPONENTES UI LOCAIS - ESTILO GLASS REFINADO
+// COMPONENTES UI LOCAIS - ESTILO GLASS
 // =====================================================
 const Card = ({ children, className }) => (
-  <div className={`rounded-3xl border border-white/40 bg-white/50 backdrop-blur-lg shadow-[0_8px_20px_rgba(0,0,0,0.03)] overflow-hidden ${className || ""}`}>
+  <div className={`rounded-3xl border border-white/30 bg-white/40 backdrop-blur-md shadow-[0_8px_20px_rgba(0,0,0,0.03)] overflow-hidden ${className || ""}`}>
     {children}
   </div>
 );
@@ -24,12 +24,13 @@ const CardContent = ({ children, className }) => (
 const Button = ({ children, onClick, className, variant }) => {
   let base = "px-3 py-1.5 rounded-2xl font-medium transition-all shadow-sm text-sm ";
   if (variant === "destructive") base += "bg-rose-500/90 hover:bg-rose-600 text-white backdrop-blur-sm ";
-  else if (variant === "secondary") base += "bg-white/70 hover:bg-white/90 text-gray-700 backdrop-blur-sm border border-white/40 ";
+  else if (variant === "secondary") base += "bg-white/60 hover:bg-white/80 text-gray-700 backdrop-blur-sm border border-white/40 ";
+  else if (variant === "receita") base += "bg-emerald-500 hover:bg-emerald-600 text-white backdrop-blur-sm "; // NOVO: botão verde para receita
   else base += "bg-gray-800/90 hover:bg-gray-900 text-white backdrop-blur-sm ";
   return <button onClick={onClick} className={base + (className || "")}>{children}</button>;
 };
 const Input = (props) => (
-  <input {...props} className={`rounded-xl border border-white/50 bg-white/70 backdrop-blur-sm py-2 px-3 text-base text-gray-800 placeholder:text-gray-500 ${props.className || ""}`} />
+  <input {...props} className={`rounded-xl border border-white/40 bg-white/60 backdrop-blur-sm py-2 px-3 text-base text-gray-800 placeholder:text-gray-500 ${props.className || ""}`} />
 );
 
 // =====================================================
@@ -865,48 +866,50 @@ export default function AppFinanceiroCompleto() {
         </button>
       </div>
 
-      {/* Área fixa superior - COM MAIS BLUR E FUNDO CINZA CLARO */}
+      {/* Área fixa superior - AGORA COM GRADIENTE MAIS ESCURO E BACKDROP-BLUR DESTACADO */}
       <div className="flex-shrink-0 pt-14 px-3 sm:px-6 max-w-6xl mx-auto w-full relative z-10">
-        {aviso && (
-          <div className="text-xs text-gray-600 text-center rounded-full bg-white/60 backdrop-blur-md px-3 py-1 border border-white/40 mb-1">
-            {aviso}
+        <div className="bg-gradient-to-b from-gray-200/80 to-gray-100/80 backdrop-blur-md rounded-3xl p-3 mb-2 border border-white/30 shadow-md">
+          {aviso && (
+            <div className="text-xs text-gray-600 text-center rounded-full bg-white/40 backdrop-blur-sm px-3 py-1 border border-white/30 mb-2">
+              {aviso}
+            </div>
+          )}
+
+          <Card className="mb-2 border-white/20">
+            <CardContent className="grid gap-2 p-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <Input
+                  placeholder="Valor (R$)"
+                  inputMode="numeric"
+                  value={valorInput}
+                  onChange={(e) => setValorInput(formatCurrencyInput(e.target.value))}
+                  className="text-right font-semibold"
+                />
+                <Input
+                  placeholder="Descrição do gasto"
+                  value={descricaoInput}
+                  onChange={(e) => setDescricaoInput(e.target.value)}
+                  className="font-semibold text-center"
+                />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <Button variant="receita" onClick={() => registrarMovimentoManual("receita")}>
+                  Adicionar Receita
+                </Button>
+                <Button variant="destructive" onClick={() => registrarMovimentoManual("despesa")}>
+                  Adicionar Despesa
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="flex overflow-x-auto whitespace-nowrap gap-1 rounded-2xl bg-white/40 backdrop-blur-md p-1 shadow-sm border border-white/30">
+            <button onClick={() => setActiveTab("inicio")} className={`flex-shrink-0 px-3 py-1.5 rounded-xl font-medium text-sm transition-all ${activeTab === "inicio" ? "bg-white/70 shadow-sm text-gray-800" : "text-gray-600 hover:bg-white/40"}`}>Início</button>
+            <button onClick={() => setActiveTab("movimentos")} className={`flex-shrink-0 px-3 py-1.5 rounded-xl font-medium text-sm transition-all ${activeTab === "movimentos" ? "bg-white/70 shadow-sm text-gray-800" : "text-gray-600 hover:bg-white/40"}`}>Movimentos</button>
+            <button onClick={() => setActiveTab("fixos")} className={`flex-shrink-0 px-3 py-1.5 rounded-xl font-medium text-sm transition-all ${activeTab === "fixos" ? "bg-white/70 shadow-sm text-gray-800" : "text-gray-600 hover:bg-white/40"}`}>Fixos</button>
+            <button onClick={() => setActiveTab("analises")} className={`flex-shrink-0 px-3 py-1.5 rounded-xl font-medium text-sm transition-all ${activeTab === "analises" ? "bg-white/70 shadow-sm text-gray-800" : "text-gray-600 hover:bg-white/40"}`}>Análises</button>
+            <button onClick={() => setActiveTab("meta")} className={`flex-shrink-0 px-3 py-1.5 rounded-xl font-medium text-sm transition-all ${activeTab === "meta" ? "bg-white/70 shadow-sm text-gray-800" : "text-gray-600 hover:bg-white/40"}`}>Meta</button>
           </div>
-        )}
-
-        <Card className="mb-2 bg-white/60 backdrop-blur-lg border-white/40">
-          <CardContent className="grid gap-2 p-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <Input
-                placeholder="Valor (R$)"
-                inputMode="numeric"
-                value={valorInput}
-                onChange={(e) => setValorInput(formatCurrencyInput(e.target.value))}
-                className="text-right font-semibold bg-white/80"
-              />
-              <Input
-                placeholder="Descrição do gasto"
-                value={descricaoInput}
-                onChange={(e) => setDescricaoInput(e.target.value)}
-                className="font-semibold text-center bg-white/80"
-              />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <Button onClick={() => registrarMovimentoManual("receita")} className="!bg-emerald-500 hover:!bg-emerald-600 text-white shadow-md">
-                Adicionar Receita
-              </Button>
-              <Button onClick={() => registrarMovimentoManual("despesa")} className="bg-rose-500/90 hover:bg-rose-600 text-white">
-                Adicionar Despesa
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="flex overflow-x-auto whitespace-nowrap gap-1 rounded-2xl bg-white/60 backdrop-blur-lg p-1 shadow-sm mb-2 border border-white/40">
-          <button onClick={() => setActiveTab("inicio")} className={`flex-shrink-0 px-3 py-1.5 rounded-xl font-medium text-sm transition-all ${activeTab === "inicio" ? "bg-white/80 shadow-sm text-gray-800" : "text-gray-600 hover:bg-white/50"}`}>Início</button>
-          <button onClick={() => setActiveTab("movimentos")} className={`flex-shrink-0 px-3 py-1.5 rounded-xl font-medium text-sm transition-all ${activeTab === "movimentos" ? "bg-white/80 shadow-sm text-gray-800" : "text-gray-600 hover:bg-white/50"}`}>Movimentos</button>
-          <button onClick={() => setActiveTab("fixos")} className={`flex-shrink-0 px-3 py-1.5 rounded-xl font-medium text-sm transition-all ${activeTab === "fixos" ? "bg-white/80 shadow-sm text-gray-800" : "text-gray-600 hover:bg-white/50"}`}>Fixos</button>
-          <button onClick={() => setActiveTab("analises")} className={`flex-shrink-0 px-3 py-1.5 rounded-xl font-medium text-sm transition-all ${activeTab === "analises" ? "bg-white/80 shadow-sm text-gray-800" : "text-gray-600 hover:bg-white/50"}`}>Análises</button>
-          <button onClick={() => setActiveTab("meta")} className={`flex-shrink-0 px-3 py-1.5 rounded-xl font-medium text-sm transition-all ${activeTab === "meta" ? "bg-white/80 shadow-sm text-gray-800" : "text-gray-600 hover:bg-white/50"}`}>Meta</button>
         </div>
       </div>
 
@@ -916,10 +919,11 @@ export default function AppFinanceiroCompleto() {
           <Card>
             <CardContent className="p-3">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
-                <div className="rounded-2xl bg-white/40 backdrop-blur-sm p-2 border border-white/30 shadow-sm"><div className="text-xs text-gray-600">Entradas do mês</div><div className="text-base font-semibold text-gray-800">{formatCurrency(totalEntradasMes)}</div></div>
-                <div className="rounded-2xl bg-white/40 backdrop-blur-sm p-2 border border-white/30 shadow-sm"><div className="text-xs text-gray-600">Despesas do mês</div><div className="text-base font-semibold text-gray-800">{formatCurrency(totalDespesasMes)}</div></div>
-                <div className="rounded-2xl bg-white/40 backdrop-blur-sm p-2 border border-white/30 shadow-sm"><div className="text-xs text-gray-600">Saldo do mês</div><div className="text-base font-semibold text-gray-800">{formatCurrency(saldoMes)}</div></div>
-                <div className="rounded-2xl bg-white/40 backdrop-blur-sm p-2 border border-white/30 shadow-sm"><div className="text-xs text-gray-600">Meta de gastos</div><div className="text-base font-semibold text-gray-800">{formatCurrency(metaMensal)}</div><div className="text-[10px] mt-0.5 text-gray-500">Usado: {percentualMeta.toFixed(0)}%</div></div>
+                {/* Cards de resumo com cores diferentes e backdrop-blur destacado */}
+                <div className="rounded-2xl bg-emerald-50/70 backdrop-blur-sm p-2 border border-white/40 shadow-sm"><div className="text-xs text-gray-600">Entradas do mês</div><div className="text-base font-semibold text-gray-800">{formatCurrency(totalEntradasMes)}</div></div>
+                <div className="rounded-2xl bg-rose-50/70 backdrop-blur-sm p-2 border border-white/40 shadow-sm"><div className="text-xs text-gray-600">Despesas do mês</div><div className="text-base font-semibold text-gray-800">{formatCurrency(totalDespesasMes)}</div></div>
+                <div className="rounded-2xl bg-blue-50/70 backdrop-blur-sm p-2 border border-white/40 shadow-sm"><div className="text-xs text-gray-600">Saldo do mês</div><div className="text-base font-semibold text-gray-800">{formatCurrency(saldoMes)}</div></div>
+                <div className="rounded-2xl bg-amber-50/70 backdrop-blur-sm p-2 border border-white/40 shadow-sm"><div className="text-xs text-gray-600">Meta de gastos</div><div className="text-base font-semibold text-gray-800">{formatCurrency(metaMensal)}</div><div className="text-[10px] mt-0.5 text-gray-500">Usado: {percentualMeta.toFixed(0)}%</div></div>
               </div>
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart><Tooltip /><Legend /><Pie data={dadosPizza} dataKey="valor" nameKey="categoria" cx="50%" cy="50%" outerRadius={80} innerRadius={45} paddingAngle={3}>{dadosPizza.map((_, index) => { const cores = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4", "#84cc16", "#64748b"]; return <Cell key={index} fill={cores[index % cores.length]} />; })}</Pie></PieChart>
