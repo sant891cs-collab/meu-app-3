@@ -414,7 +414,7 @@ function TelaInicialLogin({ onLogin }) {
 }
 
 // =====================================================
-// CHAT GEMINI (CENTRALIZADO, ESTILO "MANIM")
+// CHAT GEMINI (MANIN AI) - CORRIGIDO CONFORME SOLICITADO
 // =====================================================
 function ChatGemini() {
   const [isOpen, setIsOpen] = useState(false);
@@ -510,10 +510,10 @@ function ChatGemini() {
 
   return (
     <>
-      {/* Botão flutuante apenas com ícone */}
+      {/* Botão flutuante centralizado na parte inferior, apenas ícone */}
       <button 
         onClick={() => setIsOpen(!isOpen)} 
-        className="fixed bottom-6 right-6 z-[300] size-14 rounded-full bg-white/30 backdrop-blur-md border border-white/40 text-gray-800 shadow-xl flex items-center justify-center active:scale-95 transition-transform"
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[300] size-14 rounded-full bg-white/30 backdrop-blur-md border border-white/40 text-gray-800 shadow-xl flex items-center justify-center active:scale-95 transition-transform"
       >
         <Sparkles className="size-6" />
         {!isOpen && (
@@ -536,7 +536,7 @@ function ChatGemini() {
               {/* Header do chat */}
               <div className="bg-white/20 p-4 flex items-center justify-between border-b border-white/30">
                 <div className="flex items-center gap-3">
-                  <div className="size-10 bg-gradient-to-br from-gray-500/40 to-gray-700/40 rounded-full flex items-center justify-center border border-white/40">
+                  <div className="size-10 bg-gradient-to-br from-blue-500/40 to-purple-500/40 rounded-full flex items-center justify-center border border-white/40">
                     <Sparkles className="text-white size-5" />
                   </div>
                   <div>
@@ -556,6 +556,9 @@ function ChatGemini() {
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {mensagens.length === 0 && (
                   <div className="flex-1 flex flex-col justify-center items-center text-center px-4 h-full">
+                    <div className="size-16 bg-gradient-to-br from-blue-400/30 to-purple-400/30 rounded-full flex items-center justify-center mb-3 border border-white/40">
+                      <Sparkles className="text-gray-700 size-8" />
+                    </div>
                     <div className="text-gray-800 font-semibold text-lg">Olá,</div>
                     <div className="text-gray-600 text-sm mt-1">Deixe-me te ajudar!</div>
                   </div>
@@ -707,7 +710,7 @@ function ChatGemini() {
                 </div>
                 <button 
                   onClick={handleSend} 
-                  className="bg-gray-800/60 backdrop-blur-md text-white p-2 rounded-full active:scale-90 transition-transform hover:bg-gray-900/80 border border-white/40 shadow-md"
+                  className="bg-black/40 backdrop-blur-md text-white p-2 rounded-full active:scale-90 transition-transform hover:bg-black/60 border border-white/40 shadow-md"
                 >
                   <ArrowLeft className="rotate-180 size-5" />
                 </button>
