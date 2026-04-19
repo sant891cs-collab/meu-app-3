@@ -23,9 +23,8 @@ const CardContent = ({ children, className }) => (
 );
 const Button = ({ children, onClick, className, variant }) => {
   let base = "px-3 py-1.5 rounded-2xl font-bold transition-all shadow-md text-sm backdrop-blur-md border border-white/50 ";
-  if (variant === "destructive") base += "bg-rose-400/70 hover:bg-rose-500/80 text-white ";
+  if (variant === "destructive") base += "bg-rose-500/80 hover:bg-rose-600/90 text-white ";
   else if (variant === "secondary") base += "bg-white/40 hover:bg-white/60 text-gray-800 ";
-  else if (variant === "success") base += "bg-emerald-400/70 hover:bg-emerald-500/80 text-white ";
   else base += "bg-white/40 hover:bg-white/60 text-gray-800 ";
   return <button onClick={onClick} className={base + (className || "")}>{children}</button>;
 };
@@ -415,7 +414,7 @@ function TelaInicialLogin({ onLogin }) {
 }
 
 // =====================================================
-// CHAT GEMINI (BOTÃO CENTRALIZADO, PRETO VIDRO)
+// CHAT GEMINI (CENTRALIZADO, ESTILO "MANIM")
 // =====================================================
 function ChatGemini() {
   const [isOpen, setIsOpen] = useState(false);
@@ -511,13 +510,12 @@ function ChatGemini() {
 
   return (
     <>
-      {/* Botão flutuante centralizado na parte inferior */}
+      {/* Botão flutuante apenas com ícone */}
       <button 
         onClick={() => setIsOpen(!isOpen)} 
-        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[300] px-6 py-3 rounded-full bg-white/30 backdrop-blur-md border border-white/40 text-gray-800 font-semibold shadow-xl flex items-center gap-2 active:scale-95 transition-transform"
+        className="fixed bottom-6 right-6 z-[300] size-14 rounded-full bg-white/30 backdrop-blur-md border border-white/40 text-gray-800 shadow-xl flex items-center justify-center active:scale-95 transition-transform"
       >
-        <Sparkles className="size-5" />
-        <span className="text-sm">Manin AI</span>
+        <Sparkles className="size-6" />
         {!isOpen && (
           <span className="absolute -top-1 -right-1 size-3 bg-rose-500 rounded-full animate-pulse border border-white" />
         )}
@@ -527,198 +525,197 @@ function ChatGemini() {
       <input ref={fileInputRef} type="file" accept="*/*" multiple className="hidden" onChange={(e) => { appendAttachments(e.currentTarget.files, "file"); e.currentTarget.value = ""; }} />
       
       {isOpen && (
-        <motion.div 
-          initial={{ opacity: 0, y: 20, scale: 0.95 }} 
-          animate={{ opacity: 1, y: 0, scale: 1 }} 
-          className="fixed bottom-28 left-1/2 -translate-x-1/2 z-[300] w-[calc(100vw-48px)] max-w-[380px] bg-white/40 backdrop-blur-xl rounded-[32px] shadow-2xl border border-white/40 overflow-hidden flex flex-col" 
-          style={{ height: "520px" }}
-        >
-          {/* Header do chat */}
-          <div className="bg-white/20 p-4 flex items-center justify-between border-b border-white/30">
-            <div className="flex items-center gap-3">
-              <div className="size-10 bg-gradient-to-br from-gray-600/40 to-gray-800/40 rounded-full flex items-center justify-center border border-white/40">
-                <Sparkles className="text-white size-5" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-800">Manin AI</h3>
-                <p className="text-[10px] text-gray-600">Assistente financeiro</p>
-              </div>
-            </div>
-            <button 
-              onClick={() => setIsOpen(false)} 
-              className="p-2 hover:bg-white/40 rounded-full transition-colors"
-            >
-              <X size={18} className="text-gray-700" />
-            </button>
-          </div>
-
-          {/* Área de mensagens */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {mensagens.length === 0 && (
-              <div className="flex-1 flex flex-col justify-center items-center text-center px-4 h-full">
-                <div className="size-16 bg-gradient-to-br from-gray-400/30 to-gray-600/30 rounded-full flex items-center justify-center mb-3 border border-white/40">
-                  <Sparkles className="text-gray-700 size-8" />
-                </div>
-                <div className="text-gray-800 font-semibold text-lg">Olá! 👋</div>
-                <div className="text-gray-600 text-sm mt-1">Pergunte sobre suas finanças, registre gastos ou peça análises.</div>
-              </div>
-            )}
-            {mensagens.map((msg) => (
-              <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                {msg.role === "user" ? (
-                  <div className="max-w-[85%] rounded-2xl rounded-tr-none bg-white/50 backdrop-blur-md px-4 py-3 text-sm font-medium text-gray-800 shadow-sm border border-white/40">
-                    <div>{msg.text}</div>
-                    {msg.attachments?.length ? (
-                      <div className="mt-3 space-y-2">
-                        {msg.attachments.map((att) => {
-                          if (att.kind === "image") return (
-                            <div key={att.id} className="overflow-hidden rounded-xl border border-white/30 bg-white/30">
-                              <img src={att.url} alt={att.name} className="max-h-48 w-full object-cover" />
-                              <div className="px-3 py-2 text-[11px] text-gray-600 bg-white/30">{att.name}</div>
-                            </div>
-                          );
-                          if (att.kind === "audio") return (
-                            <div key={att.id} className="rounded-xl border border-white/30 bg-white/30 p-3">
-                              <div className="mb-2 flex items-center gap-2 text-xs text-gray-600"><Mic size={14} />{att.name}</div>
-                              <audio controls src={att.url} className="w-full" />
-                            </div>
-                          );
-                          return (
-                            <div key={att.id} className="rounded-xl border border-white/30 bg-white/30 p-3 flex items-center gap-2 text-xs text-gray-600">
-                              <Paperclip size={14} /><span className="truncate">{att.name}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : null}
+        <>
+          <div className="fixed inset-0 z-[290] bg-black/10 backdrop-blur-[2px]" onClick={() => setIsOpen(false)} />
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }} 
+            animate={{ opacity: 1, scale: 1 }} 
+            className="fixed inset-0 z-[300] flex items-center justify-center p-4"
+          >
+            <div className="w-full max-w-[380px] bg-white/40 backdrop-blur-xl rounded-[32px] shadow-2xl border border-white/40 overflow-hidden flex flex-col" style={{ height: "520px" }}>
+              {/* Header do chat */}
+              <div className="bg-white/20 p-4 flex items-center justify-between border-b border-white/30">
+                <div className="flex items-center gap-3">
+                  <div className="size-10 bg-gradient-to-br from-gray-500/40 to-gray-700/40 rounded-full flex items-center justify-center border border-white/40">
+                    <Sparkles className="text-white size-5" />
                   </div>
-                ) : (
-                  <div className="max-w-[85%] px-1 py-1 text-sm font-medium text-gray-800 leading-relaxed">
-                    <div>{msg.text}</div>
-                    {msg.attachments?.length ? (
-                      <div className="mt-3 space-y-2">
-                        {msg.attachments.map((att) => {
-                          if (att.kind === "image") return (
-                            <div key={att.id} className="overflow-hidden rounded-xl border border-white/30 bg-white/30">
-                              <img src={att.url} alt={att.name} className="max-h-48 w-full object-cover" />
-                              <div className="px-3 py-2 text-[11px] text-gray-600 bg-white/30">{att.name}</div>
-                            </div>
-                          );
-                          if (att.kind === "audio") return (
-                            <div key={att.id} className="rounded-xl border border-white/30 bg-white/30 p-3">
-                              <div className="mb-2 flex items-center gap-2 text-xs text-gray-600"><Mic size={14} />{att.name}</div>
-                              <audio controls src={att.url} className="w-full" />
-                            </div>
-                          );
-                          return (
-                            <div key={att.id} className="rounded-xl border border-white/30 bg-white/30 p-3 flex items-center gap-2 text-xs text-gray-600">
-                              <Paperclip size={14} /><span className="truncate">{att.name}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : null}
+                  <div>
+                    <h3 className="font-semibold text-gray-800 lowercase">manim</h3>
+                    <p className="text-[10px] text-gray-600">assistente financeiro</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setIsOpen(false)} 
+                  className="p-2 hover:bg-white/40 rounded-full transition-colors"
+                >
+                  <X size={18} className="text-gray-700" />
+                </button>
+              </div>
+
+              {/* Área de mensagens */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                {mensagens.length === 0 && (
+                  <div className="flex-1 flex flex-col justify-center items-center text-center px-4 h-full">
+                    <div className="text-gray-800 font-semibold text-lg">Olá,</div>
+                    <div className="text-gray-600 text-sm mt-1">Deixe-me te ajudar!</div>
                   </div>
                 )}
+                {mensagens.map((msg) => (
+                  <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                    {msg.role === "user" ? (
+                      <div className="max-w-[85%] rounded-2xl rounded-tr-none bg-white/50 backdrop-blur-md px-4 py-3 text-sm font-medium text-gray-800 shadow-sm border border-white/40">
+                        <div>{msg.text}</div>
+                        {msg.attachments?.length ? (
+                          <div className="mt-3 space-y-2">
+                            {msg.attachments.map((att) => {
+                              if (att.kind === "image") return (
+                                <div key={att.id} className="overflow-hidden rounded-xl border border-white/30 bg-white/30">
+                                  <img src={att.url} alt={att.name} className="max-h-48 w-full object-cover" />
+                                  <div className="px-3 py-2 text-[11px] text-gray-600 bg-white/30">{att.name}</div>
+                                </div>
+                              );
+                              if (att.kind === "audio") return (
+                                <div key={att.id} className="rounded-xl border border-white/30 bg-white/30 p-3">
+                                  <div className="mb-2 flex items-center gap-2 text-xs text-gray-600"><Mic size={14} />{att.name}</div>
+                                  <audio controls src={att.url} className="w-full" />
+                                </div>
+                              );
+                              return (
+                                <div key={att.id} className="rounded-xl border border-white/30 bg-white/30 p-3 flex items-center gap-2 text-xs text-gray-600">
+                                  <Paperclip size={14} /><span className="truncate">{att.name}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ) : null}
+                      </div>
+                    ) : (
+                      <div className="max-w-[85%] px-1 py-1 text-sm font-medium text-gray-800 leading-relaxed">
+                        <div>{msg.text}</div>
+                        {msg.attachments?.length ? (
+                          <div className="mt-3 space-y-2">
+                            {msg.attachments.map((att) => {
+                              if (att.kind === "image") return (
+                                <div key={att.id} className="overflow-hidden rounded-xl border border-white/30 bg-white/30">
+                                  <img src={att.url} alt={att.name} className="max-h-48 w-full object-cover" />
+                                  <div className="px-3 py-2 text-[11px] text-gray-600 bg-white/30">{att.name}</div>
+                                </div>
+                              );
+                              if (att.kind === "audio") return (
+                                <div key={att.id} className="rounded-xl border border-white/30 bg-white/30 p-3">
+                                  <div className="mb-2 flex items-center gap-2 text-xs text-gray-600"><Mic size={14} />{att.name}</div>
+                                  <audio controls src={att.url} className="w-full" />
+                                </div>
+                              );
+                              return (
+                                <div key={att.id} className="rounded-xl border border-white/30 bg-white/30 p-3 flex items-center gap-2 text-xs text-gray-600">
+                                  <Paperclip size={14} /><span className="truncate">{att.name}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ) : null}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
 
-          {/* Preview de anexos */}
-          {attachments.length > 0 && (
-            <div className="px-4 pt-3 pb-2 flex flex-wrap gap-2 bg-white/20 border-t border-white/30">
-              {attachments.map((att) => (
-                <div key={att.id} className="relative">
-                  {att.kind === "image" ? (
-                    <img src={att.url} alt={att.name} className="h-16 w-16 rounded-2xl object-cover border border-white/40 shadow-sm" />
-                  ) : (
-                    <div className="h-16 max-w-[180px] rounded-2xl border border-white/40 bg-white/40 px-3 py-2 shadow-sm flex items-center gap-2 text-xs text-gray-800">
-                      {att.kind === "audio" ? <Mic size={14} /> : <Paperclip size={14} />}
-                      <span className="truncate">{att.name}</span>
+              {/* Preview de anexos */}
+              {attachments.length > 0 && (
+                <div className="px-4 pt-3 pb-2 flex flex-wrap gap-2 bg-white/20 border-t border-white/30">
+                  {attachments.map((att) => (
+                    <div key={att.id} className="relative">
+                      {att.kind === "image" ? (
+                        <img src={att.url} alt={att.name} className="h-16 w-16 rounded-2xl object-cover border border-white/40 shadow-sm" />
+                      ) : (
+                        <div className="h-16 max-w-[180px] rounded-2xl border border-white/40 bg-white/40 px-3 py-2 shadow-sm flex items-center gap-2 text-xs text-gray-800">
+                          {att.kind === "audio" ? <Mic size={14} /> : <Paperclip size={14} />}
+                          <span className="truncate">{att.name}</span>
+                        </div>
+                      )}
+                      <button onClick={() => removeAttachment(att.id)} className="absolute -top-2 -right-2 size-5 rounded-full bg-white/80 text-gray-800 flex items-center justify-center shadow border border-white">
+                        <X size={11} />
+                      </button>
                     </div>
-                  )}
-                  <button onClick={() => removeAttachment(att.id)} className="absolute -top-2 -right-2 size-5 rounded-full bg-white/80 text-gray-800 flex items-center justify-center shadow border border-white">
-                    <X size={11} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Barra de input */}
-          <div className="p-4 bg-white/20 border-t border-white/30 flex gap-2">
-            <div className="relative flex items-center">
-              <button 
-                type="button" 
-                onClick={() => setMenuOpen((prev) => !prev)} 
-                className="size-10 rounded-full bg-white/40 text-gray-700 flex items-center justify-center hover:bg-white/60 transition-colors border border-white/40" 
-                title="Adicionar anexo"
-              >
-                <span className="text-xl font-bold">+</span>
-              </button>
-              {menuOpen && (
-                <div className="absolute bottom-12 left-0 bg-white/70 backdrop-blur-xl border border-white rounded-2xl shadow-lg p-2 flex flex-col gap-2 z-50">
-                  <button type="button" onClick={async () => { 
-                    try { 
-                      const stream = await navigator.mediaDevices.getUserMedia({ video: true }); 
-                      const track = stream.getVideoTracks()[0]; 
-                      const imageCapture = new ImageCapture(track); 
-                      const blob = await imageCapture.takePhoto(); 
-                      const url = URL.createObjectURL(blob); 
-                      const now = new Date(); 
-                      setAttachments((prev) => [...prev, { 
-                        id: `${Date.now()}-${Math.random().toString(36).slice(2)}`, 
-                        kind: "image", 
-                        name: `Foto ${now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`, 
-                        url 
-                      }]); 
-                      track.stop(); 
-                      setMenuOpen(false); 
-                    } catch (err) { 
-                      console.error(err); 
-                    } 
-                  }} className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white text-sm text-gray-800">
-                    <Camera size={16} /> Câmera
-                  </button>
-                  <button type="button" onClick={() => { imageInputRef.current?.click(); setMenuOpen(false); }} className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white text-sm text-gray-800">
-                    <Image size={16} /> Galeria
-                  </button>
-                  <button type="button" onClick={() => { fileInputRef.current?.click(); setMenuOpen(false); }} className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white text-sm text-gray-800">
-                    <Paperclip size={16} /> Arquivo
-                  </button>
+                  ))}
                 </div>
               )}
+
+              {/* Barra de input */}
+              <div className="p-4 bg-white/20 border-t border-white/30 flex gap-2">
+                <div className="relative flex items-center">
+                  <button 
+                    type="button" 
+                    onClick={() => setMenuOpen((prev) => !prev)} 
+                    className="size-10 rounded-full bg-white/40 text-gray-700 flex items-center justify-center hover:bg-white/60 transition-colors border border-white/40" 
+                    title="Adicionar anexo"
+                  >
+                    <span className="text-xl font-bold">+</span>
+                  </button>
+                  {menuOpen && (
+                    <div className="absolute bottom-12 left-0 bg-white/70 backdrop-blur-xl border border-white rounded-2xl shadow-lg p-2 flex flex-col gap-2 z-50">
+                      <button type="button" onClick={async () => { 
+                        try { 
+                          const stream = await navigator.mediaDevices.getUserMedia({ video: true }); 
+                          const track = stream.getVideoTracks()[0]; 
+                          const imageCapture = new ImageCapture(track); 
+                          const blob = await imageCapture.takePhoto(); 
+                          const url = URL.createObjectURL(blob); 
+                          const now = new Date(); 
+                          setAttachments((prev) => [...prev, { 
+                            id: `${Date.now()}-${Math.random().toString(36).slice(2)}`, 
+                            kind: "image", 
+                            name: `Foto ${now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`, 
+                            url 
+                          }]); 
+                          track.stop(); 
+                          setMenuOpen(false); 
+                        } catch (err) { 
+                          console.error(err); 
+                        } 
+                      }} className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white text-sm text-gray-800">
+                        <Camera size={16} /> Câmera
+                      </button>
+                      <button type="button" onClick={() => { imageInputRef.current?.click(); setMenuOpen(false); }} className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white text-sm text-gray-800">
+                        <Image size={16} /> Galeria
+                      </button>
+                      <button type="button" onClick={() => { fileInputRef.current?.click(); setMenuOpen(false); }} className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white text-sm text-gray-800">
+                        <Paperclip size={16} /> Arquivo
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <div className="relative flex-1">
+                  <input 
+                    value={input} 
+                    onChange={(e) => setInput(e.target.value)} 
+                    onKeyDown={(e) => e.key === "Enter" && handleSend()} 
+                    placeholder="Pergunte algo..." 
+                    className="w-full bg-white/40 border border-white/40 rounded-full px-4 pr-12 py-2 text-sm text-gray-800 placeholder:text-gray-500 shadow-sm focus:outline-none focus:ring-1 focus:ring-white/60" 
+                  />
+                  <button 
+                    type="button" 
+                    onClick={toggleRecording} 
+                    className={`absolute right-2 top-1/2 -translate-y-1/2 size-8 rounded-full flex items-center justify-center transition-colors border border-white/40 ${
+                      isRecording ? "bg-rose-500/80 text-white animate-pulse" : "bg-white/40 text-gray-700 hover:bg-white/60"
+                    }`} 
+                    title={isRecording ? "Parar gravação" : "Gravar áudio"}
+                  >
+                    {isRecording ? <Square size={14} /> : <Mic size={16} />}
+                  </button>
+                </div>
+                <button 
+                  onClick={handleSend} 
+                  className="bg-gray-800/60 backdrop-blur-md text-white p-2 rounded-full active:scale-90 transition-transform hover:bg-gray-900/80 border border-white/40 shadow-md"
+                >
+                  <ArrowLeft className="rotate-180 size-5" />
+                </button>
+              </div>
             </div>
-            <div className="relative flex-1">
-              <input 
-                value={input} 
-                onChange={(e) => setInput(e.target.value)} 
-                onKeyDown={(e) => e.key === "Enter" && handleSend()} 
-                placeholder="Pergunte algo..." 
-                className="w-full bg-white/40 border border-white/40 rounded-full px-4 pr-12 py-2 text-sm text-gray-800 placeholder:text-gray-500 shadow-sm focus:outline-none focus:ring-1 focus:ring-white/60" 
-              />
-              <button 
-                type="button" 
-                onClick={toggleRecording} 
-                className={`absolute right-2 top-1/2 -translate-y-1/2 size-8 rounded-full flex items-center justify-center transition-colors border border-white/40 ${
-                  isRecording ? "bg-rose-500/80 text-white animate-pulse" : "bg-white/40 text-gray-700 hover:bg-white/60"
-                }`} 
-                title={isRecording ? "Parar gravação" : "Gravar áudio"}
-              >
-                {isRecording ? <Square size={14} /> : <Mic size={16} />}
-              </button>
-            </div>
-            <button 
-              onClick={handleSend} 
-              className="bg-gray-800/60 backdrop-blur-md text-white p-2 rounded-full active:scale-90 transition-transform hover:bg-gray-900/70 border border-white/40 shadow-md"
-            >
-              <ArrowLeft className="rotate-180 size-5" />
-            </button>
-          </div>
-        </motion.div>
+          </motion.div>
+        </>
       )}
-      
-      {isOpen && <div className="fixed inset-0 z-[290] bg-black/10 backdrop-blur-[2px]" onClick={() => setIsOpen(false)} />}
     </>
   );
 }
@@ -1142,10 +1139,10 @@ export default function AppFinanceiroCompleto() {
                 />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <Button variant="success" onClick={() => registrarMovimentoManual("receita")} className="shadow-md">
+                <Button onClick={() => registrarMovimentoManual("receita")} className="bg-emerald-500/80 hover:bg-emerald-600/90 text-white shadow-md">
                   Adicionar Receita
                 </Button>
-                <Button variant="destructive" onClick={() => registrarMovimentoManual("despesa")} className="shadow-md">
+                <Button onClick={() => registrarMovimentoManual("despesa")} className="bg-rose-500/80 hover:bg-rose-600/90 text-white shadow-md">
                   Adicionar Despesa
                 </Button>
               </div>
