@@ -29,7 +29,7 @@ const Button = ({ children, onClick, className, variant }) => {
   return <button onClick={onClick} className={base + (className || "")}>{children}</button>;
 };
 const Input = (props) => (
-  <input {...props} className={`rounded-xl border border-white/40 bg-white/40 backdrop-blur-sm py-2 px-3 text-gray-800 placeholder:text-gray-500 ${props.className || ""}`} />
+  <input {...props} className={`rounded-xl border border-white/40 bg-white/40 backdrop-blur-md py-2 px-3 text-gray-800 placeholder:text-gray-500 ${props.className || ""}`} />
 );
 
 // =====================================================
@@ -414,7 +414,7 @@ function TelaInicialLogin({ onLogin }) {
 }
 
 // =====================================================
-// CHAT GEMINI (MANIN AI) - CORRIGIDO CONFORME SOLICITADO
+// CHAT GEMINI (MANIN AI) - BOTÃO RETANGULAR COM BORDAS ARREDONDADAS (PILL)
 // =====================================================
 function ChatGemini() {
   const [isOpen, setIsOpen] = useState(false);
@@ -510,12 +510,12 @@ function ChatGemini() {
 
   return (
     <>
-      {/* Botão flutuante centralizado na parte inferior, apenas ícone */}
+      {/* Botão flutuante centralizado na parte inferior, retangular com cantos arredondados (pill), apenas ícone */}
       <button 
         onClick={() => setIsOpen(!isOpen)} 
-        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[300] size-14 rounded-full bg-white/30 backdrop-blur-md border border-white/40 text-gray-800 shadow-xl flex items-center justify-center active:scale-95 transition-transform"
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[300] px-5 py-3 rounded-full bg-white/30 backdrop-blur-md border border-white/40 text-gray-800 shadow-xl flex items-center justify-center active:scale-95 transition-transform"
       >
-        <Sparkles className="size-6" />
+        <Sparkles className="size-5" />
         {!isOpen && (
           <span className="absolute -top-1 -right-1 size-3 bg-rose-500 rounded-full animate-pulse border border-white" />
         )}
@@ -1142,10 +1142,16 @@ export default function AppFinanceiroCompleto() {
                 />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <Button onClick={() => registrarMovimentoManual("receita")} className="bg-emerald-500/80 hover:bg-emerald-600/90 text-white shadow-md">
+                <Button 
+                  onClick={() => registrarMovimentoManual("receita")} 
+                  className="!bg-emerald-400/50 hover:!bg-emerald-400/70 !text-white !border-white/50 shadow-md"
+                >
                   Adicionar Receita
                 </Button>
-                <Button onClick={() => registrarMovimentoManual("despesa")} className="bg-rose-500/80 hover:bg-rose-600/90 text-white shadow-md">
+                <Button 
+                  onClick={() => registrarMovimentoManual("despesa")} 
+                  className="!bg-rose-400/50 hover:!bg-rose-400/70 !text-white !border-white/50 shadow-md"
+                >
                   Adicionar Despesa
                 </Button>
               </div>
@@ -1354,42 +1360,166 @@ export default function AppFinanceiroCompleto() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-base font-semibold text-gray-800">Conexões</h3>
-                <Button className="!bg-white/60 !text-gray-800 text-xs px-3 py-1">+ Conectar</Button>
+                <Button 
+                  className="!bg-white/60 !text-gray-800 text-xs px-3 py-1"
+                  onClick={() => {
+                    setAviso("🔔 Escuta de notificações simulada ativada. As transações aparecerão abaixo.");
+                  }}
+                >
+                  + Conectar
+                </Button>
               </div>
-              <p className="text-xs text-gray-600 mb-4">Monitore seus bancos conectados e veja as movimentações detectadas.</p>
-              
-              {/* Lista de bancos conectados (mock) */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-white/30 backdrop-blur-md border border-white/40">
-                  <div className="size-10 rounded-full bg-purple-500/30 flex items-center justify-center text-purple-700 font-bold text-lg border border-white/40">N</div>
-                  <div className="flex-1">
-                    <div className="font-medium text-gray-800">Nubank</div>
-                    <div className="text-[10px] text-gray-600">3 movimentações • Total: R$ 127,80</div>
-                  </div>
-                  <ArrowLeft className="rotate-180 size-4 text-gray-500" />
-                </div>
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-white/30 backdrop-blur-md border border-white/40">
-                  <div className="size-10 rounded-full bg-orange-500/30 flex items-center justify-center text-orange-700 font-bold text-lg border border-white/40">I</div>
-                  <div className="flex-1">
-                    <div className="font-medium text-gray-800">Itaú</div>
-                    <div className="text-[10px] text-gray-600">1 movimentação • Total: R$ 42,50</div>
-                  </div>
-                  <ArrowLeft className="rotate-180 size-4 text-gray-500" />
-                </div>
+              <p className="text-xs text-gray-600 mb-4">
+                As notificações dos seus bancos são detectadas e organizadas aqui.
+              </p>
+
+              {/* Botão de simulação (apenas para demonstração) */}
+              <div className="mb-4 flex gap-2">
+                <Button 
+                  variant="secondary"
+                  className="text-xs !bg-white/40"
+                  onClick={() => {
+                    const exemplos = [
+                      { banco: "Nubank", descricao: "Compra aprovada no crédito", valor: 39.90, categoria: "compras" },
+                      { banco: "Itaú", descricao: "Débito automático NETFLIX", valor: 45.90, categoria: "assinatura" },
+                      { banco: "Nubank", descricao: "Pagamento recebido PIX", valor: 150.00, categoria: "renda" },
+                      { banco: "Bradesco", descricao: "Saque 24h", valor: 100.00, categoria: "outros" },
+                      { banco: "Inter", descricao: "Uber *UBER TRIP", valor: 22.50, categoria: "transporte" },
+                    ];
+                    const ex = exemplos[Math.floor(Math.random() * exemplos.length)];
+                    
+                    const novaTransacao = {
+                      id: `notif-${Date.now()}`,
+                      descricao: `${ex.banco}: ${ex.descricao}`,
+                      valor: ex.valor,
+                      tipo: ex.categoria === "renda" ? "receita" : "despesa",
+                      categoria: ex.categoria,
+                      natureza: "variavel",
+                      data: new Date().toISOString().slice(0, 10),
+                      conta_id: null,
+                      origem: "notificacao",
+                      banco: ex.banco,
+                    };
+                    
+                    setLancamentos(prev => [novaTransacao, ...prev]);
+                    setAviso(`📱 Notificação simulada: ${ex.banco} - ${formatCurrency(ex.valor)}`);
+                  }}
+                >
+                  📲 Simular notificação
+                </Button>
+                <Button 
+                  variant="secondary"
+                  className="text-xs !bg-white/40"
+                  onClick={() => {
+                    setAviso("Em breve: você poderá ensinar o app a reconhecer novas notificações.");
+                  }}
+                >
+                  🧠 Ensinar app
+                </Button>
               </div>
 
-              {/* Sugestões */}
+              {/* Lista de bancos com transações agrupadas */}
+              {(() => {
+                const transacoesNotificacoes = lancamentos.filter(l => l.origem === "notificacao");
+                
+                const agrupado = transacoesNotificacoes.reduce((acc, t) => {
+                  const banco = t.banco || "Outro";
+                  if (!acc[banco]) acc[banco] = [];
+                  acc[banco].push(t);
+                  return acc;
+                }, {});
+                
+                const bancos = Object.keys(agrupado);
+                
+                if (bancos.length === 0) {
+                  return (
+                    <div className="text-center py-8 text-gray-500 text-sm">
+                      Nenhuma notificação detectada ainda.<br />
+                      Clique em "Simular notificação" para testar.
+                    </div>
+                  );
+                }
+                
+                return (
+                  <div className="space-y-3">
+                    {bancos.map(banco => {
+                      const transacoes = agrupado[banco];
+                      const total = transacoes.reduce((sum, t) => sum + (t.valor || 0), 0);
+                      const [mostrarDetalhes, setMostrarDetalhes] = useState(false);
+                      
+                      const corIcone = {
+                        "Nubank": "bg-purple-500/30 text-purple-700",
+                        "Itaú": "bg-orange-500/30 text-orange-700",
+                        "Bradesco": "bg-red-500/30 text-red-700",
+                        "Inter": "bg-amber-500/30 text-amber-700",
+                      }[banco] || "bg-gray-500/30 text-gray-700";
+                      
+                      const inicial = banco.charAt(0).toUpperCase();
+                      
+                      return (
+                        <div key={banco} className="rounded-xl bg-white/30 backdrop-blur-md border border-white/40 overflow-hidden">
+                          <div 
+                            className="flex items-center gap-3 p-3 cursor-pointer hover:bg-white/20 transition-colors"
+                            onClick={() => setMostrarDetalhes(!mostrarDetalhes)}
+                          >
+                            <div className={`size-10 rounded-full flex items-center justify-center font-bold text-lg border border-white/40 ${corIcone}`}>
+                              {inicial}
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-medium text-gray-800">{banco}</div>
+                              <div className="text-[10px] text-gray-600">
+                                {transacoes.length} movimentação{transacoes.length !== 1 ? 'ões' : ''} • Total: {formatCurrency(total)}
+                              </div>
+                            </div>
+                            <ArrowLeft className={`rotate-180 size-4 text-gray-500 transition-transform ${mostrarDetalhes ? 'rotate-0' : ''}`} />
+                          </div>
+                          
+                          {mostrarDetalhes && (
+                            <div className="border-t border-white/40 px-3 py-2 bg-white/20">
+                              <p className="text-[10px] text-gray-600 mb-2">📋 Movimentações detectadas</p>
+                              <div className="space-y-1.5">
+                                {transacoes.map(t => (
+                                  <div key={t.id} className="flex justify-between items-center text-sm">
+                                    <div>
+                                      <span className="text-gray-800">{t.descricao.replace(banco + ': ', '')}</span>
+                                      <span className="text-[10px] text-gray-500 ml-2">{t.categoria}</span>
+                                    </div>
+                                    <span className={t.tipo === "receita" ? "text-emerald-600" : "text-rose-600"}>
+                                      {formatCurrency(t.valor)}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                              <p className="text-[10px] text-gray-500 mt-2 italic">
+                                Esses dados vieram de notificações. Quando o Open Finance estiver ativo, serão oficiais.
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+
+              {/* Sugestões de bancos para conectar (mock) */}
               <div className="mt-5">
-                <h4 className="text-xs font-semibold text-gray-700 mb-2">Sugestões para conectar</h4>
+                <h4 className="text-xs font-semibold text-gray-700 mb-2">Bancos disponíveis para conexão</h4>
                 <div className="flex flex-wrap gap-2">
                   {["Bradesco", "Banco do Brasil", "Caixa", "Inter", "C6", "Santander"].map((banco) => (
-                    <button key={banco} className="px-3 py-1.5 rounded-full bg-white/40 backdrop-blur-md border border-white/40 text-xs text-gray-800 hover:bg-white/60 transition-colors">
+                    <button 
+                      key={banco} 
+                      className="px-3 py-1.5 rounded-full bg-white/40 backdrop-blur-md border border-white/40 text-xs text-gray-800 hover:bg-white/60 transition-colors"
+                      onClick={() => setAviso(`🔌 Em breve: integração com ${banco} via Open Finance.`)}
+                    >
                       {banco}
                     </button>
                   ))}
                 </div>
               </div>
-              <p className="text-[10px] text-gray-500 mt-4 text-center">Em breve: Open Finance e notificações automáticas.</p>
+              <p className="text-[10px] text-gray-500 mt-4 text-center">
+                🔮 Em desenvolvimento: leitura real de notificações e Open Finance.
+              </p>
             </CardContent>
           </Card>
         )}
