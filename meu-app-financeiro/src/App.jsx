@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  ArrowLeft, Bell, Crown, Shield, LogOut, Sparkles, Paperclip, Mic, Image, Camera, X, Square, Trash2
+  ArrowLeft, Bell, Crown, Shield, LogOut, Sparkles, Paperclip, Mic, Image, Camera, X, Square, Trash2, Plus, Edit, ChevronRight
 } from "lucide-react";
 import * as d3 from "d3-shape";
 import {
@@ -788,6 +788,187 @@ function ChatGemini() {
 }
 
 // =====================================================
+// MODAIS DE CATEGORIAS E SUBCATEGORIAS
+// =====================================================
+function CategoriasModal({ isOpen, onClose, userId, onSelectCategoria, tipoAtivo = "despesa" }) {
+  const [categorias, setCategorias] = useState([]);
+  const [novaCategoria, setNovaCategoria] = useState("");
+  const [tipo, setTipo] = useState(tipoAtivo);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && userId) {
+      carregarCategorias();
+    }
+  }, [isOpen, userId, tipo]);
+
+  async function carregarCategorias() {
+    const { data } = await supabase
+      .from('categories')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('type', tipo)
+      .order('name');
+    if (data) setCategorias(data);
+  }
+
+  async function adicionarCategoria() {
+    if (!novaCategoria.trim()) return;
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('categories')
+      .insert([{ user_id: userId, name: novaCategoria.trim(), type: tipo }])
+      .select()
+      .single();
+    if (!error && data) {
+      setCategorias(prev => [...prev, data].sort((a,b) => a.name.localeCompare(b.name)));
+      setNovaCategoria("");
+    }
+    setLoading(false);
+  }
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[300] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="w-full max-w-md p-5 lg-modal max-h-[80vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-bold lg-text-primary">Gerenciar Categorias</h3>
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-white/40">
+            <X size={18} className="lg-text-muted" />
+          </button>
+        </div>
+
+        {/* Seletor de tipo */}
+        <div className="flex gap-2 mb-4">
+          <button
+            onClick={() => setTipo("despesa")}
+            className={`flex-1 py-2 rounded-xl font-medium text-sm transition-all ${tipo === "despesa" ? "bg-rose-100 text-rose-700 border border-rose-300" : "bg-white/40 text-gray-600 border border-white/40"}`}
+          >
+            Despesas
+          </button>
+          <button
+            onClick={() => setTipo("receita")}
+            className={`flex-1 py-2 rounded-xl font-medium text-sm transition-all ${tipo === "receita" ? "bg-emerald-100 text-emerald-700 border border-emerald-300" : "bg-white/40 text-gray-600 border border-white/40"}`}
+          >
+            Receitas
+          </button>
+        </div>
+
+        {/* Lista de categorias */}
+        <div className="space-y-2 max-h-80 overflow-y-auto mb-4">
+          {categorias.length === 0 ? (
+            <p className="text-center text-sm lg-text-muted py-4">Nenhuma categoria cadastrada.</p>
+          ) : (
+            categorias.map(cat => (
+              <button
+                key={cat.id}
+                onClick={() => onSelectCategoria(cat)}
+                className="w-full p-3 rounded-xl flex items-center justify-between transition-all lg-item-row"
+              >
+                <span className="font-medium lg-text-primary">{cat.name}</span>
+                <ChevronRight size={16} className="lg-text-muted" />
+              </button>
+            ))
+          )}
+        </div>
+
+        {/* Adicionar nova categoria */}
+        <div className="flex gap-2">
+          <Input
+            placeholder="Nova categoria"
+            value={novaCategoria}
+            onChange={(e) => setNovaCategoria(e.target.value)}
+            className="flex-1"
+          />
+          <Button onClick={adicionarCategoria} disabled={loading} className="px-4">
+            <Plus size={16} />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SubcategoriasModal({ isOpen, onClose, userId, categoria }) {
+  const [subcategorias, setSubcategorias] = useState([]);
+  const [novaSubcategoria, setNovaSubcategoria] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && categoria) {
+      carregarSubcategorias();
+    }
+  }, [isOpen, categoria]);
+
+  async function carregarSubcategorias() {
+    const { data } = await supabase
+      .from('subcategories')
+      .select('*')
+      .eq('category_id', categoria.id)
+      .order('name');
+    if (data) setSubcategorias(data);
+  }
+
+  async function adicionarSubcategoria() {
+    if (!novaSubcategoria.trim()) return;
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('subcategories')
+      .insert([{ category_id: categoria.id, name: novaSubcategoria.trim() }])
+      .select()
+      .single();
+    if (!error && data) {
+      setSubcategorias(prev => [...prev, data].sort((a,b) => a.name.localeCompare(b.name)));
+      setNovaSubcategoria("");
+    }
+    setLoading(false);
+  }
+
+  if (!isOpen || !categoria) return null;
+
+  return (
+    <div className="fixed inset-0 z-[310] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="w-full max-w-md p-5 lg-modal max-h-[80vh] overflow-y-auto">
+        <div className="flex items-center gap-2 mb-4">
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-white/40">
+            <ArrowLeft size={18} className="lg-text-muted" />
+          </button>
+          <h3 className="text-lg font-bold lg-text-primary">Subcategorias de {categoria.name}</h3>
+        </div>
+
+        {/* Lista de subcategorias */}
+        <div className="space-y-2 max-h-80 overflow-y-auto mb-4">
+          {subcategorias.length === 0 ? (
+            <p className="text-center text-sm lg-text-muted py-4">Nenhuma subcategoria cadastrada.</p>
+          ) : (
+            subcategorias.map(sub => (
+              <div key={sub.id} className="p-3 rounded-xl lg-item-row flex items-center justify-between">
+                <span className="font-medium lg-text-primary">{sub.name}</span>
+                {/* Futuramente pode ter opção de editar/excluir */}
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Adicionar nova subcategoria */}
+        <div className="flex gap-2">
+          <Input
+            placeholder="Nova subcategoria"
+            value={novaSubcategoria}
+            onChange={(e) => setNovaSubcategoria(e.target.value)}
+            className="flex-1"
+          />
+          <Button onClick={adicionarSubcategoria} disabled={loading} className="px-4">
+            <Plus size={16} />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// =====================================================
 // COMPONENTE PRINCIPAL
 // =====================================================
 export default function AppFinanceiroCompleto() {
@@ -830,10 +1011,15 @@ export default function AppFinanceiroCompleto() {
   const [gastoFixoAviso, setGastoFixoAviso] = useState("3");
   const [metaMensalInput, setMetaMensalInput] = useState("");
 
-  // NOVOS ESTADOS PARA CONEXÕES
+  // CONEXÕES
   const [connectedAccounts, setConnectedAccounts] = useState([]);
   const [addAccountModalOpen, setAddAccountModalOpen] = useState(false);
   const [newBankName, setNewBankName] = useState("");
+
+  // CATEGORIAS E SUBCATEGORIAS
+  const [categoriasModalOpen, setCategoriasModalOpen] = useState(false);
+  const [subcategoriasModalOpen, setSubcategoriasModalOpen] = useState(false);
+  const [categoriaSelecionada, setCategoriaSelecionada] = useState(null);
 
   useEffect(() => {
     const viewport = document.querySelector('meta[name="viewport"]');
@@ -862,7 +1048,6 @@ export default function AppFinanceiroCompleto() {
     if (gastosData) setGastosFixos(gastosData);
     const { data: metaData } = await supabase.from('user_settings').select('meta_mensal').eq('user_id', userId).single();
     if (metaData) setMetaMensal(metaData.meta_mensal || 0);
-    // Carregar contas conectadas
     const { data: connData } = await supabase.from('connected_accounts').select('*').eq('user_id', userId).eq('is_active', true);
     if (connData) setConnectedAccounts(connData);
   }
@@ -872,7 +1057,7 @@ export default function AppFinanceiroCompleto() {
 
   async function excluirConta() {
     const userId = user?.id;
-    if (userId) { await supabase.from('transactions').delete().eq('user_id', userId); await supabase.from('accounts').delete().eq('user_id', userId); await supabase.from('fixed_expenses').delete().eq('user_id', userId); await supabase.from('user_settings').delete().eq('user_id', userId); await supabase.from('connected_accounts').delete().eq('user_id', userId); }
+    if (userId) { await supabase.from('transactions').delete().eq('user_id', userId); await supabase.from('accounts').delete().eq('user_id', userId); await supabase.from('fixed_expenses').delete().eq('user_id', userId); await supabase.from('user_settings').delete().eq('user_id', userId); await supabase.from('connected_accounts').delete().eq('user_id', userId); await supabase.from('categories').delete().eq('user_id', userId); }
     await supabase.auth.signOut(); setDeleteAccountModalOpen(false); setAviso("Conta excluída com sucesso.");
   }
 
@@ -914,50 +1099,24 @@ export default function AppFinanceiroCompleto() {
   }
   async function desconectarCartao(id) { await desconectarConta(id); }
 
-  // NOVAS FUNÇÕES PARA CONEXÕES
+  // CONEXÕES
   async function adicionarContaConectada() {
     if (!newBankName.trim()) return;
     const userId = user?.id;
-    const { data, error } = await supabase.from('connected_accounts').insert([{
-      user_id: userId,
-      bank_name: newBankName.trim(),
-      is_active: true
-    }]).select().single();
-    if (!error && data) {
-      setConnectedAccounts(prev => [...prev, data]);
-      setNewBankName("");
-      setAddAccountModalOpen(false);
-      setAviso(`Conta ${newBankName} conectada!`);
-    }
+    const { data, error } = await supabase.from('connected_accounts').insert([{ user_id: userId, bank_name: newBankName.trim(), is_active: true }]).select().single();
+    if (!error && data) { setConnectedAccounts(prev => [...prev, data]); setNewBankName(""); setAddAccountModalOpen(false); setAviso(`Conta ${newBankName} conectada!`); }
   }
-
   async function desconectarConnectedAccount(id) {
     const userId = user?.id;
     await supabase.from('connected_accounts').update({ is_active: false }).eq('id', id).eq('user_id', userId);
     setConnectedAccounts(prev => prev.filter(c => c.id !== id));
     setAviso("Conta desconectada.");
   }
-
-  // Simulação de notificação (pode ser chamada pelo plugin real no futuro)
   async function simularNotificacao(contaId, banco, descricao, valor) {
     const userId = user?.id;
-    const nova = {
-      user_id: userId,
-      descricao: `${banco}: ${descricao}`,
-      valor,
-      tipo: "despesa",
-      categoria: categorize(descricao),
-      natureza: "variavel",
-      data: new Date().toISOString().slice(0, 10),
-      source: "notification",
-      connected_account_id: contaId,
-      external_id: `sim-${Date.now()}`
-    };
+    const nova = { user_id: userId, descricao: `${banco}: ${descricao}`, valor, tipo: "despesa", categoria: categorize(descricao), natureza: "variavel", data: new Date().toISOString().slice(0, 10), source: "notification", connected_account_id: contaId, external_id: `sim-${Date.now()}` };
     const { error } = await supabase.from('transactions').insert([nova]);
-    if (!error) {
-      setLancamentos(prev => [nova, ...prev]);
-      setAviso(`📱 ${banco}: ${formatCurrency(valor)}`);
-    }
+    if (!error) { setLancamentos(prev => [nova, ...prev]); setAviso(`📱 ${banco}: ${formatCurrency(valor)}`); }
   }
 
   const mesAtual = new Date().toISOString().slice(0, 7);
@@ -1024,7 +1183,7 @@ export default function AppFinanceiroCompleto() {
           </div>
         </div>
 
-        {/* Barra de abas - AGORA COM 6 ABAS */}
+        {/* Barra de abas */}
         <div className="lg-tab-bar flex overflow-x-auto gap-1 p-1 mb-2 scrollbar-hide" style={{ scrollbarWidth: "none" }}>
           {[
             { key: "inicio", label: "Início" },
@@ -1098,13 +1257,19 @@ export default function AppFinanceiroCompleto() {
           </div>
         )}
 
-        {/* ABA MOVIMENTOS */}
+        {/* ABA MOVIMENTOS - COM BOTÃO GERENCIAR CATEGORIAS */}
         {activeTab === "movimentos" && (
           <div className="lg-card">
             <div className="grid gap-2 p-3">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-sm lg-text-secondary">Selecionar mês:</span>
                 <input type="month" value={mesFiltro} onChange={(e) => setMesFiltro(e.target.value)} className="lg-input w-40 text-sm py-1 px-3" style={{ borderRadius: 14 }} />
+                <button
+                  onClick={() => setCategoriasModalOpen(true)}
+                  className="ml-auto lg-btn lg-btn-secondary px-3 py-1.5 text-xs font-medium rounded-xl flex items-center gap-1"
+                >
+                  <Edit size={14} /> Gerenciar categorias
+                </button>
               </div>
               {Object.entries(lancamentosFiltrados.reduce((acc, l) => { if (!acc[l.data]) acc[l.data] = []; acc[l.data].push(l); return acc; }, {})).sort((a, b) => (a[0] < b[0] ? 1 : -1)).map(([data, itens]) => (
                 <div key={data} className="grid gap-1.5">
@@ -1208,7 +1373,7 @@ export default function AppFinanceiroCompleto() {
           </div>
         )}
 
-        {/* ABA CONEXÕES - NOVA! */}
+        {/* ABA CONEXÕES */}
         {activeTab === "conexoes" && (
           <div className="lg-card">
             <div className="p-4">
@@ -1229,7 +1394,6 @@ export default function AppFinanceiroCompleto() {
               ) : (
                 <div className="space-y-3">
                   {connectedAccounts.map((conta) => {
-                    // Filtra transações associadas a esta conta conectada
                     const transacoesConta = lancamentos.filter(l => l.connected_account_id === conta.id && l.source === 'notification');
                     const total = transacoesConta.reduce((sum, t) => sum + (t.valor || 0), 0);
                     const [mostrarDetalhes, setMostrarDetalhes] = useState(false);
@@ -1289,7 +1453,6 @@ export default function AppFinanceiroCompleto() {
                 </div>
               )}
 
-              {/* Sugestões de bancos */}
               <div className="mt-5">
                 <h4 className="text-xs font-semibold lg-text-secondary mb-2">Bancos disponíveis</h4>
                 <div className="flex flex-wrap gap-2">
@@ -1327,6 +1490,24 @@ export default function AppFinanceiroCompleto() {
           </div>
         </div>
       )}
+
+      {/* MODAIS DE CATEGORIAS E SUBCATEGORIAS */}
+      <CategoriasModal
+        isOpen={categoriasModalOpen}
+        onClose={() => setCategoriasModalOpen(false)}
+        userId={user?.id}
+        onSelectCategoria={(cat) => {
+          setCategoriaSelecionada(cat);
+          setCategoriasModalOpen(false);
+          setSubcategoriasModalOpen(true);
+        }}
+      />
+      <SubcategoriasModal
+        isOpen={subcategoriasModalOpen}
+        onClose={() => setSubcategoriasModalOpen(false)}
+        userId={user?.id}
+        categoria={categoriaSelecionada}
+      />
 
       {/* MODAL PREVIEW LANÇAMENTO */}
       {previewLancamento && (
