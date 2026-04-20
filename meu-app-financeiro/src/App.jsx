@@ -414,7 +414,7 @@ function TelaInicialLogin({ onLogin }) {
 }
 
 // =====================================================
-// CHAT GEMINI (MANIN AI) - BOTÃO RETANGULAR COM BORDAS ARREDONDADAS (PILL)
+// CHAT GEMINI (MANIN AI) - BOTÃO RETANGULAR MAIS LARGO (PILL)
 // =====================================================
 function ChatGemini() {
   const [isOpen, setIsOpen] = useState(false);
@@ -510,12 +510,13 @@ function ChatGemini() {
 
   return (
     <>
-      {/* Botão flutuante centralizado na parte inferior, retangular com cantos arredondados (pill), apenas ícone */}
+      {/* Botão flutuante centralizado, retangular mais largo (pill) */}
       <button 
         onClick={() => setIsOpen(!isOpen)} 
-        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[300] px-5 py-3 rounded-full bg-white/30 backdrop-blur-md border border-white/40 text-gray-800 shadow-xl flex items-center justify-center active:scale-95 transition-transform"
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[300] px-8 py-3 rounded-full bg-white/30 backdrop-blur-md border border-white/40 text-gray-800 shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-transform"
       >
         <Sparkles className="size-5" />
+        <span className="text-sm font-medium">manim</span>
         {!isOpen && (
           <span className="absolute -top-1 -right-1 size-3 bg-rose-500 rounded-full animate-pulse border border-white" />
         )}
