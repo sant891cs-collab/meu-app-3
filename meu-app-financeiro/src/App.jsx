@@ -830,6 +830,11 @@ export default function AppFinanceiroCompleto() {
   const [gastoFixoAviso, setGastoFixoAviso] = useState("3");
   const [metaMensalInput, setMetaMensalInput] = useState("");
 
+  // NOVOS ESTADOS PARA CONEXÕES
+  const [connectedAccounts, setConnectedAccounts] = useState([]);
+  const [addAccountModalOpen, setAddAccountModalOpen] = useState(false);
+  const [newBankName, setNewBankName] = useState("");
+
   useEffect(() => {
     const viewport = document.querySelector('meta[name="viewport"]');
     if (viewport) { viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'); }
@@ -843,7 +848,7 @@ export default function AppFinanceiroCompleto() {
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) { setIsAuthenticated(true); setUser(session.user); setUserName(session.user.user_metadata?.full_name || "Usuário"); setUserPhoto(session.user.user_metadata?.avatar_url || DEFAULT_AVATAR); carregarDadosDoUsuario(session.user.id); }
-      else { setIsAuthenticated(false); setUser(null); setLancamentos([]); setContas([]); setCartoes([]); setGastosFixos([]); }
+      else { setIsAuthenticated(false); setUser(null); setLancamentos([]); setContas([]); setCartoes([]); setGastosFixos([]); setConnectedAccounts([]); }
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -857,6 +862,9 @@ export default function AppFinanceiroCompleto() {
     if (gastosData) setGastosFixos(gastosData);
     const { data: metaData } = await supabase.from('user_settings').select('meta_mensal').eq('user_id', userId).single();
     if (metaData) setMetaMensal(metaData.meta_mensal || 0);
+    // Carregar contas conectadas
+    const { data: connData } = await supabase.from('connected_accounts').select('*').eq('user_id', userId).eq('is_active', true);
+    if (connData) setConnectedAccounts(connData);
   }
 
   const handleLogin = async () => { const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } }); if (error) console.error(error); };
@@ -864,7 +872,7 @@ export default function AppFinanceiroCompleto() {
 
   async function excluirConta() {
     const userId = user?.id;
-    if (userId) { await supabase.from('transactions').delete().eq('user_id', userId); await supabase.from('accounts').delete().eq('user_id', userId); await supabase.from('fixed_expenses').delete().eq('user_id', userId); await supabase.from('user_settings').delete().eq('user_id', userId); }
+    if (userId) { await supabase.from('transactions').delete().eq('user_id', userId); await supabase.from('accounts').delete().eq('user_id', userId); await supabase.from('fixed_expenses').delete().eq('user_id', userId); await supabase.from('user_settings').delete().eq('user_id', userId); await supabase.from('connected_accounts').delete().eq('user_id', userId); }
     await supabase.auth.signOut(); setDeleteAccountModalOpen(false); setAviso("Conta excluída com sucesso.");
   }
 
@@ -905,6 +913,52 @@ export default function AppFinanceiroCompleto() {
     setContas(prev => prev.filter(c => c.id !== id)); setCartoes(prev => prev.filter(c => c.id !== id)); setAviso("Conta desconectada.");
   }
   async function desconectarCartao(id) { await desconectarConta(id); }
+
+  // NOVAS FUNÇÕES PARA CONEXÕES
+  async function adicionarContaConectada() {
+    if (!newBankName.trim()) return;
+    const userId = user?.id;
+    const { data, error } = await supabase.from('connected_accounts').insert([{
+      user_id: userId,
+      bank_name: newBankName.trim(),
+      is_active: true
+    }]).select().single();
+    if (!error && data) {
+      setConnectedAccounts(prev => [...prev, data]);
+      setNewBankName("");
+      setAddAccountModalOpen(false);
+      setAviso(`Conta ${newBankName} conectada!`);
+    }
+  }
+
+  async function desconectarConnectedAccount(id) {
+    const userId = user?.id;
+    await supabase.from('connected_accounts').update({ is_active: false }).eq('id', id).eq('user_id', userId);
+    setConnectedAccounts(prev => prev.filter(c => c.id !== id));
+    setAviso("Conta desconectada.");
+  }
+
+  // Simulação de notificação (pode ser chamada pelo plugin real no futuro)
+  async function simularNotificacao(contaId, banco, descricao, valor) {
+    const userId = user?.id;
+    const nova = {
+      user_id: userId,
+      descricao: `${banco}: ${descricao}`,
+      valor,
+      tipo: "despesa",
+      categoria: categorize(descricao),
+      natureza: "variavel",
+      data: new Date().toISOString().slice(0, 10),
+      source: "notification",
+      connected_account_id: contaId,
+      external_id: `sim-${Date.now()}`
+    };
+    const { error } = await supabase.from('transactions').insert([nova]);
+    if (!error) {
+      setLancamentos(prev => [nova, ...prev]);
+      setAviso(`📱 ${banco}: ${formatCurrency(valor)}`);
+    }
+  }
 
   const mesAtual = new Date().toISOString().slice(0, 7);
   const lancamentosMesAtual = useMemo(() => lancamentos.filter(l => String(l.data).startsWith(mesAtual)), [lancamentos, mesAtual]);
@@ -970,7 +1024,7 @@ export default function AppFinanceiroCompleto() {
           </div>
         </div>
 
-        {/* Barra de abas */}
+        {/* Barra de abas - AGORA COM 6 ABAS */}
         <div className="lg-tab-bar flex overflow-x-auto gap-1 p-1 mb-2 scrollbar-hide" style={{ scrollbarWidth: "none" }}>
           {[
             { key: "inicio", label: "Início" },
@@ -978,6 +1032,7 @@ export default function AppFinanceiroCompleto() {
             { key: "fixos", label: "Fixos" },
             { key: "analises", label: "Análises" },
             { key: "meta", label: "Meta" },
+            { key: "conexoes", label: "Conexões" },
           ].map(({ key, label }) => (
             <button key={key} onClick={() => setActiveTab(key)}
               className={`flex-shrink-0 px-3 py-1.5 rounded-xl font-medium text-sm transition-all whitespace-nowrap ${activeTab === key ? "lg-tab-active" : "lg-tab-inactive"}`}>
@@ -1153,12 +1208,125 @@ export default function AppFinanceiroCompleto() {
           </div>
         )}
 
+        {/* ABA CONEXÕES - NOVA! */}
+        {activeTab === "conexoes" && (
+          <div className="lg-card">
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-base font-semibold lg-text-primary">Conexões</h3>
+                <button onClick={() => setAddAccountModalOpen(true)} className="lg-btn lg-btn-dark px-3 py-1.5 text-xs font-bold text-white rounded-xl">
+                  + Conectar
+                </button>
+              </div>
+              <p className="text-xs lg-text-muted mb-4">
+                Contas conectadas via notificações ou Open Finance.
+              </p>
+
+              {connectedAccounts.length === 0 ? (
+                <div className="text-center py-8 text-sm lg-text-muted">
+                  Nenhuma conta conectada.<br />Clique em "Conectar" para adicionar um banco.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {connectedAccounts.map((conta) => {
+                    // Filtra transações associadas a esta conta conectada
+                    const transacoesConta = lancamentos.filter(l => l.connected_account_id === conta.id && l.source === 'notification');
+                    const total = transacoesConta.reduce((sum, t) => sum + (t.valor || 0), 0);
+                    const [mostrarDetalhes, setMostrarDetalhes] = useState(false);
+
+                    const corIcone = {
+                      "Nubank": "bg-purple-500/30 text-purple-700",
+                      "Itaú": "bg-orange-500/30 text-orange-700",
+                      "Bradesco": "bg-red-500/30 text-red-700",
+                      "Inter": "bg-amber-500/30 text-amber-700",
+                    }[conta.bank_name] || "bg-gray-500/30 text-gray-700";
+
+                    return (
+                      <div key={conta.id} className="rounded-xl overflow-hidden" style={{ background: "rgba(255,255,255,0.5)", border: "1px solid rgba(210,210,215,0.6)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9)" }}>
+                        <div className="flex items-center gap-3 p-3 cursor-pointer hover:bg-white/30 transition-colors" onClick={() => setMostrarDetalhes(!mostrarDetalhes)}>
+                          <div className={`size-10 rounded-full flex items-center justify-center font-bold text-lg border ${corIcone}`}>
+                            {conta.bank_name.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-medium lg-text-primary">{conta.bank_name}</div>
+                            <div className="text-[10px] lg-text-muted">
+                              {transacoesConta.length} movimentações • Total: {formatCurrency(total)}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button onClick={(e) => { e.stopPropagation(); desconectarConnectedAccount(conta.id); }} className="text-[10px] text-rose-600 hover:underline">Desconectar</button>
+                            <ArrowLeft className={`size-4 text-gray-500 transition-transform ${mostrarDetalhes ? 'rotate-0' : 'rotate-180'}`} />
+                          </div>
+                        </div>
+                        {mostrarDetalhes && (
+                          <div className="border-t border-gray-200 px-3 py-2 bg-white/30">
+                            <div className="flex justify-between items-center mb-2">
+                              <p className="text-[10px] lg-text-muted">📋 Movimentações detectadas</p>
+                              <button onClick={() => simularNotificacao(conta.id, conta.bank_name, "Compra exemplo", 49.90)} className="text-[10px] text-blue-600 hover:underline">Simular</button>
+                            </div>
+                            {transacoesConta.length === 0 ? (
+                              <p className="text-[10px] lg-text-muted italic">Nenhuma movimentação ainda.</p>
+                            ) : (
+                              <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                                {transacoesConta.map(t => (
+                                  <div key={t.id} className="flex justify-between items-center text-sm">
+                                    <div>
+                                      <span className="lg-text-primary">{t.descricao.replace(conta.bank_name + ': ', '')}</span>
+                                      <span className="text-[10px] lg-text-muted ml-2">{t.categoria}</span>
+                                    </div>
+                                    <span className={t.tipo === "receita" ? "text-emerald-600" : "text-rose-600"}>
+                                      {formatCurrency(t.valor)}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Sugestões de bancos */}
+              <div className="mt-5">
+                <h4 className="text-xs font-semibold lg-text-secondary mb-2">Bancos disponíveis</h4>
+                <div className="flex flex-wrap gap-2">
+                  {["Nubank", "Itaú", "Bradesco", "Banco do Brasil", "Caixa", "Inter", "C6", "Santander"].map((banco) => (
+                    <button key={banco} onClick={() => { setNewBankName(banco); setAddAccountModalOpen(true); }} className="px-3 py-1.5 rounded-full text-xs lg-text-primary hover:bg-white/60 transition-colors" style={{ background: "rgba(255,255,255,0.65)", border: "1px solid rgba(210,210,215,0.6)" }}>
+                      {banco}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <p className="text-[10px] lg-text-muted mt-4 text-center">
+                🔮 Em breve: Open Finance e leitura automática de notificações.
+              </p>
+            </div>
+          </div>
+        )}
+
         <div className="w-full text-center mt-3 pb-2">
           <div className="inline-block px-3 py-1 rounded-full" style={{ background: "rgba(255,255,255,0.65)", border: "1px solid rgba(210,210,215,0.55)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9)" }}>
             <span className="text-[10px] lg-text-muted tracking-wide font-bold">Segue em frente... a cada passo de confiança a luz aparece.</span>
           </div>
         </div>
       </div>
+
+      {/* MODAL ADICIONAR CONTA CONECTADA */}
+      {addAccountModalOpen && (
+        <div className="fixed inset-0 z-[300] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-sm p-5 lg-modal">
+            <h3 className="text-lg font-bold lg-text-primary mb-3">Conectar Banco</h3>
+            <Input placeholder="Nome do banco (ex: Nubank)" value={newBankName} onChange={(e) => setNewBankName(e.target.value)} className="mb-4" />
+            <div className="flex gap-2">
+              <Button variant="secondary" onClick={() => setAddAccountModalOpen(false)} className="flex-1">Cancelar</Button>
+              <Button onClick={adicionarContaConectada} className="flex-1">Conectar</Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* MODAL PREVIEW LANÇAMENTO */}
       {previewLancamento && (
