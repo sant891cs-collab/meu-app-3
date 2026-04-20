@@ -1115,9 +1115,9 @@ export default function AppFinanceiroCompleto() {
         </button>
       </div>
 
-      {/* Header fixo com glass claro forte */}
+      {/* Header fixo com fundo cinza mais escuro */}
       <div className="flex-shrink-0 pt-14 px-3 sm:px-6 max-w-6xl mx-auto w-full">
-        <div className="bg-white/30 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-3">
+        <div className="bg-gray-300/40 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl p-3">
           {aviso && (
             <div className="text-xs text-gray-700 text-center rounded-full bg-white/50 backdrop-blur-md px-3 py-1 border border-white/40 mb-2">
               {aviso}
