@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  ArrowLeft, Bell, Crown, Shield, LogOut, Sparkles, Paperclip, Mic, Image, Camera, X, Square, Trash2, Plus, Edit, ChevronRight
+  ArrowLeft, Bell, Crown, Shield, LogOut, Sparkles, Paperclip, Mic, Image, Camera, X, Square, Trash2,
+  Building2, ChevronRight, CheckCircle2, AlertCircle, Send, Edit2, Wifi
 } from "lucide-react";
 import * as d3 from "d3-shape";
 import {
@@ -788,182 +789,350 @@ function ChatGemini() {
 }
 
 // =====================================================
-// MODAIS DE CATEGORIAS E SUBCATEGORIAS
+// CATÁLOGO DE BANCOS
 // =====================================================
-function CategoriasModal({ isOpen, onClose, userId, onSelectCategoria, tipoAtivo = "despesa" }) {
-  const [categorias, setCategorias] = useState([]);
-  const [novaCategoria, setNovaCategoria] = useState("");
-  const [tipo, setTipo] = useState(tipoAtivo);
-  const [loading, setLoading] = useState(false);
+const BANCOS_CATALOGO = [
+  { id: "nubank",    nome: "Nubank",         cor: "#8A05BE", corTexto: "#fff", keywords: ["nubank","nu pagamentos","nu fintech","roxinho"] },
+  { id: "itau",      nome: "Itaú",           cor: "#FF6600", corTexto: "#fff", keywords: ["itau","itaú","banco itau"] },
+  { id: "bradesco",  nome: "Bradesco",        cor: "#CC0000", corTexto: "#fff", keywords: ["bradesco","banco bradesco"] },
+  { id: "bb",        nome: "Banco do Brasil", cor: "#FFCC00", corTexto: "#333", keywords: ["banco do brasil","bb","banco brasil"] },
+  { id: "caixa",     nome: "Caixa",           cor: "#005CA9", corTexto: "#fff", keywords: ["caixa","cef","caixa economica","caixa econômica"] },
+  { id: "inter",     nome: "Inter",           cor: "#FF7A00", corTexto: "#fff", keywords: ["inter","banco inter","bancointer"] },
+  { id: "c6",        nome: "C6 Bank",         cor: "#000000", corTexto: "#fff", keywords: ["c6","c6 bank","c6bank"] },
+  { id: "santander", nome: "Santander",       cor: "#EC0000", corTexto: "#fff", keywords: ["santander","banco santander"] },
+  { id: "desconhecido", nome: "Desconhecido", cor: "#9ca3af", corTexto: "#fff", keywords: [] },
+];
 
-  useEffect(() => {
-    if (isOpen && userId) {
-      carregarCategorias();
-    }
-  }, [isOpen, userId, tipo]);
+// =====================================================
+// ENGINE DE PARSING DE NOTIFICAÇÕES
+// =====================================================
 
-  async function carregarCategorias() {
-    const { data } = await supabase
-      .from('categories')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('type', tipo)
-      .order('name');
-    if (data) setCategorias(data);
+function identificarBanco(texto) {
+  const t = texto.toLowerCase();
+  for (const banco of BANCOS_CATALOGO) {
+    if (banco.keywords.some(k => t.includes(k))) return banco;
   }
+  return BANCOS_CATALOGO.find(b => b.id === "desconhecido");
+}
 
-  async function adicionarCategoria() {
-    if (!novaCategoria.trim()) return;
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('categories')
-      .insert([{ user_id: userId, name: novaCategoria.trim(), type: tipo }])
-      .select()
-      .single();
-    if (!error && data) {
-      setCategorias(prev => [...prev, data].sort((a,b) => a.name.localeCompare(b.name)));
-      setNovaCategoria("");
-    }
-    setLoading(false);
-  }
+function extrairValor(texto) {
+  // Captura padrões: R$ 39,90 / R$39.90 / 39,90 / 39.90
+  const match = texto.match(/R?\$?\s*(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2}))/i);
+  if (!match) return 0;
+  const raw = match[1].replace(/\./g, "").replace(",", ".");
+  return parseFloat(raw) || 0;
+}
 
-  if (!isOpen) return null;
+function extrairDescricao(texto) {
+  // Remove prefixo do banco e valor, pega o que sobrar
+  const semValor = texto.replace(/R?\$?\s*\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})/gi, "").trim();
+  const semPrefixos = semValor
+    .replace(/compra aprovada|compra no crédito|compra no débito|pix enviado|pix recebido|pagamento realizado|transação aprovada|débito efetuado/gi, "")
+    .replace(/nubank|itaú|itau|bradesco|caixa|inter|c6 bank|santander|banco do brasil/gi, "")
+    .replace(/[:•\-|]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return semPrefixos.length > 2 ? semPrefixos : texto.slice(0, 40);
+}
 
+function detectarTipoNotificacao(texto) {
+  const t = texto.toLowerCase();
+  if (t.includes("pix recebido") || t.includes("crédito") || t.includes("recebeu") || t.includes("depósito")) return "receita";
+  return "despesa";
+}
+
+function parsearNotificacao(textoNotificacao) {
+  const banco = identificarBanco(textoNotificacao);
+  const valor = extrairValor(textoNotificacao);
+  const descricao = extrairDescricao(textoNotificacao);
+  const tipo = detectarTipoNotificacao(textoNotificacao);
+  const categoria = categorize(descricao);
+  const natureza = detectNature(descricao);
+  const data = new Date().toISOString().slice(0, 10);
+  return { banco, valor, descricao, tipo, categoria, natureza, data, textoOriginal: textoNotificacao, origem: "notificacao" };
+}
+
+// Iniciais do banco para o avatar (quando não houver logo)
+function iniciaisBanco(nome) {
+  return nome.split(" ").map(p => p[0]).join("").slice(0, 2).toUpperCase();
+}
+
+// =====================================================
+// AVATAR DO BANCO
+// =====================================================
+function AvatarBanco({ banco, size = 44 }) {
   return (
-    <div className="fixed inset-0 z-[300] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="w-full max-w-md p-5 lg-modal max-h-[80vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold lg-text-primary">Gerenciar Categorias</h3>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-white/40">
-            <X size={18} className="lg-text-muted" />
-          </button>
-        </div>
-
-        {/* Seletor de tipo */}
-        <div className="flex gap-2 mb-4">
-          <button
-            onClick={() => setTipo("despesa")}
-            className={`flex-1 py-2 rounded-xl font-medium text-sm transition-all ${tipo === "despesa" ? "bg-rose-100 text-rose-700 border border-rose-300" : "bg-white/40 text-gray-600 border border-white/40"}`}
-          >
-            Despesas
-          </button>
-          <button
-            onClick={() => setTipo("receita")}
-            className={`flex-1 py-2 rounded-xl font-medium text-sm transition-all ${tipo === "receita" ? "bg-emerald-100 text-emerald-700 border border-emerald-300" : "bg-white/40 text-gray-600 border border-white/40"}`}
-          >
-            Receitas
-          </button>
-        </div>
-
-        {/* Lista de categorias */}
-        <div className="space-y-2 max-h-80 overflow-y-auto mb-4">
-          {categorias.length === 0 ? (
-            <p className="text-center text-sm lg-text-muted py-4">Nenhuma categoria cadastrada.</p>
-          ) : (
-            categorias.map(cat => (
-              <button
-                key={cat.id}
-                onClick={() => onSelectCategoria(cat)}
-                className="w-full p-3 rounded-xl flex items-center justify-between transition-all lg-item-row"
-              >
-                <span className="font-medium lg-text-primary">{cat.name}</span>
-                <ChevronRight size={16} className="lg-text-muted" />
-              </button>
-            ))
-          )}
-        </div>
-
-        {/* Adicionar nova categoria */}
-        <div className="flex gap-2">
-          <Input
-            placeholder="Nova categoria"
-            value={novaCategoria}
-            onChange={(e) => setNovaCategoria(e.target.value)}
-            className="flex-1"
-          />
-          <Button onClick={adicionarCategoria} disabled={loading} className="px-4">
-            <Plus size={16} />
-          </Button>
-        </div>
-      </div>
+    <div
+      className="rounded-2xl flex items-center justify-center font-black flex-shrink-0"
+      style={{ width: size, height: size, background: banco.cor, color: banco.corTexto, fontSize: size * 0.32 }}
+    >
+      {iniciaisBanco(banco.nome)}
     </div>
   );
 }
 
-function SubcategoriasModal({ isOpen, onClose, userId, categoria }) {
-  const [subcategorias, setSubcategorias] = useState([]);
-  const [novaSubcategoria, setNovaSubcategoria] = useState("");
-  const [loading, setLoading] = useState(false);
+// =====================================================
+// MODAL DETALHE DO BANCO
+// =====================================================
+function ModalBanco({ banco, transacoes, isOpen, onClose, onCorrigirBanco, bancosDisponiveis }) {
+  const [corrigindo, setCorrigindo] = useState(false);
+  const [bancoCorrecto, setBancoCorreto] = useState(banco?.id || "");
+  if (!isOpen || !banco) return null;
+  const total = transacoes.reduce((acc, t) => acc + (t.tipo === "despesa" ? t.valor : 0), 0);
+  const totalReceitas = transacoes.reduce((acc, t) => acc + (t.tipo === "receita" ? t.valor : 0), 0);
+  return (
+    <div className="fixed inset-0 z-[310] bg-slate-900/30 backdrop-blur-sm flex items-end justify-center p-0">
+      <motion.div
+        initial={{ y: "100%" }} animate={{ y: 0 }} transition={{ type: "spring", damping: 28, stiffness: 300 }}
+        className="w-full max-w-lg lg-modal rounded-b-none"
+        style={{ maxHeight: "82vh", display: "flex", flexDirection: "column" }}
+      >
+        {/* Header */}
+        <div className="flex items-center gap-3 p-4 border-b" style={{ borderColor: "rgba(210,210,215,0.4)" }}>
+          <AvatarBanco banco={banco} size={40} />
+          <div className="flex-1 min-w-0">
+            <div className="font-bold text-base lg-text-primary">{banco.nome}</div>
+            <div className="text-xs lg-text-muted">{transacoes.length} movimentação{transacoes.length !== 1 ? "ões" : ""} detectada{transacoes.length !== 1 ? "s" : ""}</div>
+          </div>
+          <button onClick={onClose} className="p-2 rounded-full" style={{ background: "rgba(243,244,246,0.8)", border: "1px solid rgba(210,210,215,0.5)" }}>
+            <X size={16} color="#6b7280" />
+          </button>
+        </div>
 
-  useEffect(() => {
-    if (isOpen && categoria) {
-      carregarSubcategorias();
-    }
-  }, [isOpen, categoria]);
+        {/* Stats */}
+        <div className="flex gap-2 px-4 py-3">
+          <div className="flex-1 rounded-xl p-2.5 text-center" style={{ background: "rgba(254,226,226,0.6)", border: "1px solid rgba(252,165,165,0.3)" }}>
+            <div className="text-[10px] lg-text-muted">Saídas</div>
+            <div className="text-sm font-bold" style={{ color: "#991B1B" }}>{formatCurrency(total)}</div>
+          </div>
+          <div className="flex-1 rounded-xl p-2.5 text-center" style={{ background: "rgba(209,250,229,0.6)", border: "1px solid rgba(110,231,183,0.3)" }}>
+            <div className="text-[10px] lg-text-muted">Entradas</div>
+            <div className="text-sm font-bold" style={{ color: "#065F46" }}>{formatCurrency(totalReceitas)}</div>
+          </div>
+        </div>
 
-  async function carregarSubcategorias() {
-    const { data } = await supabase
-      .from('subcategories')
-      .select('*')
-      .eq('category_id', categoria.id)
-      .order('name');
-    if (data) setSubcategorias(data);
+        {/* Corrigir banco desconhecido */}
+        {banco.id === "desconhecido" && (
+          <div className="px-4 pb-3">
+            {!corrigindo ? (
+              <button onClick={() => setCorrigindo(true)} className="w-full py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2" style={{ background: "rgba(243,244,246,0.8)", border: "1px solid rgba(210,210,215,0.5)", color: "#374151" }}>
+                <Edit2 size={13} /> Identificar banco
+              </button>
+            ) : (
+              <div className="flex gap-2">
+                <select value={bancoCorrecto} onChange={e => setBancoCorreto(e.target.value)} className="flex-1 lg-select p-2 text-sm rounded-xl">
+                  {bancosDisponiveis.filter(b => b.id !== "desconhecido").map(b => (
+                    <option key={b.id} value={b.id}>{b.nome}</option>
+                  ))}
+                </select>
+                <button onClick={() => { onCorrigirBanco(bancoCorrecto); setCorrigindo(false); }} className="lg-btn lg-btn-dark px-3 py-1 text-xs text-white rounded-xl">Salvar</button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Lista de transações */}
+        <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-1.5">
+          <div className="text-[10px] font-bold lg-text-muted uppercase tracking-widest mb-2">Movimentações detectadas</div>
+          {transacoes.length === 0 && (
+            <div className="text-center text-sm lg-text-muted py-8">Nenhuma movimentação ainda.</div>
+          )}
+          {transacoes.map((t, i) => (
+            <div key={i} className="lg-item-row p-2.5 flex items-center justify-between gap-2">
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium lg-text-primary truncate">{t.descricao || t.textoOriginal}</div>
+                <div className="text-[10px] lg-text-muted">{t.categoria} • {t.data}</div>
+              </div>
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                <span className="text-sm font-bold" style={{ color: t.tipo === "receita" ? "#065F46" : "#991B1B" }}>
+                  {t.tipo === "receita" ? "+" : "-"}{formatCurrency(t.valor)}
+                </span>
+                <CheckCircle2 size={13} color="#10b981" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+// =====================================================
+// ABA CONEXÕES — estrutura completa
+// (Entrada: manual por texto por enquanto.
+//  No React Native: substituir handleProcessarTexto pelo
+//  NotificationListenerService que chama parsearNotificacao()
+//  automaticamente com o texto da notificação real.)
+// =====================================================
+function AbaConexoes({ transacoesNotificacao, onAdicionarTransacao, onCorrigirBanco, user }) {
+  const [textoNotif, setTextoNotif] = useState("");
+  const [preview, setPreview] = useState(null);
+  const [bancosComTransacoes, setBancosComTransacoes] = useState([]);
+  const [bancoSelecionado, setBancoSelecionado] = useState(null);
+  const [modalAberto, setModalAberto] = useState(false);
+
+  // Agrupa transações por banco
+  const grupos = useMemo(() => {
+    const map = {};
+    transacoesNotificacao.forEach(t => {
+      const id = t.bancoId || "desconhecido";
+      if (!map[id]) map[id] = { banco: BANCOS_CATALOGO.find(b => b.id === id) || BANCOS_CATALOGO.find(b => b.id === "desconhecido"), transacoes: [] };
+      map[id].transacoes.push(t);
+    });
+    return Object.values(map).sort((a, b) => b.transacoes.length - a.transacoes.length);
+  }, [transacoesNotificacao]);
+
+  function handleProcessarTexto() {
+    if (!textoNotif.trim()) return;
+    const resultado = parsearNotificacao(textoNotif);
+    setPreview(resultado);
   }
 
-  async function adicionarSubcategoria() {
-    if (!novaSubcategoria.trim()) return;
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('subcategories')
-      .insert([{ category_id: categoria.id, name: novaSubcategoria.trim() }])
-      .select()
-      .single();
-    if (!error && data) {
-      setSubcategorias(prev => [...prev, data].sort((a,b) => a.name.localeCompare(b.name)));
-      setNovaSubcategoria("");
-    }
-    setLoading(false);
+  function handleConfirmarPreview() {
+    if (!preview) return;
+    onAdicionarTransacao({ ...preview, bancoId: preview.banco.id });
+    setTextoNotif("");
+    setPreview(null);
   }
 
-  if (!isOpen || !categoria) return null;
+  function abrirBanco(grupo) {
+    setBancoSelecionado(grupo);
+    setModalAberto(true);
+  }
+
+  const totalGeral = transacoesNotificacao.filter(t => t.tipo === "despesa").reduce((a, t) => a + t.valor, 0);
+  const qtdTotal = transacoesNotificacao.length;
 
   return (
-    <div className="fixed inset-0 z-[310] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="w-full max-w-md p-5 lg-modal max-h-[80vh] overflow-y-auto">
-        <div className="flex items-center gap-2 mb-4">
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-white/40">
-            <ArrowLeft size={18} className="lg-text-muted" />
-          </button>
-          <h3 className="text-lg font-bold lg-text-primary">Subcategorias de {categoria.name}</h3>
-        </div>
+    <div className="grid gap-3">
 
-        {/* Lista de subcategorias */}
-        <div className="space-y-2 max-h-80 overflow-y-auto mb-4">
-          {subcategorias.length === 0 ? (
-            <p className="text-center text-sm lg-text-muted py-4">Nenhuma subcategoria cadastrada.</p>
-          ) : (
-            subcategorias.map(sub => (
-              <div key={sub.id} className="p-3 rounded-xl lg-item-row flex items-center justify-between">
-                <span className="font-medium lg-text-primary">{sub.name}</span>
-                {/* Futuramente pode ter opção de editar/excluir */}
-              </div>
-            ))
-          )}
+      {/* Cabeçalho informativo */}
+      <div className="lg-card p-3">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="size-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(243,244,246,0.8)", border: "1px solid rgba(210,210,215,0.5)" }}>
+            <Wifi size={16} color="#6b7280" />
+          </div>
+          <div>
+            <div className="text-sm font-bold lg-text-primary">Conexões bancárias</div>
+            <div className="text-[10px] lg-text-muted">{qtdTotal} movimentaç{qtdTotal !== 1 ? "ões" : "ão"} • {formatCurrency(totalGeral)} em saídas</div>
+          </div>
         </div>
-
-        {/* Adicionar nova subcategoria */}
-        <div className="flex gap-2">
-          <Input
-            placeholder="Nova subcategoria"
-            value={novaSubcategoria}
-            onChange={(e) => setNovaSubcategoria(e.target.value)}
-            className="flex-1"
-          />
-          <Button onClick={adicionarSubcategoria} disabled={loading} className="px-4">
-            <Plus size={16} />
-          </Button>
+        <div className="rounded-xl p-2.5 text-[10px] lg-text-muted" style={{ background: "rgba(243,244,246,0.7)", border: "1px solid rgba(210,210,215,0.45)" }}>
+          <span className="font-bold lg-text-secondary">Como funciona agora:</span> Cole o texto de uma notificação bancária abaixo. O app identifica o banco, extrai o valor e categoriza automaticamente.
+          <span className="block mt-1 font-bold" style={{ color: "#374151" }}>Após publicar na Play Store: as notificações serão lidas automaticamente em segundo plano.</span>
         </div>
       </div>
+
+      {/* INPUT MANUAL (placeholder do NotificationListenerService) */}
+      {/* ⚠️ MIGRATION POINT: no React Native, este bloco inteiro será substituído pelo
+          NotificationListenerService que intercepta notificações automaticamente e chama
+          onAdicionarTransacao(parsearNotificacao(notificacao.text)) diretamente. */}
+      <div className="lg-card p-3">
+        <div className="text-xs font-bold lg-text-secondary mb-2">Inserir notificação bancária</div>
+        <textarea
+          value={textoNotif}
+          onChange={e => setTextoNotif(e.target.value)}
+          placeholder={"Ex: Nubank: Compra aprovada de R$ 39,90 em NETFLIX\nEx: Itaú: Pix recebido R$ 500,00 de João Silva"}
+          rows={3}
+          className="w-full lg-input text-sm resize-none"
+          style={{ borderRadius: 14, lineHeight: 1.5 }}
+        />
+        <button
+          onClick={handleProcessarTexto}
+          disabled={!textoNotif.trim()}
+          className="mt-2 w-full lg-btn lg-btn-dark py-2 text-sm font-bold text-white rounded-2xl flex items-center justify-center gap-2"
+          style={{ opacity: textoNotif.trim() ? 1 : 0.5 }}
+        >
+          <Send size={14} /> Processar notificação
+        </button>
+
+        {/* Preview antes de confirmar */}
+        {preview && (
+          <div className="mt-3 rounded-2xl p-3 grid gap-2" style={{ background: "rgba(243,244,246,0.7)", border: "1px solid rgba(210,210,215,0.55)" }}>
+            <div className="text-[10px] font-bold lg-text-muted uppercase tracking-wider">Prévia detectada — confirme antes de salvar</div>
+            <div className="flex items-center gap-2">
+              <AvatarBanco banco={preview.banco} size={36} />
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-bold lg-text-primary truncate">{preview.descricao}</div>
+                <div className="text-[10px] lg-text-muted">{preview.banco.nome} • {preview.categoria} • {preview.natureza}</div>
+              </div>
+              <div className="text-base font-bold flex-shrink-0" style={{ color: preview.tipo === "receita" ? "#065F46" : "#991B1B" }}>
+                {preview.tipo === "receita" ? "+" : "-"}{formatCurrency(preview.valor)}
+              </div>
+            </div>
+            {preview.banco.id === "desconhecido" && (
+              <div className="flex items-center gap-1.5 text-[10px]" style={{ color: "#D97706" }}>
+                <AlertCircle size={11} /> Banco não identificado — você pode corrigir depois
+              </div>
+            )}
+            <div className="grid grid-cols-2 gap-2">
+              <button onClick={() => setPreview(null)} className="lg-btn lg-btn-secondary py-1.5 text-xs font-bold rounded-xl">Cancelar</button>
+              <button onClick={handleConfirmarPreview} className="lg-btn lg-btn-green py-1.5 text-xs font-bold text-white rounded-xl flex items-center justify-center gap-1">
+                <CheckCircle2 size={12} /> Confirmar
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Lista de bancos detectados */}
+      {grupos.length > 0 && (
+        <div className="lg-card p-3">
+          <div className="text-xs font-bold lg-text-secondary mb-2">Bancos detectados</div>
+          <div className="grid gap-2">
+            {grupos.map(grupo => {
+              const despesas = grupo.transacoes.filter(t => t.tipo === "despesa").reduce((a, t) => a + t.valor, 0);
+              const receitas = grupo.transacoes.filter(t => t.tipo === "receita").reduce((a, t) => a + t.valor, 0);
+              return (
+                <button
+                  key={grupo.banco.id}
+                  onClick={() => abrirBanco(grupo)}
+                  className="lg-item-row p-3 flex items-center gap-3 w-full text-left transition-all active:scale-[0.98]"
+                >
+                  <AvatarBanco banco={grupo.banco} size={44} />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-bold lg-text-primary">{grupo.banco.nome}</div>
+                    <div className="text-[10px] lg-text-muted">{grupo.transacoes.length} movimentaç{grupo.transacoes.length !== 1 ? "ões" : "ão"}</div>
+                    <div className="flex gap-2 mt-0.5">
+                      {despesas > 0 && <span className="text-[10px] font-semibold" style={{ color: "#991B1B" }}>-{formatCurrency(despesas)}</span>}
+                      {receitas > 0 && <span className="text-[10px] font-semibold" style={{ color: "#065F46" }}>+{formatCurrency(receitas)}</span>}
+                    </div>
+                  </div>
+                  <ChevronRight size={16} color="#9ca3af" />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Estado vazio */}
+      {grupos.length === 0 && (
+        <div className="lg-card p-6 flex flex-col items-center justify-center gap-3 text-center">
+          <div className="size-14 rounded-3xl flex items-center justify-center" style={{ background: "rgba(243,244,246,0.8)", border: "1px solid rgba(210,210,215,0.5)" }}>
+            <Building2 size={28} color="#9ca3af" />
+          </div>
+          <div>
+            <div className="text-sm font-bold lg-text-primary">Nenhum banco conectado ainda</div>
+            <div className="text-xs lg-text-muted mt-1">Cole o texto de uma notificação bancária acima para começar a detectar seus gastos automaticamente.</div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal detalhe */}
+      {bancoSelecionado && (
+        <ModalBanco
+          banco={bancoSelecionado.banco}
+          transacoes={bancoSelecionado.transacoes}
+          isOpen={modalAberto}
+          onClose={() => setModalAberto(false)}
+          onCorrigirBanco={(novoBancoId) => {
+            onCorrigirBanco(bancoSelecionado.banco.id, novoBancoId);
+            setModalAberto(false);
+          }}
+          bancosDisponiveis={BANCOS_CATALOGO}
+        />
+      )}
     </div>
   );
 }
@@ -1010,16 +1179,8 @@ export default function AppFinanceiroCompleto() {
   const [gastoFixoDia, setGastoFixoDia] = useState("");
   const [gastoFixoAviso, setGastoFixoAviso] = useState("3");
   const [metaMensalInput, setMetaMensalInput] = useState("");
-
-  // CONEXÕES
-  const [connectedAccounts, setConnectedAccounts] = useState([]);
-  const [addAccountModalOpen, setAddAccountModalOpen] = useState(false);
-  const [newBankName, setNewBankName] = useState("");
-
-  // CATEGORIAS E SUBCATEGORIAS
-  const [categoriasModalOpen, setCategoriasModalOpen] = useState(false);
-  const [subcategoriasModalOpen, setSubcategoriasModalOpen] = useState(false);
-  const [categoriaSelecionada, setCategoriaSelecionada] = useState(null);
+  // CONEXÕES — transações detectadas por notificação (salvas no Supabase)
+  const [transacoesNotificacao, setTransacoesNotificacao] = useState([]);
 
   useEffect(() => {
     const viewport = document.querySelector('meta[name="viewport"]');
@@ -1034,7 +1195,7 @@ export default function AppFinanceiroCompleto() {
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) { setIsAuthenticated(true); setUser(session.user); setUserName(session.user.user_metadata?.full_name || "Usuário"); setUserPhoto(session.user.user_metadata?.avatar_url || DEFAULT_AVATAR); carregarDadosDoUsuario(session.user.id); }
-      else { setIsAuthenticated(false); setUser(null); setLancamentos([]); setContas([]); setCartoes([]); setGastosFixos([]); setConnectedAccounts([]); }
+      else { setIsAuthenticated(false); setUser(null); setLancamentos([]); setContas([]); setCartoes([]); setGastosFixos([]); }
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -1048,8 +1209,9 @@ export default function AppFinanceiroCompleto() {
     if (gastosData) setGastosFixos(gastosData);
     const { data: metaData } = await supabase.from('user_settings').select('meta_mensal').eq('user_id', userId).single();
     if (metaData) setMetaMensal(metaData.meta_mensal || 0);
-    const { data: connData } = await supabase.from('connected_accounts').select('*').eq('user_id', userId).eq('is_active', true);
-    if (connData) setConnectedAccounts(connData);
+    // Carrega transações vindas de notificações
+    const { data: notifData } = await supabase.from('notification_transactions').select('*').eq('user_id', userId).order('data', { ascending: false });
+    if (notifData) setTransacoesNotificacao(notifData);
   }
 
   const handleLogin = async () => { const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } }); if (error) console.error(error); };
@@ -1057,7 +1219,7 @@ export default function AppFinanceiroCompleto() {
 
   async function excluirConta() {
     const userId = user?.id;
-    if (userId) { await supabase.from('transactions').delete().eq('user_id', userId); await supabase.from('accounts').delete().eq('user_id', userId); await supabase.from('fixed_expenses').delete().eq('user_id', userId); await supabase.from('user_settings').delete().eq('user_id', userId); await supabase.from('connected_accounts').delete().eq('user_id', userId); await supabase.from('categories').delete().eq('user_id', userId); }
+    if (userId) { await supabase.from('transactions').delete().eq('user_id', userId); await supabase.from('accounts').delete().eq('user_id', userId); await supabase.from('fixed_expenses').delete().eq('user_id', userId); await supabase.from('user_settings').delete().eq('user_id', userId); }
     await supabase.auth.signOut(); setDeleteAccountModalOpen(false); setAviso("Conta excluída com sucesso.");
   }
 
@@ -1099,24 +1261,51 @@ export default function AppFinanceiroCompleto() {
   }
   async function desconectarCartao(id) { await desconectarConta(id); }
 
-  // CONEXÕES
-  async function adicionarContaConectada() {
-    if (!newBankName.trim()) return;
-    const userId = user?.id;
-    const { data, error } = await supabase.from('connected_accounts').insert([{ user_id: userId, bank_name: newBankName.trim(), is_active: true }]).select().single();
-    if (!error && data) { setConnectedAccounts(prev => [...prev, data]); setNewBankName(""); setAddAccountModalOpen(false); setAviso(`Conta ${newBankName} conectada!`); }
+  // CONEXÕES — adicionar transação de notificação
+  async function adicionarTransacaoNotificacao(transacao) {
+    const userId = user?.id; if (!userId) return;
+    const registro = {
+      user_id: userId,
+      descricao: transacao.descricao,
+      valor: transacao.valor,
+      tipo: transacao.tipo,
+      categoria: transacao.categoria,
+      natureza: transacao.natureza,
+      data: transacao.data,
+      banco_id: transacao.bancoId || "desconhecido",
+      texto_original: transacao.textoOriginal || "",
+      origem: "notificacao",
+    };
+    const { data, error } = await supabase.from('notification_transactions').insert([registro]).select();
+    if (!error && data) {
+      setTransacoesNotificacao(prev => [data[0], ...prev]);
+      // Também salva como lançamento normal para aparecer no fluxo financeiro
+      await supabase.from('transactions').insert([{
+        user_id: userId,
+        descricao: transacao.descricao,
+        valor: transacao.valor,
+        tipo: transacao.tipo,
+        categoria: transacao.categoria,
+        natureza: transacao.natureza,
+        data: transacao.data,
+      }]).select().then(({ data: ld }) => {
+        if (ld) setLancamentos(prev => [ld[0], ...prev]);
+      });
+      setAviso("Movimentação detectada e salva!");
+    }
   }
-  async function desconectarConnectedAccount(id) {
-    const userId = user?.id;
-    await supabase.from('connected_accounts').update({ is_active: false }).eq('id', id).eq('user_id', userId);
-    setConnectedAccounts(prev => prev.filter(c => c.id !== id));
-    setAviso("Conta desconectada.");
-  }
-  async function simularNotificacao(contaId, banco, descricao, valor) {
-    const userId = user?.id;
-    const nova = { user_id: userId, descricao: `${banco}: ${descricao}`, valor, tipo: "despesa", categoria: categorize(descricao), natureza: "variavel", data: new Date().toISOString().slice(0, 10), source: "notification", connected_account_id: contaId, external_id: `sim-${Date.now()}` };
-    const { error } = await supabase.from('transactions').insert([nova]);
-    if (!error) { setLancamentos(prev => [nova, ...prev]); setAviso(`📱 ${banco}: ${formatCurrency(valor)}`); }
+
+  // CONEXÕES — corrigir banco de um grupo de transações
+  async function corrigirBancoTransacoes(bancoAntigoId, novoBancoId) {
+    const userId = user?.id; if (!userId) return;
+    await supabase.from('notification_transactions')
+      .update({ banco_id: novoBancoId })
+      .eq('user_id', userId)
+      .eq('banco_id', bancoAntigoId);
+    setTransacoesNotificacao(prev =>
+      prev.map(t => t.banco_id === bancoAntigoId ? { ...t, banco_id: novoBancoId } : t)
+    );
+    setAviso("Banco atualizado!");
   }
 
   const mesAtual = new Date().toISOString().slice(0, 7);
@@ -1257,19 +1446,13 @@ export default function AppFinanceiroCompleto() {
           </div>
         )}
 
-        {/* ABA MOVIMENTOS - COM BOTÃO GERENCIAR CATEGORIAS */}
+        {/* ABA MOVIMENTOS */}
         {activeTab === "movimentos" && (
           <div className="lg-card">
             <div className="grid gap-2 p-3">
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-2">
                 <span className="text-sm lg-text-secondary">Selecionar mês:</span>
                 <input type="month" value={mesFiltro} onChange={(e) => setMesFiltro(e.target.value)} className="lg-input w-40 text-sm py-1 px-3" style={{ borderRadius: 14 }} />
-                <button
-                  onClick={() => setCategoriasModalOpen(true)}
-                  className="ml-auto lg-btn lg-btn-secondary px-3 py-1.5 text-xs font-medium rounded-xl flex items-center gap-1"
-                >
-                  <Edit size={14} /> Gerenciar categorias
-                </button>
               </div>
               {Object.entries(lancamentosFiltrados.reduce((acc, l) => { if (!acc[l.data]) acc[l.data] = []; acc[l.data].push(l); return acc; }, {})).sort((a, b) => (a[0] < b[0] ? 1 : -1)).map(([data, itens]) => (
                 <div key={data} className="grid gap-1.5">
@@ -1373,141 +1556,27 @@ export default function AppFinanceiroCompleto() {
           </div>
         )}
 
-        {/* ABA CONEXÕES */}
-        {activeTab === "conexoes" && (
-          <div className="lg-card">
-            <div className="p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-base font-semibold lg-text-primary">Conexões</h3>
-                <button onClick={() => setAddAccountModalOpen(true)} className="lg-btn lg-btn-dark px-3 py-1.5 text-xs font-bold text-white rounded-xl">
-                  + Conectar
-                </button>
-              </div>
-              <p className="text-xs lg-text-muted mb-4">
-                Contas conectadas via notificações ou Open Finance.
-              </p>
-
-              {connectedAccounts.length === 0 ? (
-                <div className="text-center py-8 text-sm lg-text-muted">
-                  Nenhuma conta conectada.<br />Clique em "Conectar" para adicionar um banco.
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {connectedAccounts.map((conta) => {
-                    const transacoesConta = lancamentos.filter(l => l.connected_account_id === conta.id && l.source === 'notification');
-                    const total = transacoesConta.reduce((sum, t) => sum + (t.valor || 0), 0);
-                    const [mostrarDetalhes, setMostrarDetalhes] = useState(false);
-
-                    const corIcone = {
-                      "Nubank": "bg-purple-500/30 text-purple-700",
-                      "Itaú": "bg-orange-500/30 text-orange-700",
-                      "Bradesco": "bg-red-500/30 text-red-700",
-                      "Inter": "bg-amber-500/30 text-amber-700",
-                    }[conta.bank_name] || "bg-gray-500/30 text-gray-700";
-
-                    return (
-                      <div key={conta.id} className="rounded-xl overflow-hidden" style={{ background: "rgba(255,255,255,0.5)", border: "1px solid rgba(210,210,215,0.6)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9)" }}>
-                        <div className="flex items-center gap-3 p-3 cursor-pointer hover:bg-white/30 transition-colors" onClick={() => setMostrarDetalhes(!mostrarDetalhes)}>
-                          <div className={`size-10 rounded-full flex items-center justify-center font-bold text-lg border ${corIcone}`}>
-                            {conta.bank_name.charAt(0).toUpperCase()}
-                          </div>
-                          <div className="flex-1">
-                            <div className="font-medium lg-text-primary">{conta.bank_name}</div>
-                            <div className="text-[10px] lg-text-muted">
-                              {transacoesConta.length} movimentações • Total: {formatCurrency(total)}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <button onClick={(e) => { e.stopPropagation(); desconectarConnectedAccount(conta.id); }} className="text-[10px] text-rose-600 hover:underline">Desconectar</button>
-                            <ArrowLeft className={`size-4 text-gray-500 transition-transform ${mostrarDetalhes ? 'rotate-0' : 'rotate-180'}`} />
-                          </div>
-                        </div>
-                        {mostrarDetalhes && (
-                          <div className="border-t border-gray-200 px-3 py-2 bg-white/30">
-                            <div className="flex justify-between items-center mb-2">
-                              <p className="text-[10px] lg-text-muted">📋 Movimentações detectadas</p>
-                              <button onClick={() => simularNotificacao(conta.id, conta.bank_name, "Compra exemplo", 49.90)} className="text-[10px] text-blue-600 hover:underline">Simular</button>
-                            </div>
-                            {transacoesConta.length === 0 ? (
-                              <p className="text-[10px] lg-text-muted italic">Nenhuma movimentação ainda.</p>
-                            ) : (
-                              <div className="space-y-1.5 max-h-48 overflow-y-auto">
-                                {transacoesConta.map(t => (
-                                  <div key={t.id} className="flex justify-between items-center text-sm">
-                                    <div>
-                                      <span className="lg-text-primary">{t.descricao.replace(conta.bank_name + ': ', '')}</span>
-                                      <span className="text-[10px] lg-text-muted ml-2">{t.categoria}</span>
-                                    </div>
-                                    <span className={t.tipo === "receita" ? "text-emerald-600" : "text-rose-600"}>
-                                      {formatCurrency(t.valor)}
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              <div className="mt-5">
-                <h4 className="text-xs font-semibold lg-text-secondary mb-2">Bancos disponíveis</h4>
-                <div className="flex flex-wrap gap-2">
-                  {["Nubank", "Itaú", "Bradesco", "Banco do Brasil", "Caixa", "Inter", "C6", "Santander"].map((banco) => (
-                    <button key={banco} onClick={() => { setNewBankName(banco); setAddAccountModalOpen(true); }} className="px-3 py-1.5 rounded-full text-xs lg-text-primary hover:bg-white/60 transition-colors" style={{ background: "rgba(255,255,255,0.65)", border: "1px solid rgba(210,210,215,0.6)" }}>
-                      {banco}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <p className="text-[10px] lg-text-muted mt-4 text-center">
-                🔮 Em breve: Open Finance e leitura automática de notificações.
-              </p>
-            </div>
-          </div>
-        )}
-
         <div className="w-full text-center mt-3 pb-2">
           <div className="inline-block px-3 py-1 rounded-full" style={{ background: "rgba(255,255,255,0.65)", border: "1px solid rgba(210,210,215,0.55)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9)" }}>
             <span className="text-[10px] lg-text-muted tracking-wide font-bold">Segue em frente... a cada passo de confiança a luz aparece.</span>
           </div>
         </div>
+
+        {/* ABA CONEXÕES */}
+        {activeTab === "conexoes" && (
+          <AbaConexoes
+            transacoesNotificacao={transacoesNotificacao.map(t => ({
+              ...t,
+              bancoId: t.banco_id,
+              banco: BANCOS_CATALOGO.find(b => b.id === t.banco_id) || BANCOS_CATALOGO.find(b => b.id === "desconhecido"),
+            }))}
+            onAdicionarTransacao={adicionarTransacaoNotificacao}
+            onCorrigirBanco={corrigirBancoTransacoes}
+            user={user}
+          />
+        )}
+
       </div>
-
-      {/* MODAL ADICIONAR CONTA CONECTADA */}
-      {addAccountModalOpen && (
-        <div className="fixed inset-0 z-[300] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-sm p-5 lg-modal">
-            <h3 className="text-lg font-bold lg-text-primary mb-3">Conectar Banco</h3>
-            <Input placeholder="Nome do banco (ex: Nubank)" value={newBankName} onChange={(e) => setNewBankName(e.target.value)} className="mb-4" />
-            <div className="flex gap-2">
-              <Button variant="secondary" onClick={() => setAddAccountModalOpen(false)} className="flex-1">Cancelar</Button>
-              <Button onClick={adicionarContaConectada} className="flex-1">Conectar</Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* MODAIS DE CATEGORIAS E SUBCATEGORIAS */}
-      <CategoriasModal
-        isOpen={categoriasModalOpen}
-        onClose={() => setCategoriasModalOpen(false)}
-        userId={user?.id}
-        onSelectCategoria={(cat) => {
-          setCategoriaSelecionada(cat);
-          setCategoriasModalOpen(false);
-          setSubcategoriasModalOpen(true);
-        }}
-      />
-      <SubcategoriasModal
-        isOpen={subcategoriasModalOpen}
-        onClose={() => setSubcategoriasModalOpen(false)}
-        userId={user?.id}
-        categoria={categoriaSelecionada}
-      />
 
       {/* MODAL PREVIEW LANÇAMENTO */}
       {previewLancamento && (
