@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  ArrowLeft, Bell, Crown, Shield, LogOut, Sparkles, Paperclip, Mic, Image, Camera, X, Square, Trash2
+  ArrowLeft, Bell, Crown, Shield, LogOut, Sparkles, Paperclip, Mic, Image, Camera, X, Square, Trash2,
+  Building2, ChevronRight, CheckCircle2, AlertCircle, Send, Edit2, Wifi
 } from "lucide-react";
 import * as d3 from "d3-shape";
 import {
@@ -20,167 +21,183 @@ const LG_STYLES = `
     100% { background-position: 0% 50%; }
   }
   @keyframes shimmerLight {
-    0%   { transform: translateX(-100%) skewX(-15deg); }
-    100% { transform: translateX(300%) skewX(-15deg); }
+    0%   { transform: translateX(-100%) skewX(-12deg); opacity: 0; }
+    20%  { opacity: 1; }
+    80%  { opacity: 1; }
+    100% { transform: translateX(300%) skewX(-12deg); opacity: 0; }
   }
 
-  /* FUNDO CLARO — gradiente pérola animado */
+  /* FUNDO — cinza neutro puro, sem nenhum tom azulado */
   .lg-bg {
-    background: linear-gradient(135deg,
-      #f0f4ff 0%,
-      #e8f0fe 18%,
-      #f5f0ff 36%,
-      #fef0f8 54%,
-      #f0f8ff 72%,
-      #eef4fb 90%,
-      #f0f4ff 100%
+    background: linear-gradient(160deg,
+      #f5f5f5 0%,
+      #f0f0f0 30%,
+      #ebebeb 60%,
+      #f2f2f2 100%
     );
     background-size: 400% 400%;
-    animation: liquidShiftLight 20s ease infinite;
+    animation: liquidShiftLight 26s ease infinite;
   }
 
-  /* CARD glass claro */
+  /* CARD glass — neutro puro */
   .lg-card {
-    background: rgba(255,255,255,0.62);
-    backdrop-filter: blur(28px) saturate(200%);
-    -webkit-backdrop-filter: blur(28px) saturate(200%);
-    border: 1px solid rgba(255,255,255,0.85);
+    background: rgba(255,255,255,0.76);
+    backdrop-filter: blur(32px) saturate(160%) brightness(1.01);
+    -webkit-backdrop-filter: blur(32px) saturate(160%) brightness(1.01);
+    border: 1px solid rgba(255,255,255,0.94);
     box-shadow:
-      0 8px 32px rgba(100,120,200,0.10),
-      0 2px 8px rgba(120,140,220,0.07),
-      inset 0 1px 0 rgba(255,255,255,0.95),
-      inset 0 -1px 0 rgba(200,210,240,0.3);
-    border-radius: 24px;
+      0 1px 0 rgba(255,255,255,1) inset,
+      0 -1px 0 rgba(0,0,0,0.04) inset,
+      0 4px 20px rgba(0,0,0,0.05),
+      0 1px 4px rgba(0,0,0,0.03);
+    border-radius: 22px;
     position: relative;
     overflow: hidden;
   }
   .lg-card::before {
     content: '';
     position: absolute;
-    top: 0; left: -60%;
-    width: 40%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
-    animation: shimmerLight 7s ease-in-out infinite;
+    top: 0; left: -80%;
+    width: 35%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+    animation: shimmerLight 9s ease-in-out infinite;
     pointer-events: none;
   }
 
   /* BOTÕES */
   .lg-btn {
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border-radius: 16px;
-    transition: all 0.2s ease;
+    transition: all 0.18s ease;
     font-weight: 700;
+    letter-spacing: -0.01em;
   }
-  .lg-btn:active { transform: scale(0.96); }
+  .lg-btn:active { transform: scale(0.97); }
 
+  /* Verde e vermelho mantidos — são os únicos com cor */
   .lg-btn-green {
-    background: linear-gradient(135deg, rgba(16,185,129,0.88) 0%, rgba(5,150,105,0.82) 100%);
-    border: 1px solid rgba(16,185,129,0.4);
-    box-shadow: 0 4px 16px rgba(16,185,129,0.28), inset 0 1px 0 rgba(255,255,255,0.35);
+    background: linear-gradient(150deg, #00c48c 0%, #00a876 100%);
+    border: 1px solid rgba(0,196,140,0.3);
+    box-shadow: 0 4px 20px rgba(0,168,118,0.28), 0 1px 0 rgba(255,255,255,0.3) inset;
     color: white;
   }
   .lg-btn-red {
-    background: linear-gradient(135deg, rgba(239,68,68,0.88) 0%, rgba(220,38,38,0.82) 100%);
-    border: 1px solid rgba(239,68,68,0.35);
-    box-shadow: 0 4px 16px rgba(239,68,68,0.25), inset 0 1px 0 rgba(255,255,255,0.35);
+    background: linear-gradient(150deg, #ff4f6d 0%, #e8324f 100%);
+    border: 1px solid rgba(232,50,79,0.3);
+    box-shadow: 0 4px 20px rgba(232,50,79,0.25), 0 1px 0 rgba(255,255,255,0.25) inset;
     color: white;
   }
+
+  /* Demais botões — cinza neutro */
   .lg-btn-dark {
-    background: linear-gradient(135deg, rgba(30,58,138,0.92) 0%, rgba(15,39,71,0.95) 100%);
-    border: 1px solid rgba(99,140,230,0.3);
-    box-shadow: 0 4px 16px rgba(30,58,138,0.25), inset 0 1px 0 rgba(255,255,255,0.2);
+    background: linear-gradient(150deg, #1a1a1a 0%, #111111 100%);
+    border: 1px solid rgba(255,255,255,0.07);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.20), 0 1px 0 rgba(255,255,255,0.07) inset;
     color: white;
   }
   .lg-btn-secondary {
-    background: rgba(255,255,255,0.6);
-    border: 1px solid rgba(180,190,230,0.55);
-    color: #374151;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 2px 6px rgba(100,120,200,0.08);
+    background: rgba(255,255,255,0.8);
+    border: 1px solid rgba(0,0,0,0.1);
+    color: #1a1a1a;
+    box-shadow: 0 1px 0 rgba(255,255,255,1) inset, 0 2px 6px rgba(0,0,0,0.05);
   }
   .lg-btn-destructive {
-    background: linear-gradient(135deg, rgba(239,68,68,0.85) 0%, rgba(185,28,28,0.85) 100%);
-    border: 1px solid rgba(252,165,165,0.4);
-    box-shadow: 0 4px 12px rgba(239,68,68,0.2), inset 0 1px 0 rgba(255,255,255,0.3);
+    background: linear-gradient(150deg, #ff4f6d 0%, #e8324f 100%);
+    border: 1px solid rgba(232,50,79,0.28);
+    box-shadow: 0 4px 14px rgba(232,50,79,0.2), 0 1px 0 rgba(255,255,255,0.2) inset;
     color: white;
   }
 
-  /* INPUT glass claro */
-  .lg-input {
-    background: rgba(255,255,255,0.72) !important;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(180,190,230,0.5) !important;
-    color: #1e293b !important;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 2px 8px rgba(100,120,200,0.06);
-    border-radius: 14px !important;
+  /* BOTÃO AI — exatamente como "Criar agente" do Nubank: pill escuro, texto branco */
+  .lg-ai-pill {
+    background: #1a1a1a;
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.22), 0 1px 0 rgba(255,255,255,0.08) inset;
+    border-radius: 999px;
+    transition: all 0.18s ease;
+    color: white;
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: -0.01em;
   }
-  .lg-input::placeholder { color: rgba(100,116,139,0.6) !important; }
+  .lg-ai-pill:active {
+    transform: scale(0.97);
+    background: #222;
+  }
+
+  /* INPUT — cinza neutro */
+  .lg-input {
+    background: rgba(255,255,255,0.85) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(0,0,0,0.1) !important;
+    color: #111 !important;
+    box-shadow: 0 1px 0 rgba(255,255,255,1) inset, 0 2px 6px rgba(0,0,0,0.04);
+    border-radius: 14px !important;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .lg-input::placeholder { color: rgba(0,0,0,0.35) !important; }
   .lg-input:focus {
-    border-color: rgba(99,102,241,0.45) !important;
-    box-shadow: 0 0 0 3px rgba(99,102,241,0.1), inset 0 1px 0 rgba(255,255,255,0.9) !important;
+    border-color: rgba(0,0,0,0.25) !important;
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.06), 0 1px 0 rgba(255,255,255,1) inset !important;
     outline: none;
   }
 
-  /* BARRA DE ABAS glass claro */
+  /* BARRA DE ABAS — cinza neutro */
   .lg-tab-bar {
-    background: rgba(255,255,255,0.55);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(255,255,255,0.82);
-    box-shadow:
-      0 4px 20px rgba(100,120,200,0.1),
-      inset 0 1px 0 rgba(255,255,255,0.95);
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255,255,255,0.92);
+    box-shadow: 0 1px 0 rgba(255,255,255,1) inset, 0 4px 14px rgba(0,0,0,0.05);
     border-radius: 18px;
   }
   .lg-tab-active {
-    background: rgba(255,255,255,0.88);
-    box-shadow:
-      0 2px 12px rgba(100,120,200,0.15),
-      inset 0 1px 0 rgba(255,255,255,1);
-    color: #1e293b;
+    background: rgba(255,255,255,0.97);
+    box-shadow: 0 1px 0 rgba(255,255,255,1) inset, 0 2px 8px rgba(0,0,0,0.08);
+    color: #111;
     border-radius: 13px;
   }
-  .lg-tab-inactive { color: rgba(100,116,139,0.75); }
+  .lg-tab-inactive { color: rgba(0,0,0,0.38); }
 
-  /* CARDS DE ESTATÍSTICAS */
+  /* CARDS DE ESTATÍSTICAS — cinza neutro, só verde e vermelho mantêm cor */
   .lg-stat-green {
-    background: rgba(209,250,229,0.7);
-    border: 1px solid rgba(110,231,183,0.5);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
+    background: rgba(240,253,245,0.85);
+    border: 1px solid rgba(0,168,118,0.2);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset;
     border-radius: 16px;
   }
   .lg-stat-red {
-    background: rgba(254,226,226,0.7);
-    border: 1px solid rgba(252,165,165,0.5);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
+    background: rgba(255,241,242,0.85);
+    border: 1px solid rgba(232,50,79,0.18);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset;
     border-radius: 16px;
   }
   .lg-stat-blue {
-    background: rgba(219,234,254,0.7);
-    border: 1px solid rgba(147,197,253,0.5);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
+    background: rgba(248,248,248,0.85);
+    border: 1px solid rgba(0,0,0,0.08);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset;
     border-radius: 16px;
   }
   .lg-stat-amber {
-    background: rgba(254,243,199,0.7);
-    border: 1px solid rgba(252,211,77,0.5);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
+    background: rgba(248,248,248,0.85);
+    border: 1px solid rgba(0,0,0,0.08);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset;
     border-radius: 16px;
   }
 
   /* TEXTOS */
-  .lg-text-primary   { color: #0f172a; }
-  .lg-text-secondary { color: #334155; }
-  .lg-text-muted     { color: #64748b; }
-  .lg-divider        { background: rgba(200,210,240,0.5); }
+  .lg-text-primary   { color: #111111; }
+  .lg-text-secondary { color: #3a3a3a; }
+  .lg-text-muted     { color: #6b6b6b; }
+  .lg-divider        { background: rgba(0,0,0,0.08); }
 
-  /* HEADER DO PERFIL */
+  /* HEADER DO PERFIL — cinza neutro */
   .lg-profile-header {
-    background: linear-gradient(135deg,
-      rgba(224,231,255,0.98) 0%,
-      rgba(199,210,254,0.98) 50%,
-      rgba(221,214,254,0.98) 100%
+    background: linear-gradient(145deg,
+      rgba(245,245,245,0.99) 0%,
+      rgba(238,238,238,0.99) 100%
     );
     backdrop-filter: blur(30px);
     -webkit-backdrop-filter: blur(30px);
@@ -188,62 +205,62 @@ const LG_STYLES = `
 
   /* ITEM ROW */
   .lg-item-row {
-    background: rgba(255,255,255,0.65);
-    border: 1px solid rgba(200,210,240,0.55);
+    background: rgba(255,255,255,0.82);
+    border: 1px solid rgba(0,0,0,0.07);
     border-radius: 16px;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.95);
+    box-shadow: 0 1px 0 rgba(255,255,255,1) inset, 0 1px 3px rgba(0,0,0,0.04);
   }
 
   /* SELECT */
   .lg-select {
-    background: rgba(255,255,255,0.72) !important;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(180,190,230,0.5) !important;
-    color: #1e293b !important;
+    background: rgba(255,255,255,0.85) !important;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0,0,0,0.1) !important;
+    color: #111 !important;
     border-radius: 14px !important;
   }
-  .lg-select option { background: #ffffff; color: #1e293b; }
+  .lg-select option { background: #ffffff; color: #111; }
 
   /* MODAL */
   .lg-modal {
-    background: rgba(248,250,255,0.96);
-    backdrop-filter: blur(40px) saturate(200%);
-    -webkit-backdrop-filter: blur(40px) saturate(200%);
-    border: 1px solid rgba(255,255,255,0.92);
+    background: rgba(252,252,252,0.97);
+    backdrop-filter: blur(48px) saturate(160%) brightness(1.01);
+    -webkit-backdrop-filter: blur(48px) saturate(160%) brightness(1.01);
+    border: 1px solid rgba(255,255,255,0.96);
     box-shadow:
-      0 24px 80px rgba(100,120,200,0.18),
-      0 4px 16px rgba(100,120,200,0.10),
-      inset 0 1px 0 rgba(255,255,255,1);
+      0 1px 0 rgba(255,255,255,1) inset,
+      0 32px 80px rgba(0,0,0,0.12),
+      0 4px 16px rgba(0,0,0,0.06);
     border-radius: 32px;
   }
 
   /* AVATAR */
   .lg-avatar-ring {
-    border: 2px solid rgba(99,102,241,0.4);
-    box-shadow: 0 0 0 3px rgba(99,102,241,0.1), 0 4px 16px rgba(100,120,200,0.2);
+    border: 2px solid rgba(0,0,0,0.12);
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.05), 0 4px 14px rgba(0,0,0,0.10);
   }
 
   /* CHAT */
   .lg-chat-bubble-user {
-    background: rgba(255,255,255,0.75);
-    border: 1px solid rgba(200,210,240,0.6);
-    backdrop-filter: blur(10px);
-    color: #1e293b;
+    background: rgba(255,255,255,0.92);
+    border: 1px solid rgba(0,0,0,0.07);
+    backdrop-filter: blur(12px);
+    color: #111;
     border-radius: 18px 18px 4px 18px;
-    box-shadow: 0 2px 8px rgba(100,120,200,0.08);
+    box-shadow: 0 1px 0 rgba(255,255,255,1) inset, 0 2px 6px rgba(0,0,0,0.05);
   }
-  .lg-chat-bubble-bot { color: #334155; }
+  .lg-chat-bubble-bot { color: #3a3a3a; }
   .lg-chat-input {
-    background: rgba(255,255,255,0.72);
-    border: 1px solid rgba(200,210,240,0.55);
+    background: rgba(255,255,255,0.88);
+    border: 1px solid rgba(0,0,0,0.1);
     backdrop-filter: blur(16px);
-    color: #1e293b;
+    color: #111;
     border-radius: 999px;
   }
-  .lg-chat-input::placeholder { color: rgba(100,116,139,0.55); }
+  .lg-chat-input::placeholder { color: rgba(0,0,0,0.32); }
 
   /* FITA */
-  .lg-fita-track { background: rgba(200,210,240,0.35); }
+  .lg-fita-track { background: rgba(0,0,0,0.08); }
 
   .scrollbar-hide::-webkit-scrollbar { display: none; }
 `;
@@ -302,9 +319,9 @@ function parseCurrencyInput(value) {
 
 const DEFAULT_AVATAR = `data:image/svg+xml;utf8,${encodeURIComponent(`
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-    <rect width="128" height="128" rx="64" fill="#e0e7ff"/>
-    <circle cx="64" cy="48" r="22" fill="#a5b4fc"/>
-    <path d="M24 112c7-22 24-34 40-34s33 12 40 34" fill="#a5b4fc"/>
+    <rect width="128" height="128" rx="64" fill="#e5e7eb"/>
+    <circle cx="64" cy="48" r="22" fill="#9ca3af"/>
+    <path d="M24 112c7-22 24-34 40-34s33 12 40 34" fill="#9ca3af"/>
   </svg>
 `)}`;
 
@@ -385,23 +402,23 @@ function UserProfile({ isOpen, onClose, onLogout, user, contas, cartoes, onDisco
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-[240] bg-slate-900/30 backdrop-blur-sm">
-      <motion.div initial={{ x: "-100%" }} animate={{ x: 0 }} className="absolute left-0 top-0 h-full w-full max-w-sm shadow-2xl overflow-y-auto flex flex-col" style={{ background: "linear-gradient(160deg, #f0f4ff 0%, #e8f0fe 50%, #f5f0ff 100%)" }}>
+      <motion.div initial={{ x: "-100%" }} animate={{ x: 0 }} className="absolute left-0 top-0 h-full w-full max-w-sm shadow-2xl overflow-y-auto flex flex-col" style={{ background: "linear-gradient(160deg, #f8f9fa 0%, #f3f4f6 50%, #f1f2f4 100%)" }}>
 
         {/* Header lilás claro */}
         <div className="relative h-48 lg-profile-header p-6 overflow-hidden flex-shrink-0">
-          <div className="absolute top-0 right-0 w-40 h-40 rounded-full opacity-30" style={{ background: "radial-gradient(circle, rgba(167,139,250,0.5) 0%, transparent 70%)", top: -20, right: -20 }} />
+          <div className="absolute top-0 right-0 w-40 h-40 rounded-full opacity-20" style={{ background: "radial-gradient(circle, rgba(180,180,180,0.6) 0%, transparent 70%)", top: -20, right: -20 }} />
           <div className="flex items-center justify-between relative z-10">
-            <button onClick={onClose} className="p-2 rounded-full transition-colors" style={{ background: "rgba(255,255,255,0.6)", border: "1px solid rgba(200,210,240,0.6)", boxShadow: "0 2px 8px rgba(100,120,200,0.1)" }}>
-              <ArrowLeft size={20} color="#4338ca" />
+            <button onClick={onClose} className="p-2 rounded-full transition-colors" style={{ background: "rgba(255,255,255,0.7)", border: "1px solid rgba(210,210,215,0.6)", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
+              <ArrowLeft size={20} color="#374151" />
             </button>
             <div className="size-6" />
           </div>
           <div className="absolute top-full -translate-y-[105%] left-8 z-20">
             <div className="relative group">
-              <div className="size-24 rounded-[32px] p-1 shadow-xl rotate-3 group-hover:rotate-0 transition-transform duration-500 overflow-hidden" style={{ background: "rgba(255,255,255,0.85)", border: "2px solid rgba(167,139,250,0.5)" }}>
+              <div className="size-24 rounded-[32px] p-1 shadow-xl rotate-3 group-hover:rotate-0 transition-transform duration-500 overflow-hidden" style={{ background: "rgba(255,255,255,0.85)", border: "2px solid rgba(210,210,215,0.7)" }}>
                 <img src={user.photo || DEFAULT_AVATAR} className="w-full h-full object-cover rounded-[28px]" alt="Avatar" />
               </div>
-              <label className="absolute -bottom-1 -right-1 p-2 rounded-2xl cursor-pointer shadow-lg hover:scale-110 transition-transform" style={{ background: "linear-gradient(135deg, rgba(99,102,241,0.9) 0%, rgba(139,92,246,0.9) 100%)", border: "1px solid rgba(167,139,250,0.4)" }}>
+              <label className="absolute -bottom-1 -right-1 p-2 rounded-2xl cursor-pointer shadow-lg hover:scale-110 transition-transform" style={{ background: "linear-gradient(135deg, rgba(55,65,81,0.92) 0%, rgba(31,41,55,0.95) 100%)", border: "1px solid rgba(156,163,175,0.35)" }}>
                 <Sparkles size={12} color="white" />
                 <input type="file" className="hidden" accept="image/*" onChange={(e) => {
                   const file = e.target.files?.[0]; if (!file) return;
@@ -421,7 +438,7 @@ function UserProfile({ isOpen, onClose, onLogout, user, contas, cartoes, onDisco
                 <div className="flex items-center gap-2 w-full">
                   <Input value={tempName} onChange={(e) => setTempName(e.target.value)} className="flex-1 py-2 px-3 text-sm font-bold" />
                   <button onClick={() => { onUpdateName(tempName.trim() || "Usuário"); setEditingName(false); }} className="lg-btn lg-btn-dark px-3 py-2 text-xs font-black text-white rounded-xl">Salvar</button>
-                  <button onClick={() => { setTempName(user.name); setEditingName(false); }} className="px-3 py-2 text-xs font-bold rounded-xl" style={{ background: "rgba(255,255,255,0.7)", color: "#64748b", border: "1px solid rgba(200,210,240,0.6)" }}>×</button>
+                  <button onClick={() => { setTempName(user.name); setEditingName(false); }} className="px-3 py-2 text-xs font-bold rounded-xl" style={{ background: "rgba(255,255,255,0.7)", color: "#64748b", border: "1px solid rgba(210,210,215,0.55)" }}>×</button>
                 </div>
               ) : (
                 <h3 className="text-2xl font-black tracking-tight truncate cursor-pointer hover:opacity-70 lg-text-primary" onClick={() => setEditingName(true)}>{user.name}</h3>
@@ -438,7 +455,7 @@ function UserProfile({ isOpen, onClose, onLogout, user, contas, cartoes, onDisco
                 <Crown size={20} color="#D97706" />
               </div>
               <div className="text-left">
-                <h4 className="font-black text-sm uppercase" style={{ color: "#92400E" }}>Upgrade para Pro</h4>
+                <h4 className="font-black text-sm uppercase" style={{ color: "#1a1a1a" }}>Upgrade para Pro</h4>
                 <p className="text-[10px] font-bold lg-text-muted uppercase">Acesso total ao Manin Intelligence</p>
               </div>
             </div>
@@ -476,7 +493,7 @@ function UserProfile({ isOpen, onClose, onLogout, user, contas, cartoes, onDisco
             <button onClick={onLogout} className="w-full p-3 rounded-2xl flex items-center gap-3 font-bold text-sm transition-colors" style={{ background: "rgba(254,226,226,0.7)", border: "1px solid rgba(252,165,165,0.4)", color: "#DC2626" }}>
               <LogOut size={16} /> Sair da conta
             </button>
-            <button onClick={onOpenDeleteAccount} className="w-full p-3 rounded-2xl flex items-center gap-3 font-medium text-sm transition-all" style={{ background: "rgba(255,255,255,0.5)", border: "1px solid rgba(200,210,240,0.45)", color: "#94a3b8" }}>
+            <button onClick={onOpenDeleteAccount} className="w-full p-3 rounded-2xl flex items-center gap-3 font-medium text-sm transition-all" style={{ background: "rgba(255,255,255,0.5)", border: "1px solid rgba(210,210,215,0.45)", color: "#94a3b8" }}>
               <Trash2 size={16} /> Excluir minha conta
             </button>
           </div>
@@ -508,11 +525,11 @@ function PremiumModal({ isOpen, onClose, onContinue }) {
             <div className="text-[10px] font-black uppercase lg-text-muted tracking-widest">Plano Premium</div>
             <h3 className="text-2xl font-black lg-text-primary">Desbloqueie tudo</h3>
           </div>
-          <button onClick={onClose} className="p-2 rounded-full" style={{ background: "rgba(255,255,255,0.7)", border: "1px solid rgba(200,210,240,0.5)" }}>
+          <button onClick={onClose} className="p-2 rounded-full" style={{ background: "rgba(255,255,255,0.7)", border: "1px solid rgba(210,210,215,0.55)" }}>
             <ArrowLeft size={18} color="#64748b" />
           </button>
         </div>
-        <div className="mt-4 rounded-2xl p-4 space-y-3" style={{ background: "rgba(240,244,255,0.7)", border: "1px solid rgba(200,210,240,0.5)" }}>
+        <div className="mt-4 rounded-2xl p-4 space-y-3" style={{ background: "rgba(243,244,246,0.7)", border: "1px solid rgba(210,210,215,0.5)" }}>
           <div className="text-sm font-semibold lg-text-secondary">O que fica desbloqueado:</div>
           <ul className="space-y-2 text-sm lg-text-secondary list-disc pl-5">
             <li>Contas conectadas via Open Banking</li><li>Visão consolidada das transações</li>
@@ -581,19 +598,19 @@ function TermometroGauge({ totalDespesas, totalReceitas, metaMensal }) {
       <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full" preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: "auto", overflow: "visible" }}>
         <defs>
           <linearGradient id="gaugeGradientLight" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#6366f1" />
-            <stop offset="25%" stopColor="#8b5cf6" />
-            <stop offset="50%" stopColor="#a855f7" />
-            <stop offset="75%" stopColor="#ec4899" />
-            <stop offset="100%" stopColor="#ef4444" />
+            <stop offset="0%" stopColor="#d1d5db" />
+            <stop offset="30%" stopColor="#9ca3af" />
+            <stop offset="60%" stopColor="#6b7280" />
+            <stop offset="85%" stopColor="#4b5563" />
+            <stop offset="100%" stopColor="#374151" />
           </linearGradient>
         </defs>
-        <path d={arcPath || undefined} fill="rgba(200,210,240,0.4)" transform={`translate(${width / 2}, ${height})`} />
+        <path d={arcPath || undefined} fill="rgba(210,210,215,0.4)" transform={`translate(${width / 2}, ${height})`} />
         <path d={arcPath || undefined} fill="url(#gaugeGradientLight)" transform={`translate(${width / 2}, ${height})`} />
         <g transform={`translate(${width / 2}, ${height}) rotate(${anguloPonteiro})`} className="transition-transform duration-700 ease-out">
           <path d={`M -4,0 A 4,4 0 1,1 4,0 L 0.4,-${outerRadius * 0.8} A 0.4,0.4 0 0,1 -0.4,-${outerRadius * 0.8} Z`} fill="#1e293b" stroke="rgba(255,255,255,0.6)" strokeWidth="1" />
-          <circle cx="0" cy="0" r="7" fill="rgba(255,255,255,0.9)" stroke="rgba(100,120,200,0.4)" strokeWidth="2" />
-          <circle cx="0" cy="0" r="2.5" fill="#6366f1" fillOpacity="0.8" />
+          <circle cx="0" cy="0" r="7" fill="rgba(255,255,255,0.9)" stroke="rgba(156,163,175,0.5)" strokeWidth="2" />
+          <circle cx="0" cy="0" r="2.5" fill="#374151" fillOpacity="0.8" />
         </g>
       </svg>
     </div>
@@ -608,15 +625,15 @@ function TermometroSobrevivencia({ gastoAtual, metaMensal }) {
   const percentualTempo = diasNoMes > 0 ? (diaAtual / diasNoMes) * 100 : 0;
   const taNoSufoco = percentualGasto > percentualTempo + 10;
   const getGradient = () => {
-    if (percentualGasto <= 10) return "linear-gradient(to right, #6366f1 0%, #818cf8 55%, #a5b4fc 100%)";
-    if (taNoSufoco) return "linear-gradient(to right, #8b5cf6 0%, #ec4899 45%, #ef4444 100%)";
-    return "linear-gradient(to right, #6366f1 0%, #8b5cf6 55%, #a855f7 100%)";
+    if (percentualGasto <= 10) return "linear-gradient(to right, #9ca3af 0%, #d1d5db 55%, #e5e7eb 100%)";
+    if (taNoSufoco) return "linear-gradient(to right, #4b5563 0%, #ef4444 70%, #dc2626 100%)";
+    return "linear-gradient(to right, #6b7280 0%, #9ca3af 55%, #d1d5db 100%)";
   };
   const badgeStyle = taNoSufoco
     ? { background: "rgba(254,226,226,0.8)", color: "#DC2626", border: "1px solid rgba(252,165,165,0.5)" }
     : percentualGasto > 10
-    ? { background: "rgba(237,233,254,0.8)", color: "#7C3AED", border: "1px solid rgba(196,181,253,0.5)" }
-    : { background: "rgba(224,231,255,0.8)", color: "#4338CA", border: "1px solid rgba(165,180,252,0.5)" };
+    ? { background: "rgba(243,244,246,0.9)", color: "#4B5563", border: "1px solid rgba(209,213,219,0.7)" }
+    : { background: "rgba(243,244,246,0.9)", color: "#374151", border: "1px solid rgba(209,213,219,0.7)" };
   return (
     <div className="lg-item-row p-3 mt-3">
       <div className="flex justify-between items-center mb-2">
@@ -625,7 +642,7 @@ function TermometroSobrevivencia({ gastoAtual, metaMensal }) {
           {taNoSufoco ? "Situação crítica" : percentualGasto > 10 ? "Atenção" : "Estável"}
         </span>
       </div>
-      <div className="relative h-5 w-full rounded-lg overflow-hidden" style={{ background: "rgba(200,210,240,0.4)", border: "1px solid rgba(200,210,240,0.5)" }}>
+      <div className="relative h-5 w-full rounded-lg overflow-hidden" style={{ background: "rgba(200,200,200,0.35)", border: "1px solid rgba(210,210,215,0.5)" }}>
         <div className="h-full transition-all duration-500" style={{ width: `${Math.min(percentualGasto, 100)}%`, backgroundImage: getGradient() }} />
       </div>
       <div className="flex justify-between mt-1.5 text-[10px] lg-text-muted">
@@ -662,7 +679,7 @@ function TelaInicialLogin({ onLogin }) {
           <span className="font-normal lg-text-muted">Finance</span>
         </div>
         <div className="mt-8 grid gap-4 w-full">
-          <button onClick={onLogin} className="w-full py-3 font-bold rounded-2xl flex items-center justify-center gap-3 lg-btn" style={{ background: "rgba(255,255,255,0.82)", border: "1px solid rgba(200,210,240,0.7)", color: "#1e293b", boxShadow: "0 4px 16px rgba(100,120,200,0.12), inset 0 1px 0 rgba(255,255,255,1)" }}>
+          <button onClick={onLogin} className="w-full py-3 font-bold rounded-2xl flex items-center justify-center gap-3 lg-btn" style={{ background: "rgba(255,255,255,0.85)", border: "1px solid rgba(210,210,215,0.65)", color: "#1e293b", boxShadow: "0 4px 16px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,1)" }}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="w-5 h-5">
               <path fill="#EA4335" d="M24 9.5c3.54 0 6.69 1.22 9.18 3.61l6.85-6.85C35.9 2.36 30.4 0 24 0 14.64 0 6.46 5.48 2.69 13.44l7.98 6.2C12.52 13.09 17.76 9.5 24 9.5z"/>
               <path fill="#4285F4" d="M46.5 24.5c0-1.63-.15-3.2-.43-4.71H24v9.02h12.68c-.55 2.96-2.23 5.47-4.75 7.15l7.29 5.67C43.98 37.73 46.5 31.64 46.5 24.5z"/>
@@ -700,20 +717,24 @@ function ChatGemini() {
 
   return (
     <>
-      <button onClick={() => setIsOpen(!isOpen)} className="fixed bottom-6 right-6 z-[300] size-14 rounded-full flex items-center justify-center active:scale-90 transition-transform"
-        style={{ background: "linear-gradient(135deg, rgba(99,102,241,0.92) 0%, rgba(139,92,246,0.92) 100%)", border: "2px solid rgba(167,139,250,0.5)", boxShadow: "0 8px 32px rgba(99,102,241,0.3), inset 0 1px 0 rgba(255,255,255,0.3)" }}>
-        {isOpen ? <ArrowLeft className="rotate-[-90deg]" color="white" /> : <Sparkles className="size-6" color="white" />}
-        {!isOpen && <span className="absolute -top-2 -right-2 text-[10px] font-bold px-2 py-0.5 rounded-full animate-bounce" style={{ background: "rgba(239,68,68,0.9)", color: "white", border: "1px solid rgba(252,165,165,0.4)" }}>AI</span>}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="fixed bottom-6 z-[300] lg-ai-pill flex items-center justify-center px-8 py-3.5 active:scale-97 transition-all"
+        style={{ left: "50%", transform: "translateX(-50%)", minWidth: 180 }}
+      >
+        <span className="text-[15px] font-semibold tracking-tight text-white">
+          {isOpen ? "Fechar" : "Conversar com IA"}
+        </span>
       </button>
       <input ref={imageInputRef} type="file" accept="image/*" multiple className="hidden" onChange={(e) => { appendAttachments(e.currentTarget.files, "image"); e.currentTarget.value = ""; }} />
       <input ref={fileInputRef} type="file" accept="*/*" multiple className="hidden" onChange={(e) => { appendAttachments(e.currentTarget.files, "file"); e.currentTarget.value = ""; }} />
       {isOpen && (
-        <motion.div initial={{ opacity: 0, y: 20, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }}
-          className="fixed bottom-24 right-6 z-[300] w-[calc(100vw-48px)] max-w-[350px] overflow-hidden flex flex-col lg-modal"
-          style={{ height: 450 }}>
-          <div className="p-4 flex items-center justify-center" style={{ borderBottom: "1px solid rgba(200,210,240,0.4)", background: "rgba(240,244,255,0.5)" }}>
-            <div className="size-8 rounded-full flex items-center justify-center" style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.2)" }}>
-              <Sparkles className="size-4" color="#6366f1" />
+        <motion.div initial={{ opacity: 0, y: 16, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ type: "spring", damping: 28, stiffness: 320 }}
+          className="fixed bottom-20 z-[300] overflow-hidden flex flex-col lg-modal"
+          style={{ height: 450, left: "50%", transform: "translateX(-50%)", width: "calc(100vw - 32px)", maxWidth: 400 }}>
+          <div className="p-4 flex items-center justify-center" style={{ borderBottom: "1px solid rgba(210,210,215,0.45)", background: "rgba(248,248,249,0.6)" }}>
+            <div className="size-8 rounded-full flex items-center justify-center" style={{ background: "rgba(240,240,240,0.8)", border: "1px solid rgba(210,210,215,0.6)" }}>
+              <Sparkles className="size-4" color="#6b7280" />
             </div>
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-4 flex flex-col">
@@ -733,12 +754,12 @@ function ChatGemini() {
             ))}
           </div>
           {attachments.length > 0 && (
-            <div className="px-4 pt-3 pb-2 flex flex-wrap gap-2" style={{ borderTop: "1px solid rgba(200,210,240,0.4)" }}>
+            <div className="px-4 pt-3 pb-2 flex flex-wrap gap-2" style={{ borderTop: "1px solid rgba(210,210,215,0.45)" }}>
               {attachments.map((att) => (
                 <div key={att.id} className="relative">
                   {att.kind === "image"
-                    ? <img src={att.url} alt={att.name} className="h-16 w-16 rounded-2xl object-cover" style={{ border: "1px solid rgba(200,210,240,0.5)" }} />
-                    : <div className="h-16 max-w-[180px] rounded-2xl px-3 py-2 flex items-center gap-2 text-xs lg-text-secondary" style={{ background: "rgba(240,244,255,0.7)", border: "1px solid rgba(200,210,240,0.5)" }}>
+                    ? <img src={att.url} alt={att.name} className="h-16 w-16 rounded-2xl object-cover" style={{ border: "1px solid rgba(210,210,215,0.5)" }} />
+                    : <div className="h-16 max-w-[180px] rounded-2xl px-3 py-2 flex items-center gap-2 text-xs lg-text-secondary" style={{ background: "rgba(243,244,246,0.8)", border: "1px solid rgba(210,210,215,0.5)" }}>
                         {att.kind === "audio" ? <Mic size={14} /> : <Paperclip size={14} />}
                         <span className="truncate">{att.name}</span>
                       </div>
@@ -750,9 +771,9 @@ function ChatGemini() {
               ))}
             </div>
           )}
-          <div className="p-4 flex gap-2" style={{ borderTop: "1px solid rgba(200,210,240,0.4)" }}>
+          <div className="p-4 flex gap-2" style={{ borderTop: "1px solid rgba(210,210,215,0.45)" }}>
             <div className="relative flex items-center">
-              <button type="button" onClick={() => setMenuOpen((prev) => !prev)} className="size-10 rounded-full flex items-center justify-center transition-colors" style={{ background: "rgba(240,244,255,0.8)", border: "1px solid rgba(200,210,240,0.5)", color: "#6366f1" }}>
+              <button type="button" onClick={() => setMenuOpen((prev) => !prev)} className="size-10 rounded-full flex items-center justify-center transition-colors" style={{ background: "rgba(243,244,246,0.9)", border: "1px solid rgba(210,210,215,0.6)", color: "#4b5563" }}>
                 <span className="text-xl font-bold">+</span>
               </button>
               {menuOpen && (
@@ -772,18 +793,367 @@ function ChatGemini() {
             <div className="relative flex-1">
               <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSend()} placeholder="Ex: Gastei 50 no mercado..." className="w-full py-2 px-4 pr-12 text-sm focus:outline-none lg-chat-input" />
               <button type="button" onClick={toggleRecording} className="absolute right-2 top-1/2 -translate-y-1/2 size-8 rounded-full flex items-center justify-center transition-colors"
-                style={isRecording ? { background: "rgba(239,68,68,0.85)", color: "white" } : { background: "rgba(240,244,255,0.8)", color: "#6366f1", border: "1px solid rgba(200,210,240,0.5)" }}>
-                {isRecording ? <Square size={12} color="white" /> : <Mic size={14} color="#6366f1" />}
+                style={isRecording ? { background: "rgba(239,68,68,0.85)", color: "white" } : { background: "rgba(243,244,246,0.9)", color: "#4b5563", border: "1px solid rgba(210,210,215,0.6)" }}>
+                {isRecording ? <Square size={12} color="white" /> : <Mic size={14} color="#4b5563" />}
               </button>
             </div>
-            <button onClick={handleSend} className="p-2 rounded-full active:scale-90 transition-transform" style={{ background: "linear-gradient(135deg, rgba(99,102,241,0.9) 0%, rgba(139,92,246,0.9) 100%)", border: "1px solid rgba(167,139,250,0.4)" }}>
+            <button onClick={handleSend} className="p-2 rounded-full active:scale-90 transition-transform" style={{ background: "linear-gradient(135deg, rgba(55,65,81,0.92) 0%, rgba(31,41,55,0.95) 100%)", border: "1px solid rgba(156,163,175,0.35)" }}>
               <ArrowLeft className="rotate-180 size-5" color="white" />
             </button>
           </div>
         </motion.div>
       )}
-      {isOpen && <div className="fixed inset-0 z-[290]" onClick={() => setIsOpen(false)} />}
+      {isOpen && <div className="fixed inset-0 z-[290] bg-black/5 backdrop-blur-[1px]" onClick={() => setIsOpen(false)} />}
     </>
+  );
+}
+
+// =====================================================
+// CATÁLOGO DE BANCOS
+// =====================================================
+const BANCOS_CATALOGO = [
+  { id: "nubank",    nome: "Nubank",         cor: "#8A05BE", corTexto: "#fff", keywords: ["nubank","nu pagamentos","nu fintech","roxinho"] },
+  { id: "itau",      nome: "Itaú",           cor: "#FF6600", corTexto: "#fff", keywords: ["itau","itaú","banco itau"] },
+  { id: "bradesco",  nome: "Bradesco",        cor: "#CC0000", corTexto: "#fff", keywords: ["bradesco","banco bradesco"] },
+  { id: "bb",        nome: "Banco do Brasil", cor: "#FFCC00", corTexto: "#333", keywords: ["banco do brasil","bb","banco brasil"] },
+  { id: "caixa",     nome: "Caixa",           cor: "#005CA9", corTexto: "#fff", keywords: ["caixa","cef","caixa economica","caixa econômica"] },
+  { id: "inter",     nome: "Inter",           cor: "#FF7A00", corTexto: "#fff", keywords: ["inter","banco inter","bancointer"] },
+  { id: "c6",        nome: "C6 Bank",         cor: "#000000", corTexto: "#fff", keywords: ["c6","c6 bank","c6bank"] },
+  { id: "santander", nome: "Santander",       cor: "#EC0000", corTexto: "#fff", keywords: ["santander","banco santander"] },
+  { id: "desconhecido", nome: "Desconhecido", cor: "#9ca3af", corTexto: "#fff", keywords: [] },
+];
+
+// =====================================================
+// ENGINE DE PARSING DE NOTIFICAÇÕES
+// =====================================================
+
+function identificarBanco(texto) {
+  const t = texto.toLowerCase();
+  for (const banco of BANCOS_CATALOGO) {
+    if (banco.keywords.some(k => t.includes(k))) return banco;
+  }
+  return BANCOS_CATALOGO.find(b => b.id === "desconhecido");
+}
+
+function extrairValor(texto) {
+  // Captura padrões: R$ 39,90 / R$39.90 / 39,90 / 39.90
+  const match = texto.match(/R?\$?\s*(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2}))/i);
+  if (!match) return 0;
+  const raw = match[1].replace(/\./g, "").replace(",", ".");
+  return parseFloat(raw) || 0;
+}
+
+function extrairDescricao(texto) {
+  // Remove prefixo do banco e valor, pega o que sobrar
+  const semValor = texto.replace(/R?\$?\s*\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})/gi, "").trim();
+  const semPrefixos = semValor
+    .replace(/compra aprovada|compra no crédito|compra no débito|pix enviado|pix recebido|pagamento realizado|transação aprovada|débito efetuado/gi, "")
+    .replace(/nubank|itaú|itau|bradesco|caixa|inter|c6 bank|santander|banco do brasil/gi, "")
+    .replace(/[:•\-|]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return semPrefixos.length > 2 ? semPrefixos : texto.slice(0, 40);
+}
+
+function detectarTipoNotificacao(texto) {
+  const t = texto.toLowerCase();
+  if (t.includes("pix recebido") || t.includes("crédito") || t.includes("recebeu") || t.includes("depósito")) return "receita";
+  return "despesa";
+}
+
+function parsearNotificacao(textoNotificacao) {
+  const banco = identificarBanco(textoNotificacao);
+  const valor = extrairValor(textoNotificacao);
+  const descricao = extrairDescricao(textoNotificacao);
+  const tipo = detectarTipoNotificacao(textoNotificacao);
+  const categoria = categorize(descricao);
+  const natureza = detectNature(descricao);
+  const data = new Date().toISOString().slice(0, 10);
+  return { banco, valor, descricao, tipo, categoria, natureza, data, textoOriginal: textoNotificacao, origem: "notificacao" };
+}
+
+// Iniciais do banco para o avatar (quando não houver logo)
+function iniciaisBanco(nome) {
+  return nome.split(" ").map(p => p[0]).join("").slice(0, 2).toUpperCase();
+}
+
+// =====================================================
+// AVATAR DO BANCO
+// =====================================================
+function AvatarBanco({ banco, size = 44 }) {
+  return (
+    <div
+      className="rounded-2xl flex items-center justify-center font-black flex-shrink-0"
+      style={{ width: size, height: size, background: banco.cor, color: banco.corTexto, fontSize: size * 0.32 }}
+    >
+      {iniciaisBanco(banco.nome)}
+    </div>
+  );
+}
+
+// =====================================================
+// MODAL DETALHE DO BANCO
+// =====================================================
+function ModalBanco({ banco, transacoes, isOpen, onClose, onCorrigirBanco, bancosDisponiveis }) {
+  const [corrigindo, setCorrigindo] = useState(false);
+  const [bancoCorrecto, setBancoCorreto] = useState(banco?.id || "");
+  if (!isOpen || !banco) return null;
+  const total = transacoes.reduce((acc, t) => acc + (t.tipo === "despesa" ? t.valor : 0), 0);
+  const totalReceitas = transacoes.reduce((acc, t) => acc + (t.tipo === "receita" ? t.valor : 0), 0);
+  return (
+    <div className="fixed inset-0 z-[310] bg-slate-900/30 backdrop-blur-sm flex items-end justify-center p-0">
+      <motion.div
+        initial={{ y: "100%" }} animate={{ y: 0 }} transition={{ type: "spring", damping: 28, stiffness: 300 }}
+        className="w-full max-w-lg lg-modal rounded-b-none"
+        style={{ maxHeight: "82vh", display: "flex", flexDirection: "column" }}
+      >
+        {/* Header */}
+        <div className="flex items-center gap-3 p-4 border-b" style={{ borderColor: "rgba(210,210,215,0.4)" }}>
+          <AvatarBanco banco={banco} size={40} />
+          <div className="flex-1 min-w-0">
+            <div className="font-bold text-base lg-text-primary">{banco.nome}</div>
+            <div className="text-xs lg-text-muted">{transacoes.length} movimentação{transacoes.length !== 1 ? "ões" : ""} detectada{transacoes.length !== 1 ? "s" : ""}</div>
+          </div>
+          <button onClick={onClose} className="p-2 rounded-full" style={{ background: "rgba(243,244,246,0.8)", border: "1px solid rgba(210,210,215,0.5)" }}>
+            <X size={16} color="#6b7280" />
+          </button>
+        </div>
+
+        {/* Stats */}
+        <div className="flex gap-2 px-4 py-3">
+          <div className="flex-1 rounded-xl p-2.5 text-center" style={{ background: "rgba(254,226,226,0.6)", border: "1px solid rgba(252,165,165,0.3)" }}>
+            <div className="text-[10px] lg-text-muted">Saídas</div>
+            <div className="text-sm font-bold" style={{ color: "#991B1B" }}>{formatCurrency(total)}</div>
+          </div>
+          <div className="flex-1 rounded-xl p-2.5 text-center" style={{ background: "rgba(209,250,229,0.6)", border: "1px solid rgba(110,231,183,0.3)" }}>
+            <div className="text-[10px] lg-text-muted">Entradas</div>
+            <div className="text-sm font-bold" style={{ color: "#065F46" }}>{formatCurrency(totalReceitas)}</div>
+          </div>
+        </div>
+
+        {/* Corrigir banco desconhecido */}
+        {banco.id === "desconhecido" && (
+          <div className="px-4 pb-3">
+            {!corrigindo ? (
+              <button onClick={() => setCorrigindo(true)} className="w-full py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2" style={{ background: "rgba(243,244,246,0.8)", border: "1px solid rgba(210,210,215,0.5)", color: "#374151" }}>
+                <Edit2 size={13} /> Identificar banco
+              </button>
+            ) : (
+              <div className="flex gap-2">
+                <select value={bancoCorrecto} onChange={e => setBancoCorreto(e.target.value)} className="flex-1 lg-select p-2 text-sm rounded-xl">
+                  {bancosDisponiveis.filter(b => b.id !== "desconhecido").map(b => (
+                    <option key={b.id} value={b.id}>{b.nome}</option>
+                  ))}
+                </select>
+                <button onClick={() => { onCorrigirBanco(bancoCorrecto); setCorrigindo(false); }} className="lg-btn lg-btn-dark px-3 py-1 text-xs text-white rounded-xl">Salvar</button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Lista de transações */}
+        <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-1.5">
+          <div className="text-[10px] font-bold lg-text-muted uppercase tracking-widest mb-2">Movimentações detectadas</div>
+          {transacoes.length === 0 && (
+            <div className="text-center text-sm lg-text-muted py-8">Nenhuma movimentação ainda.</div>
+          )}
+          {transacoes.map((t, i) => (
+            <div key={i} className="lg-item-row p-2.5 flex items-center justify-between gap-2">
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium lg-text-primary truncate">{t.descricao || t.textoOriginal}</div>
+                <div className="text-[10px] lg-text-muted">{t.categoria} • {t.data}</div>
+              </div>
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                <span className="text-sm font-bold" style={{ color: t.tipo === "receita" ? "#065F46" : "#991B1B" }}>
+                  {t.tipo === "receita" ? "+" : "-"}{formatCurrency(t.valor)}
+                </span>
+                <CheckCircle2 size={13} color="#10b981" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+// =====================================================
+// ABA CONEXÕES — estrutura completa
+// (Entrada: manual por texto por enquanto.
+//  No React Native: substituir handleProcessarTexto pelo
+//  NotificationListenerService que chama parsearNotificacao()
+//  automaticamente com o texto da notificação real.)
+// =====================================================
+function AbaConexoes({ transacoesNotificacao, onAdicionarTransacao, onCorrigirBanco, user }) {
+  const [textoNotif, setTextoNotif] = useState("");
+  const [preview, setPreview] = useState(null);
+  const [bancosComTransacoes, setBancosComTransacoes] = useState([]);
+  const [bancoSelecionado, setBancoSelecionado] = useState(null);
+  const [modalAberto, setModalAberto] = useState(false);
+
+  // Agrupa transações por banco
+  const grupos = useMemo(() => {
+    const map = {};
+    transacoesNotificacao.forEach(t => {
+      const id = t.bancoId || "desconhecido";
+      if (!map[id]) map[id] = { banco: BANCOS_CATALOGO.find(b => b.id === id) || BANCOS_CATALOGO.find(b => b.id === "desconhecido"), transacoes: [] };
+      map[id].transacoes.push(t);
+    });
+    return Object.values(map).sort((a, b) => b.transacoes.length - a.transacoes.length);
+  }, [transacoesNotificacao]);
+
+  function handleProcessarTexto() {
+    if (!textoNotif.trim()) return;
+    const resultado = parsearNotificacao(textoNotif);
+    setPreview(resultado);
+  }
+
+  function handleConfirmarPreview() {
+    if (!preview) return;
+    onAdicionarTransacao({ ...preview, bancoId: preview.banco.id });
+    setTextoNotif("");
+    setPreview(null);
+  }
+
+  function abrirBanco(grupo) {
+    setBancoSelecionado(grupo);
+    setModalAberto(true);
+  }
+
+  const totalGeral = transacoesNotificacao.filter(t => t.tipo === "despesa").reduce((a, t) => a + t.valor, 0);
+  const qtdTotal = transacoesNotificacao.length;
+
+  return (
+    <div className="grid gap-3">
+
+      {/* Cabeçalho informativo */}
+      <div className="lg-card p-3">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="size-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(243,244,246,0.8)", border: "1px solid rgba(210,210,215,0.5)" }}>
+            <Wifi size={16} color="#6b7280" />
+          </div>
+          <div>
+            <div className="text-sm font-bold lg-text-primary">Conexões bancárias</div>
+            <div className="text-[10px] lg-text-muted">{qtdTotal} movimentaç{qtdTotal !== 1 ? "ões" : "ão"} • {formatCurrency(totalGeral)} em saídas</div>
+          </div>
+        </div>
+        <div className="rounded-xl p-2.5 text-[10px] lg-text-muted" style={{ background: "rgba(243,244,246,0.7)", border: "1px solid rgba(210,210,215,0.45)" }}>
+          <span className="font-bold lg-text-secondary">Como funciona agora:</span> Cole o texto de uma notificação bancária abaixo. O app identifica o banco, extrai o valor e categoriza automaticamente.
+          <span className="block mt-1 font-bold" style={{ color: "#374151" }}>Após publicar na Play Store: as notificações serão lidas automaticamente em segundo plano.</span>
+        </div>
+      </div>
+
+      {/* INPUT MANUAL (placeholder do NotificationListenerService) */}
+      {/* ⚠️ MIGRATION POINT: no React Native, este bloco inteiro será substituído pelo
+          NotificationListenerService que intercepta notificações automaticamente e chama
+          onAdicionarTransacao(parsearNotificacao(notificacao.text)) diretamente. */}
+      <div className="lg-card p-3">
+        <div className="text-xs font-bold lg-text-secondary mb-2">Inserir notificação bancária</div>
+        <textarea
+          value={textoNotif}
+          onChange={e => setTextoNotif(e.target.value)}
+          placeholder={"Ex: Nubank: Compra aprovada de R$ 39,90 em NETFLIX\nEx: Itaú: Pix recebido R$ 500,00 de João Silva"}
+          rows={3}
+          className="w-full lg-input text-sm resize-none"
+          style={{ borderRadius: 14, lineHeight: 1.5 }}
+        />
+        <button
+          onClick={handleProcessarTexto}
+          disabled={!textoNotif.trim()}
+          className="mt-2 w-full lg-btn lg-btn-dark py-2 text-sm font-bold text-white rounded-2xl flex items-center justify-center gap-2"
+          style={{ opacity: textoNotif.trim() ? 1 : 0.5 }}
+        >
+          <Send size={14} /> Processar notificação
+        </button>
+
+        {/* Preview antes de confirmar */}
+        {preview && (
+          <div className="mt-3 rounded-2xl p-3 grid gap-2" style={{ background: "rgba(243,244,246,0.7)", border: "1px solid rgba(210,210,215,0.55)" }}>
+            <div className="text-[10px] font-bold lg-text-muted uppercase tracking-wider">Prévia detectada — confirme antes de salvar</div>
+            <div className="flex items-center gap-2">
+              <AvatarBanco banco={preview.banco} size={36} />
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-bold lg-text-primary truncate">{preview.descricao}</div>
+                <div className="text-[10px] lg-text-muted">{preview.banco.nome} • {preview.categoria} • {preview.natureza}</div>
+              </div>
+              <div className="text-base font-bold flex-shrink-0" style={{ color: preview.tipo === "receita" ? "#065F46" : "#991B1B" }}>
+                {preview.tipo === "receita" ? "+" : "-"}{formatCurrency(preview.valor)}
+              </div>
+            </div>
+            {preview.banco.id === "desconhecido" && (
+              <div className="flex items-center gap-1.5 text-[10px]" style={{ color: "#D97706" }}>
+                <AlertCircle size={11} /> Banco não identificado — você pode corrigir depois
+              </div>
+            )}
+            <div className="grid grid-cols-2 gap-2">
+              <button onClick={() => setPreview(null)} className="lg-btn lg-btn-secondary py-1.5 text-xs font-bold rounded-xl">Cancelar</button>
+              <button onClick={handleConfirmarPreview} className="lg-btn lg-btn-green py-1.5 text-xs font-bold text-white rounded-xl flex items-center justify-center gap-1">
+                <CheckCircle2 size={12} /> Confirmar
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Lista de bancos detectados */}
+      {grupos.length > 0 && (
+        <div className="lg-card p-3">
+          <div className="text-xs font-bold lg-text-secondary mb-2">Bancos detectados</div>
+          <div className="grid gap-2">
+            {grupos.map(grupo => {
+              const despesas = grupo.transacoes.filter(t => t.tipo === "despesa").reduce((a, t) => a + t.valor, 0);
+              const receitas = grupo.transacoes.filter(t => t.tipo === "receita").reduce((a, t) => a + t.valor, 0);
+              return (
+                <button
+                  key={grupo.banco.id}
+                  onClick={() => abrirBanco(grupo)}
+                  className="lg-item-row p-3 flex items-center gap-3 w-full text-left transition-all active:scale-[0.98]"
+                >
+                  <AvatarBanco banco={grupo.banco} size={44} />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-bold lg-text-primary">{grupo.banco.nome}</div>
+                    <div className="text-[10px] lg-text-muted">{grupo.transacoes.length} movimentaç{grupo.transacoes.length !== 1 ? "ões" : "ão"}</div>
+                    <div className="flex gap-2 mt-0.5">
+                      {despesas > 0 && <span className="text-[10px] font-semibold" style={{ color: "#991B1B" }}>-{formatCurrency(despesas)}</span>}
+                      {receitas > 0 && <span className="text-[10px] font-semibold" style={{ color: "#065F46" }}>+{formatCurrency(receitas)}</span>}
+                    </div>
+                  </div>
+                  <ChevronRight size={16} color="#9ca3af" />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Estado vazio */}
+      {grupos.length === 0 && (
+        <div className="lg-card p-6 flex flex-col items-center justify-center gap-3 text-center">
+          <div className="size-14 rounded-3xl flex items-center justify-center" style={{ background: "rgba(243,244,246,0.8)", border: "1px solid rgba(210,210,215,0.5)" }}>
+            <Building2 size={28} color="#9ca3af" />
+          </div>
+          <div>
+            <div className="text-sm font-bold lg-text-primary">Nenhum banco conectado ainda</div>
+            <div className="text-xs lg-text-muted mt-1">Cole o texto de uma notificação bancária acima para começar a detectar seus gastos automaticamente.</div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal detalhe */}
+      {bancoSelecionado && (
+        <ModalBanco
+          banco={bancoSelecionado.banco}
+          transacoes={bancoSelecionado.transacoes}
+          isOpen={modalAberto}
+          onClose={() => setModalAberto(false)}
+          onCorrigirBanco={(novoBancoId) => {
+            onCorrigirBanco(bancoSelecionado.banco.id, novoBancoId);
+            setModalAberto(false);
+          }}
+          bancosDisponiveis={BANCOS_CATALOGO}
+        />
+      )}
+    </div>
   );
 }
 
@@ -829,6 +1199,8 @@ export default function AppFinanceiroCompleto() {
   const [gastoFixoDia, setGastoFixoDia] = useState("");
   const [gastoFixoAviso, setGastoFixoAviso] = useState("3");
   const [metaMensalInput, setMetaMensalInput] = useState("");
+  // CONEXÕES — transações detectadas por notificação (salvas no Supabase)
+  const [transacoesNotificacao, setTransacoesNotificacao] = useState([]);
 
   useEffect(() => {
     const viewport = document.querySelector('meta[name="viewport"]');
@@ -857,6 +1229,9 @@ export default function AppFinanceiroCompleto() {
     if (gastosData) setGastosFixos(gastosData);
     const { data: metaData } = await supabase.from('user_settings').select('meta_mensal').eq('user_id', userId).single();
     if (metaData) setMetaMensal(metaData.meta_mensal || 0);
+    // Carrega transações vindas de notificações
+    const { data: notifData } = await supabase.from('notification_transactions').select('*').eq('user_id', userId).order('data', { ascending: false });
+    if (notifData) setTransacoesNotificacao(notifData);
   }
 
   const handleLogin = async () => { const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } }); if (error) console.error(error); };
@@ -906,6 +1281,53 @@ export default function AppFinanceiroCompleto() {
   }
   async function desconectarCartao(id) { await desconectarConta(id); }
 
+  // CONEXÕES — adicionar transação de notificação
+  async function adicionarTransacaoNotificacao(transacao) {
+    const userId = user?.id; if (!userId) return;
+    const registro = {
+      user_id: userId,
+      descricao: transacao.descricao,
+      valor: transacao.valor,
+      tipo: transacao.tipo,
+      categoria: transacao.categoria,
+      natureza: transacao.natureza,
+      data: transacao.data,
+      banco_id: transacao.bancoId || "desconhecido",
+      texto_original: transacao.textoOriginal || "",
+      origem: "notificacao",
+    };
+    const { data, error } = await supabase.from('notification_transactions').insert([registro]).select();
+    if (!error && data) {
+      setTransacoesNotificacao(prev => [data[0], ...prev]);
+      // Também salva como lançamento normal para aparecer no fluxo financeiro
+      await supabase.from('transactions').insert([{
+        user_id: userId,
+        descricao: transacao.descricao,
+        valor: transacao.valor,
+        tipo: transacao.tipo,
+        categoria: transacao.categoria,
+        natureza: transacao.natureza,
+        data: transacao.data,
+      }]).select().then(({ data: ld }) => {
+        if (ld) setLancamentos(prev => [ld[0], ...prev]);
+      });
+      setAviso("Movimentação detectada e salva!");
+    }
+  }
+
+  // CONEXÕES — corrigir banco de um grupo de transações
+  async function corrigirBancoTransacoes(bancoAntigoId, novoBancoId) {
+    const userId = user?.id; if (!userId) return;
+    await supabase.from('notification_transactions')
+      .update({ banco_id: novoBancoId })
+      .eq('user_id', userId)
+      .eq('banco_id', bancoAntigoId);
+    setTransacoesNotificacao(prev =>
+      prev.map(t => t.banco_id === bancoAntigoId ? { ...t, banco_id: novoBancoId } : t)
+    );
+    setAviso("Banco atualizado!");
+  }
+
   const mesAtual = new Date().toISOString().slice(0, 7);
   const lancamentosMesAtual = useMemo(() => lancamentos.filter(l => String(l.data).startsWith(mesAtual)), [lancamentos, mesAtual]);
   const totalEntradasMes = lancamentosMesAtual.filter(l => l.tipo === "receita").reduce((acc, l) => acc + l.valor, 0);
@@ -925,7 +1347,7 @@ export default function AppFinanceiroCompleto() {
   const quantidadeAnaliseEspecial = lancamentosAnaliseEspecial.length;
   function getContaNomeById(id) { if (!id) return "Sem conta"; const conta = contas.find(c => c.id === id); return conta ? conta.nome : "Conta não encontrada"; }
 
-  const CORES_PIZZA = ["#6366f1","#10b981","#f59e0b","#ef4444","#8b5cf6","#06b6d4","#84cc16","#64748b"];
+  const CORES_PIZZA = ["#6b7280","#10b981","#f59e0b","#ef4444","#9ca3af","#06b6d4","#84cc16","#374151"];
 
   if (loading) {
     return (
@@ -951,7 +1373,7 @@ export default function AppFinanceiroCompleto() {
       {/* HEADER FIXO */}
       <div className="flex-shrink-0 pt-14 px-3 sm:px-4 max-w-6xl mx-auto w-full">
         {aviso && (
-          <div className="text-xs text-center mb-1 px-3 py-1 rounded-full lg-text-muted" style={{ background: "rgba(255,255,255,0.65)", border: "1px solid rgba(200,210,240,0.5)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9)" }}>
+          <div className="text-xs text-center mb-1 px-3 py-1 rounded-full lg-text-muted" style={{ background: "rgba(255,255,255,0.65)", border: "1px solid rgba(210,210,215,0.5)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9)" }}>
             {aviso}
           </div>
         )}
@@ -978,6 +1400,7 @@ export default function AppFinanceiroCompleto() {
             { key: "fixos", label: "Fixos" },
             { key: "analises", label: "Análises" },
             { key: "meta", label: "Meta" },
+            { key: "conexoes", label: "Conexões" },
           ].map(({ key, label }) => (
             <button key={key} onClick={() => setActiveTab(key)}
               className={`flex-shrink-0 px-3 py-1.5 rounded-xl font-medium text-sm transition-all whitespace-nowrap ${activeTab === key ? "lg-tab-active" : "lg-tab-inactive"}`}>
@@ -995,14 +1418,14 @@ export default function AppFinanceiroCompleto() {
           <div className="lg-card">
             <div className="p-3">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
-                <div className="lg-stat-green p-2"><div className="text-xs lg-text-muted">Entradas do mês</div><div className="text-base font-semibold" style={{ color: "#065F46" }}>{formatCurrency(totalEntradasMes)}</div></div>
-                <div className="lg-stat-red p-2"><div className="text-xs lg-text-muted">Despesas do mês</div><div className="text-base font-semibold" style={{ color: "#991B1B" }}>{formatCurrency(totalDespesasMes)}</div></div>
-                <div className="lg-stat-blue p-2"><div className="text-xs lg-text-muted">Saldo do mês</div><div className="text-base font-semibold" style={{ color: "#1E40AF" }}>{formatCurrency(saldoMes)}</div></div>
-                <div className="lg-stat-amber p-2"><div className="text-xs lg-text-muted">Meta de gastos</div><div className="text-base font-semibold" style={{ color: "#92400E" }}>{formatCurrency(metaMensal)}</div><div className="text-[10px] mt-0.5 lg-text-muted">Usado: {percentualMeta.toFixed(0)}%</div></div>
+                <div className="lg-stat-green p-2"><div className="text-xs lg-text-muted">Entradas do mês</div><div className="text-base font-semibold" style={{ color: "#00875a" }}>{formatCurrency(totalEntradasMes)}</div></div>
+                <div className="lg-stat-red p-2"><div className="text-xs lg-text-muted">Despesas do mês</div><div className="text-base font-semibold" style={{ color: "#c81e3a" }}>{formatCurrency(totalDespesasMes)}</div></div>
+                <div className="lg-stat-blue p-2"><div className="text-xs lg-text-muted">Saldo do mês</div><div className="text-base font-semibold" style={{ color: "#111" }}>{formatCurrency(saldoMes)}</div></div>
+                <div className="lg-stat-amber p-2"><div className="text-xs lg-text-muted">Meta de gastos</div><div className="text-base font-semibold" style={{ color: "#111" }}>{formatCurrency(metaMensal)}</div><div className="text-[10px] mt-0.5 lg-text-muted">Usado: {percentualMeta.toFixed(0)}%</div></div>
               </div>
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
-                  <Tooltip contentStyle={{ background: "rgba(248,250,255,0.98)", border: "1px solid rgba(200,210,240,0.6)", borderRadius: 12, color: "#1e293b", boxShadow: "0 8px 24px rgba(100,120,200,0.15)" }} />
+                  <Tooltip contentStyle={{ background: "rgba(250,250,251,0.98)", border: "1px solid rgba(210,210,215,0.6)", borderRadius: 12, color: "#1e293b", boxShadow: "0 8px 24px rgba(0,0,0,0.1)" }} />
                   <Legend wrapperStyle={{ color: "#64748b", fontSize: 11 }} />
                   <Pie data={dadosPizza} dataKey="valor" nameKey="categoria" cx="50%" cy="50%" outerRadius={80} innerRadius={45} paddingAngle={3}>
                     {dadosPizza.map((_, index) => <Cell key={index} fill={CORES_PIZZA[index % CORES_PIZZA.length]} />)}
@@ -1019,7 +1442,7 @@ export default function AppFinanceiroCompleto() {
             <div className="p-3">
               <div className="text-base font-semibold mb-2 lg-text-primary">Meta de Gastos Mensal</div>
               <div className="flex flex-row gap-2 items-stretch">
-                <div className="flex-[8] rounded-2xl p-2 flex flex-col items-center justify-center overflow-visible" style={{ background: "rgba(240,244,255,0.6)", border: "1px solid rgba(200,210,240,0.5)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9)" }}>
+                <div className="flex-[8] rounded-2xl p-2 flex flex-col items-center justify-center overflow-visible" style={{ background: "rgba(243,244,246,0.7)", border: "1px solid rgba(210,210,215,0.55)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9)" }}>
                   <TermometroGauge totalDespesas={totalDespesasMes} totalReceitas={totalEntradasMes} metaMensal={metaMensal} />
                   <div className="mt-1 text-center">
                     <div className="text-xs lg-text-muted">Uso da meta</div>
@@ -1028,7 +1451,7 @@ export default function AppFinanceiroCompleto() {
                   {percentualMeta >= 100 && <div className="text-[10px] mt-0.5 font-medium" style={{ color: "#DC2626" }}>Ultrapassou a meta!</div>}
                   {percentualMeta >= 80 && percentualMeta < 100 && <div className="text-[10px] mt-0.5 font-medium" style={{ color: "#D97706" }}>Perto do limite.</div>}
                 </div>
-                <div className="flex-[3] rounded-2xl p-2 flex flex-col gap-1.5 min-w-[120px]" style={{ background: "rgba(240,244,255,0.6)", border: "1px solid rgba(200,210,240,0.5)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9)" }}>
+                <div className="flex-[3] rounded-2xl p-2 flex flex-col gap-1.5 min-w-[120px]" style={{ background: "rgba(243,244,246,0.7)", border: "1px solid rgba(210,210,215,0.55)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9)" }}>
                   <div className="text-[10px] lg-text-muted">Valor máximo:</div>
                   <Input type="text" inputMode="decimal" pattern="[0-9.,]*" placeholder="Ex: 2000" value={metaMensalInput} onChange={(e) => setMetaMensalInput(e.target.value)} onBlur={() => { const cleaned = metaMensalInput.replace(/[^0-9,\.]/g, ""); const numeric = parseFloat(cleaned.replace(",", ".")); setMetaMensal(Number.isNaN(numeric) ? 0 : numeric); }} className="text-center font-bold" style={{ fontSize: 14, height: 40 }} />
                   <button className="lg-btn lg-btn-dark py-1 text-[10px] font-bold text-white rounded-xl"
@@ -1064,7 +1487,7 @@ export default function AppFinanceiroCompleto() {
                         <div className="text-[10px] lg-text-muted">{l.categoria} • {l.natureza}{l.conta_id ? ` • ${getContaNomeById(l.conta_id)}` : ""}</div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="font-semibold text-sm" style={{ color: l.tipo === "receita" ? "#065F46" : "#991B1B" }}>{formatCurrency(Number(l.valor || 0))}</div>
+                        <div className="font-semibold text-sm" style={{ color: l.tipo === "receita" ? "#00875a" : "#c81e3a" }}>{formatCurrency(Number(l.valor || 0))}</div>
                         <div className="flex gap-1">
                           <Button variant="secondary" onClick={() => iniciarEdicao(l)} className="px-2 py-1 text-xs">Editar</Button>
                           <Button variant="destructive" onClick={() => excluirLancamento(l.id)} className="px-2 py-1 text-xs">Excluir</Button>
@@ -1141,11 +1564,11 @@ export default function AppFinanceiroCompleto() {
               <div className="text-xs lg-text-muted">Evolução mensal da categoria selecionada</div>
               <ResponsiveContainer width="100%" height={180}>
                 <AreaChart data={serieAnaliseEspecial}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(200,210,240,0.5)" />
-                  <XAxis dataKey="mes" ticks={mesesReferenciaAnalise} tickFormatter={formatMonthLabel} interval={0} minTickGap={0} tickMargin={8} tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={{ stroke: "rgba(200,210,240,0.6)" }} />
-                  <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={{ stroke: "rgba(200,210,240,0.6)" }} />
-                  <Tooltip contentStyle={{ background: "rgba(248,250,255,0.98)", border: "1px solid rgba(200,210,240,0.6)", borderRadius: 12, color: "#1e293b" }} />
-                  <Area type="linear" dataKey="valor" stroke={tipoAnalise === "receita" ? "#10b981" : "#6366f1"} fill={tipoAnalise === "receita" ? "#10b981" : "#6366f1"} fillOpacity={0.15} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(200,200,200,0.45)" />
+                  <XAxis dataKey="mes" ticks={mesesReferenciaAnalise} tickFormatter={formatMonthLabel} interval={0} minTickGap={0} tickMargin={8} tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={{ stroke: "rgba(200,200,200,0.5)" }} />
+                  <YAxis tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={{ stroke: "rgba(200,200,200,0.5)" }} />
+                  <Tooltip contentStyle={{ background: "rgba(250,250,251,0.98)", border: "1px solid rgba(210,210,215,0.6)", borderRadius: 12, color: "#1e293b" }} />
+                  <Area type="linear" dataKey="valor" stroke={tipoAnalise === "receita" ? "#10b981" : "#6b7280"} fill={tipoAnalise === "receita" ? "#10b981" : "#6b7280"} fillOpacity={0.15} />
                 </AreaChart>
               </ResponsiveContainer>
               <div className="text-xs lg-text-secondary">Total no período: <strong className="lg-text-primary">{formatCurrency(totalAnaliseEspecial)}</strong> • Quantidade: <strong className="lg-text-primary">{quantidadeAnaliseEspecial}</strong></div>
@@ -1154,10 +1577,25 @@ export default function AppFinanceiroCompleto() {
         )}
 
         <div className="w-full text-center mt-3 pb-2">
-          <div className="inline-block px-3 py-1 rounded-full" style={{ background: "rgba(255,255,255,0.65)", border: "1px solid rgba(200,210,240,0.5)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9)" }}>
+          <div className="inline-block px-3 py-1 rounded-full" style={{ background: "rgba(255,255,255,0.65)", border: "1px solid rgba(210,210,215,0.55)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9)" }}>
             <span className="text-[10px] lg-text-muted tracking-wide font-bold">Segue em frente... a cada passo de confiança a luz aparece.</span>
           </div>
         </div>
+
+        {/* ABA CONEXÕES */}
+        {activeTab === "conexoes" && (
+          <AbaConexoes
+            transacoesNotificacao={transacoesNotificacao.map(t => ({
+              ...t,
+              bancoId: t.banco_id,
+              banco: BANCOS_CATALOGO.find(b => b.id === t.banco_id) || BANCOS_CATALOGO.find(b => b.id === "desconhecido"),
+            }))}
+            onAdicionarTransacao={adicionarTransacaoNotificacao}
+            onCorrigirBanco={corrigirBancoTransacoes}
+            user={user}
+          />
+        )}
+
       </div>
 
       {/* MODAL PREVIEW LANÇAMENTO */}
@@ -1168,11 +1606,11 @@ export default function AppFinanceiroCompleto() {
               <h2 className="text-base font-bold lg-text-primary">Prévia do lançamento</h2>
               <div className="text-[10px] font-semibold lg-text-muted uppercase">Revise antes de salvar</div>
             </div>
-            <div className="flex items-center justify-between rounded-2xl px-3 py-3" style={{ background: "rgba(240,244,255,0.6)", border: "1px solid rgba(200,210,240,0.5)" }}>
+            <div className="flex items-center justify-between rounded-2xl px-3 py-3" style={{ background: "rgba(243,244,246,0.7)", border: "1px solid rgba(210,210,215,0.55)" }}>
               <span className="text-sm font-semibold lg-text-secondary">Valor do lançamento</span>
               <Input inputMode="decimal" pattern="[0-9.,]*" value={formatCurrency(previewLancamento.valor)} onChange={(e) => setPreviewLancamento(prev => prev ? { ...prev, valor: parseCurrencyInput(e.target.value) } : prev)} className="w-28 text-right text-lg font-bold" style={{ background: "transparent", border: "none", boxShadow: "none" }} />
             </div>
-            <div className="flex items-center justify-between rounded-2xl px-3 py-2" style={{ background: "rgba(240,244,255,0.6)", border: "1px solid rgba(200,210,240,0.5)" }}>
+            <div className="flex items-center justify-between rounded-2xl px-3 py-2" style={{ background: "rgba(243,244,246,0.7)", border: "1px solid rgba(210,210,215,0.55)" }}>
               <span className="text-sm font-semibold lg-text-secondary">Descrição</span>
               <Input value={previewLancamento.descricao} onChange={(e) => setPreviewLancamento(prev => prev ? { ...prev, descricao: e.target.value } : prev)} className="w-40 text-right font-bold" style={{ background: "transparent", border: "none", boxShadow: "none" }} />
             </div>
@@ -1181,14 +1619,14 @@ export default function AppFinanceiroCompleto() {
                 <span className="text-xs lg-text-muted">Data</span>
                 <div className="relative group">
                   <input type="date" value={previewLancamento.data} onChange={(e) => { const novaData = e.target.value; setDataSelecionada(novaData); setPreviewLancamento(prev => prev ? { ...prev, data: novaData } : prev); }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-                  <div className="flex items-center justify-between rounded-xl px-2 py-1.5" style={{ background: "rgba(240,244,255,0.7)", border: "1px solid rgba(200,210,240,0.5)" }}>
+                  <div className="flex items-center justify-between rounded-xl px-2 py-1.5" style={{ background: "rgba(243,244,246,0.8)", border: "1px solid rgba(210,210,215,0.55)" }}>
                     <span className="text-sm font-semibold lg-text-primary">{new Date(previewLancamento.data).toLocaleDateString("pt-BR")}</span>
                   </div>
                 </div>
               </div>
               <div className="grid gap-0.5">
                 <span className="text-xs lg-text-muted">Tipo</span>
-                <div className="flex rounded-xl p-0.5" style={{ background: "rgba(240,244,255,0.6)", border: "1px solid rgba(200,210,240,0.5)" }}>
+                <div className="flex rounded-xl p-0.5" style={{ background: "rgba(243,244,246,0.8)", border: "1px solid rgba(210,210,215,0.55)" }}>
                   <button onClick={() => setPreviewLancamento(prev => prev ? { ...prev, tipo: "receita" } : prev)} className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all`} style={previewLancamento.tipo === "receita" ? { background: "rgba(209,250,229,0.8)", color: "#065F46", border: "1px solid rgba(110,231,183,0.5)" } : { color: "#94a3b8" }}>Receita</button>
                   <button onClick={() => setPreviewLancamento(prev => prev ? { ...prev, tipo: "despesa" } : prev)} className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all`} style={previewLancamento.tipo === "despesa" ? { background: "rgba(254,226,226,0.8)", color: "#991B1B", border: "1px solid rgba(252,165,165,0.5)" } : { color: "#94a3b8" }}>Despesa</button>
                 </div>
