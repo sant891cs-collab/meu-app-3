@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, Bell, Crown, Shield, LogOut, Sparkles, Paperclip, Mic, Image, Camera, X, Square, Trash2,
   Building2, ChevronRight, CheckCircle2, AlertCircle, Send, Edit2, Wifi
@@ -26,8 +26,15 @@ const LG_STYLES = `
     80%  { opacity: 1; }
     100% { transform: translateX(300%) skewX(-12deg); opacity: 0; }
   }
+  @keyframes toastIn {
+    0%   { opacity: 0; transform: translateY(16px) scale(0.96); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes toastOut {
+    0%   { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-12px) scale(0.96); }
+  }
 
-  /* FUNDO — cinza neutro puro, sem nenhum tom azulado */
   .lg-bg {
     background: linear-gradient(160deg,
       #f5f5f5 0%,
@@ -39,7 +46,6 @@ const LG_STYLES = `
     animation: liquidShiftLight 26s ease infinite;
   }
 
-  /* CARD glass — neutro puro */
   .lg-card {
     background: rgba(255,255,255,0.76);
     backdrop-filter: blur(32px) saturate(160%) brightness(1.01);
@@ -64,7 +70,6 @@ const LG_STYLES = `
     pointer-events: none;
   }
 
-  /* BOTÕES */
   .lg-btn {
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -75,7 +80,6 @@ const LG_STYLES = `
   }
   .lg-btn:active { transform: scale(0.97); }
 
-  /* Verde e vermelho mantidos — são os únicos com cor */
   .lg-btn-green {
     background: linear-gradient(150deg, #00c48c 0%, #00a876 100%);
     border: 1px solid rgba(0,196,140,0.3);
@@ -89,7 +93,6 @@ const LG_STYLES = `
     color: white;
   }
 
-  /* Demais botões — cinza neutro */
   .lg-btn-dark {
     background: linear-gradient(150deg, #1a1a1a 0%, #111111 100%);
     border: 1px solid rgba(255,255,255,0.07);
@@ -109,7 +112,6 @@ const LG_STYLES = `
     color: white;
   }
 
-  /* BOTÃO AI — exatamente como "Criar agente" do Nubank: pill escuro, texto branco */
   .lg-ai-pill {
     background: #1a1a1a;
     border: 1px solid rgba(255,255,255,0.12);
@@ -126,7 +128,6 @@ const LG_STYLES = `
     background: #222;
   }
 
-  /* INPUT — cinza neutro */
   .lg-input {
     background: rgba(255,255,255,0.85) !important;
     backdrop-filter: blur(16px);
@@ -144,7 +145,6 @@ const LG_STYLES = `
     outline: none;
   }
 
-  /* BARRA DE ABAS — cinza neutro */
   .lg-tab-bar {
     background: rgba(255,255,255,0.7);
     backdrop-filter: blur(24px);
@@ -161,7 +161,6 @@ const LG_STYLES = `
   }
   .lg-tab-inactive { color: rgba(0,0,0,0.38); }
 
-  /* CARDS DE ESTATÍSTICAS — cinza neutro, só verde e vermelho mantêm cor */
   .lg-stat-green {
     background: rgba(240,253,245,0.85);
     border: 1px solid rgba(0,168,118,0.2);
@@ -187,13 +186,11 @@ const LG_STYLES = `
     border-radius: 16px;
   }
 
-  /* TEXTOS */
   .lg-text-primary   { color: #111111; }
   .lg-text-secondary { color: #3a3a3a; }
   .lg-text-muted     { color: #6b6b6b; }
   .lg-divider        { background: rgba(0,0,0,0.08); }
 
-  /* HEADER DO PERFIL — cinza neutro */
   .lg-profile-header {
     background: linear-gradient(145deg,
       rgba(245,245,245,0.99) 0%,
@@ -203,7 +200,6 @@ const LG_STYLES = `
     -webkit-backdrop-filter: blur(30px);
   }
 
-  /* ITEM ROW */
   .lg-item-row {
     background: rgba(255,255,255,0.82);
     border: 1px solid rgba(0,0,0,0.07);
@@ -211,7 +207,6 @@ const LG_STYLES = `
     box-shadow: 0 1px 0 rgba(255,255,255,1) inset, 0 1px 3px rgba(0,0,0,0.04);
   }
 
-  /* SELECT */
   .lg-select {
     background: rgba(255,255,255,0.85) !important;
     backdrop-filter: blur(12px);
@@ -221,7 +216,6 @@ const LG_STYLES = `
   }
   .lg-select option { background: #ffffff; color: #111; }
 
-  /* MODAL */
   .lg-modal {
     background: rgba(252,252,252,0.97);
     backdrop-filter: blur(48px) saturate(160%) brightness(1.01);
@@ -234,13 +228,11 @@ const LG_STYLES = `
     border-radius: 32px;
   }
 
-  /* AVATAR */
   .lg-avatar-ring {
     border: 2px solid rgba(0,0,0,0.12);
     box-shadow: 0 0 0 3px rgba(0,0,0,0.05), 0 4px 14px rgba(0,0,0,0.10);
   }
 
-  /* CHAT */
   .lg-chat-bubble-user {
     background: rgba(255,255,255,0.92);
     border: 1px solid rgba(0,0,0,0.07);
@@ -259,8 +251,25 @@ const LG_STYLES = `
   }
   .lg-chat-input::placeholder { color: rgba(0,0,0,0.32); }
 
-  /* FITA */
   .lg-fita-track { background: rgba(0,0,0,0.08); }
+
+  /* TOAST VERDE */
+  .lg-toast {
+    background: linear-gradient(135deg, #00c48c 0%, #00a876 100%);
+    border: 1px solid rgba(0,196,140,0.4);
+    box-shadow: 0 8px 32px rgba(0,168,118,0.35), 0 1px 0 rgba(255,255,255,0.3) inset;
+    border-radius: 999px;
+    color: white;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+  .lg-toast-enter { animation: toastIn 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+  .lg-toast-exit  { animation: toastOut 0.25s ease forwards; }
 
   .scrollbar-hide::-webkit-scrollbar { display: none; }
 `;
@@ -273,6 +282,26 @@ function InjectLGStyles() {
     return () => document.head.removeChild(style);
   }, []);
   return null;
+}
+
+// =====================================================
+// TOAST DE CONFIRMAÇÃO — pop-up verde centralizado
+// =====================================================
+function Toast({ message, onDone }) {
+  const [exiting, setExiting] = useState(false);
+  useEffect(() => {
+    const t1 = setTimeout(() => setExiting(true), 2200);
+    const t2 = setTimeout(() => onDone(), 2500);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [onDone]);
+  return (
+    <div className="fixed inset-x-0 bottom-28 flex justify-center z-[400] pointer-events-none">
+      <div className={`lg-toast ${exiting ? "lg-toast-exit" : "lg-toast-enter"}`}>
+        <CheckCircle2 size={16} color="white" />
+        {message}
+      </div>
+    </div>
+  );
 }
 
 // =====================================================
@@ -299,7 +328,7 @@ const Input = ({ className, ...props }) => (
 );
 
 // =====================================================
-// FORMATAÇÃO DE MOEDA — inalterada
+// FORMATAÇÃO DE MOEDA
 // =====================================================
 function formatCurrency(value) {
   const numeric = typeof value === "number" ? value : Number(String(value).replace(/\./g, "").replace(",", "."));
@@ -332,7 +361,7 @@ const ANALISES_ESPECIAIS = [
 ];
 
 // =====================================================
-// FUNÇÕES AUXILIARES — todas inalteradas
+// FUNÇÕES AUXILIARES
 // =====================================================
 function categorize(text) {
   const t = text.toLowerCase();
@@ -393,7 +422,7 @@ function buildMonthlyCategorySeries(lancamentos, months) {
 }
 
 // =====================================================
-// PERFIL DO USUÁRIO — Light Glass
+// PERFIL DO USUÁRIO — fonte padronizada
 // =====================================================
 function UserProfile({ isOpen, onClose, onLogout, user, contas, cartoes, onDisconnectConta, onDisconnectCartao, onOpenPremium, onOpenPrivacy, onOpenDeleteAccount, onUpdateName }) {
   const [editingName, setEditingName] = useState(false);
@@ -404,7 +433,6 @@ function UserProfile({ isOpen, onClose, onLogout, user, contas, cartoes, onDisco
     <div className="fixed inset-0 z-[240] bg-slate-900/30 backdrop-blur-sm">
       <motion.div initial={{ x: "-100%" }} animate={{ x: 0 }} className="absolute left-0 top-0 h-full w-full max-w-sm shadow-2xl overflow-y-auto flex flex-col" style={{ background: "linear-gradient(160deg, #f8f9fa 0%, #f3f4f6 50%, #f1f2f4 100%)" }}>
 
-        {/* Header lilás claro */}
         <div className="relative h-48 lg-profile-header p-6 overflow-hidden flex-shrink-0">
           <div className="absolute top-0 right-0 w-40 h-40 rounded-full opacity-20" style={{ background: "radial-gradient(circle, rgba(180,180,180,0.6) 0%, transparent 70%)", top: -20, right: -20 }} />
           <div className="flex items-center justify-between relative z-10">
@@ -441,11 +469,23 @@ function UserProfile({ isOpen, onClose, onLogout, user, contas, cartoes, onDisco
                   <button onClick={() => { setTempName(user.name); setEditingName(false); }} className="px-3 py-2 text-xs font-bold rounded-xl" style={{ background: "rgba(255,255,255,0.7)", color: "#64748b", border: "1px solid rgba(210,210,215,0.55)" }}>×</button>
                 </div>
               ) : (
-                <h3 className="text-2xl font-black tracking-tight truncate cursor-pointer hover:opacity-70 lg-text-primary" onClick={() => setEditingName(true)}>{user.name}</h3>
+                <h3
+                  className="font-black tracking-tight truncate cursor-pointer hover:opacity-70 lg-text-primary"
+                  style={{ fontSize: 22, fontFamily: "inherit" }}
+                  onClick={() => setEditingName(true)}
+                >
+                  {user.name}
+                </h3>
               )}
               {user.isPro && <Crown size={18} className="text-amber-500 fill-amber-500" />}
             </div>
-            <p className="text-xs font-bold lg-text-muted uppercase tracking-tighter">{user.email}</p>
+            {/* EMAIL — mesma fonte/peso do restante */}
+            <p
+              className="lg-text-muted mt-0.5"
+              style={{ fontSize: 12, fontFamily: "inherit", fontWeight: 500, letterSpacing: 0 }}
+            >
+              {user.email}
+            </p>
           </div>
 
           {/* Premium */}
@@ -513,7 +553,7 @@ function ProfileMenuBtn({ icon, label, onClick }) {
 }
 
 // =====================================================
-// MODAL PREMIUM — Light Glass
+// MODAL PREMIUM
 // =====================================================
 function PremiumModal({ isOpen, onClose, onContinue }) {
   if (!isOpen) return null;
@@ -551,7 +591,244 @@ function PremiumModal({ isOpen, onClose, onContinue }) {
 }
 
 // =====================================================
-// FITA DE SOBREVIVÊNCIA — inalterada em lógica
+// MODAL UNIFICADO DE LANÇAMENTO (add + editar)
+// =====================================================
+function ModalLancamento({
+  isOpen,
+  onClose,
+  onConfirm,
+  lancamento,        // null = novo, object = editando
+  categorias,
+  categoriasReceita,
+  categoriasDespesa,
+  onAddCategoria,
+}) {
+  const isEdicao = !!lancamento?.id;
+
+  const [valor, setValor] = useState("");
+  const [descricao, setDescricao] = useState("");
+  const [tipo, setTipo] = useState("despesa");
+  const [categoria, setCategoria] = useState("outros");
+  const [subcategoria, setSubcategoria] = useState("");
+  const [natureza, setNatureza] = useState("variavel");
+  const [data, setData] = useState(new Date().toISOString().slice(0, 10));
+  const [novaCat, setNovaCat] = useState("");
+  const [catAdicionada, setCatAdicionada] = useState(false);
+
+  // Popula campos ao abrir (edição ou novo)
+  useEffect(() => {
+    if (!isOpen) return;
+    if (lancamento) {
+      setValor(formatCurrency(lancamento.valor));
+      setDescricao(lancamento.descricao || "");
+      setTipo(lancamento.tipo || "despesa");
+      setCategoria(lancamento.categoria || "outros");
+      setSubcategoria(lancamento.subcategoria || "");
+      setNatureza(lancamento.natureza || "variavel");
+      setData(lancamento.data || new Date().toISOString().slice(0, 10));
+    } else {
+      setValor("");
+      setDescricao("");
+      setTipo("despesa");
+      setCategoria("outros");
+      setSubcategoria("");
+      setNatureza("variavel");
+      setData(new Date().toISOString().slice(0, 10));
+    }
+    setNovaCat("");
+    setCatAdicionada(false);
+  }, [isOpen, lancamento]);
+
+  // Auto-detecta categoria e natureza pela descrição
+  useEffect(() => {
+    if (!lancamento && descricao) {
+      setCategoria(categorize(descricao));
+      setNatureza(detectNature(descricao));
+    }
+  }, [descricao]);
+
+  const listaCats = tipo === "receita" ? categoriasReceita : categoriasDespesa;
+
+  function handleAddCat() {
+    const nova = novaCat.trim().toLowerCase();
+    if (!nova) return;
+    onAddCategoria(nova, tipo);
+    setCategoria(nova);
+    setNovaCat("");
+    setCatAdicionada(true);
+    setTimeout(() => setCatAdicionada(false), 2000);
+  }
+
+  function handleConfirm() {
+    const v = parseCurrencyInput(valor);
+    if (!descricao.trim() || !v) return;
+    onConfirm({
+      id: lancamento?.id || null,
+      valor: v,
+      descricao: descricao.trim(),
+      tipo,
+      categoria,
+      subcategoria: subcategoria.trim(),
+      natureza,
+      data,
+    });
+    onClose();
+  }
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[350] bg-slate-900/30 backdrop-blur-sm flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 16 }}
+        transition={{ type: "spring", damping: 28, stiffness: 320 }}
+        className="w-full max-w-md lg-modal p-5 grid gap-3"
+        style={{ maxHeight: "90vh", overflowY: "auto" }}
+      >
+        {/* Cabeçalho */}
+        <div className="flex items-center justify-between">
+          <h2 className="text-base font-black lg-text-primary">
+            {isEdicao ? "Editar lançamento" : "Novo lançamento"}
+          </h2>
+          <button onClick={onClose} className="p-2 rounded-full" style={{ background: "rgba(243,244,246,0.8)", border: "1px solid rgba(210,210,215,0.5)" }}>
+            <X size={16} color="#6b7280" />
+          </button>
+        </div>
+
+        {/* Tipo */}
+        <div className="flex rounded-2xl p-1 gap-1" style={{ background: "rgba(243,244,246,0.8)", border: "1px solid rgba(210,210,215,0.55)" }}>
+          <button
+            onClick={() => setTipo("receita")}
+            className="flex-1 py-2 text-sm font-bold rounded-xl transition-all"
+            style={tipo === "receita"
+              ? { background: "rgba(209,250,229,0.9)", color: "#065F46", border: "1px solid rgba(110,231,183,0.5)" }
+              : { color: "#94a3b8" }}
+          >Receita</button>
+          <button
+            onClick={() => setTipo("despesa")}
+            className="flex-1 py-2 text-sm font-bold rounded-xl transition-all"
+            style={tipo === "despesa"
+              ? { background: "rgba(254,226,226,0.9)", color: "#991B1B", border: "1px solid rgba(252,165,165,0.5)" }
+              : { color: "#94a3b8" }}
+          >Despesa</button>
+        </div>
+
+        {/* Valor */}
+        <div className="grid gap-0.5">
+          <span className="text-xs lg-text-muted">Valor</span>
+          <Input
+            inputMode="numeric"
+            placeholder="R$ 0,00"
+            value={valor}
+            onChange={(e) => setValor(formatCurrencyInput(e.target.value))}
+            className="text-right font-semibold text-lg"
+          />
+        </div>
+
+        {/* Descrição */}
+        <div className="grid gap-0.5">
+          <span className="text-xs lg-text-muted">Descrição</span>
+          <Input
+            placeholder="Ex: Mercado, Salário, Netflix..."
+            value={descricao}
+            onChange={(e) => setDescricao(e.target.value)}
+          />
+        </div>
+
+        {/* Data + Natureza */}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="grid gap-0.5">
+            <span className="text-xs lg-text-muted">Data</span>
+            <input
+              type="date"
+              value={data}
+              onChange={(e) => setData(e.target.value)}
+              className="lg-input py-2 px-3 text-sm w-full"
+            />
+          </div>
+          <div className="grid gap-0.5">
+            <span className="text-xs lg-text-muted">Natureza</span>
+            <select
+              value={natureza}
+              onChange={(e) => setNatureza(e.target.value)}
+              className="lg-select p-2 text-sm rounded-xl w-full"
+            >
+              <option value="variavel">Variável</option>
+              <option value="fixa">Fixa</option>
+              <option value="parcelada">Parcelada</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Categoria */}
+        <div className="grid gap-0.5">
+          <span className="text-xs lg-text-muted">Categoria</span>
+          <select
+            value={categoria}
+            onChange={(e) => setCategoria(e.target.value)}
+            className="lg-select p-2 text-sm rounded-xl w-full"
+          >
+            {listaCats.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
+          </select>
+        </div>
+
+        {/* Adicionar nova categoria */}
+        <div className="grid gap-0.5">
+          <span className="text-xs lg-text-muted">Nova categoria</span>
+          <div className="flex gap-2">
+            <Input
+              placeholder="Ex: lazer, pets, educação..."
+              value={novaCat}
+              onChange={(e) => setNovaCat(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleAddCat()}
+              className="text-sm flex-1"
+            />
+            <button
+              onClick={handleAddCat}
+              className="lg-btn lg-btn-dark px-3 text-sm text-white font-bold flex-shrink-0"
+              style={{ borderRadius: 14, minWidth: 40 }}
+            >+</button>
+          </div>
+          {catAdicionada && (
+            <span className="text-[10px] font-semibold mt-0.5" style={{ color: "#00a876" }}>
+              ✓ Categoria "{categoria}" adicionada e selecionada
+            </span>
+          )}
+        </div>
+
+        {/* Subcategoria */}
+        <div className="grid gap-0.5">
+          <span className="text-xs lg-text-muted">Subcategoria <span className="opacity-50">(opcional)</span></span>
+          <Input
+            placeholder="Ex: supermercado, farmácia, streaming..."
+            value={subcategoria}
+            onChange={(e) => setSubcategoria(e.target.value)}
+            className="text-sm"
+          />
+        </div>
+
+        {/* Botões */}
+        <div className="grid grid-cols-2 gap-2 pt-1">
+          <Button variant="secondary" onClick={onClose} className="rounded-xl font-semibold text-sm">Cancelar</Button>
+          <button
+            onClick={handleConfirm}
+            className="lg-btn py-2 text-sm font-bold text-white rounded-xl"
+            style={tipo === "receita"
+              ? { background: "linear-gradient(150deg,#00c48c,#00a876)" }
+              : { background: "linear-gradient(150deg,#ff4f6d,#e8324f)" }}
+          >
+            {isEdicao ? "Salvar alterações" : tipo === "receita" ? "Registrar receita" : "Registrar despesa"}
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+// =====================================================
+// FITA DE SOBREVIVÊNCIA
 // =====================================================
 function FitaMetalicaElite({ gastoAtual, metaMensal, receitaAtual = 0 }) {
   const hoje = new Date();
@@ -582,7 +859,7 @@ function FitaMetalicaElite({ gastoAtual, metaMensal, receitaAtual = 0 }) {
 }
 
 // =====================================================
-// GAUGE — light version
+// GAUGE
 // =====================================================
 function TermometroGauge({ totalDespesas, totalReceitas, metaMensal }) {
   const percentualFinal = metaMensal > 0 ? Math.min((totalDespesas / metaMensal) * 100, 100) : 0;
@@ -658,7 +935,7 @@ function TermometroSobrevivencia({ gastoAtual, metaMensal }) {
 }
 
 // =====================================================
-// TELA DE LOGIN — Light Glass
+// TELA DE LOGIN
 // =====================================================
 function TelaInicialLogin({ onLogin }) {
   return (
@@ -668,7 +945,7 @@ function TelaInicialLogin({ onLogin }) {
           <img src="/manyn_logo.png" alt="Logo manin" className="h-24 object-contain"
             onError={(e) => { e.currentTarget.style.display = "none"; e.currentTarget.nextSibling.style.display = "flex"; }}
           />
-          <div style={{ display: "none" }} className="items-center justify-center px-6 py-4 rounded-full" >
+          <div style={{ display: "none" }} className="items-center justify-center px-6 py-4 rounded-full">
             <span className="text-2xl font-black lowercase tracking-tight lg-text-primary">manin</span>
           </div>
         </div>
@@ -696,7 +973,7 @@ function TelaInicialLogin({ onLogin }) {
 }
 
 // =====================================================
-// CHAT GEMINI — Light Glass
+// CHAT GEMINI
 // =====================================================
 function ChatGemini() {
   const [isOpen, setIsOpen] = useState(false);
@@ -823,10 +1100,6 @@ const BANCOS_CATALOGO = [
   { id: "desconhecido", nome: "Desconhecido", cor: "#9ca3af", corTexto: "#fff", keywords: [] },
 ];
 
-// =====================================================
-// ENGINE DE PARSING DE NOTIFICAÇÕES
-// =====================================================
-
 function identificarBanco(texto) {
   const t = texto.toLowerCase();
   for (const banco of BANCOS_CATALOGO) {
@@ -834,17 +1107,13 @@ function identificarBanco(texto) {
   }
   return BANCOS_CATALOGO.find(b => b.id === "desconhecido");
 }
-
 function extrairValor(texto) {
-  // Captura padrões: R$ 39,90 / R$39.90 / 39,90 / 39.90
   const match = texto.match(/R?\$?\s*(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2}))/i);
   if (!match) return 0;
   const raw = match[1].replace(/\./g, "").replace(",", ".");
   return parseFloat(raw) || 0;
 }
-
 function extrairDescricao(texto) {
-  // Remove prefixo do banco e valor, pega o que sobrar
   const semValor = texto.replace(/R?\$?\s*\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})/gi, "").trim();
   const semPrefixos = semValor
     .replace(/compra aprovada|compra no crédito|compra no débito|pix enviado|pix recebido|pagamento realizado|transação aprovada|débito efetuado/gi, "")
@@ -854,13 +1123,11 @@ function extrairDescricao(texto) {
     .trim();
   return semPrefixos.length > 2 ? semPrefixos : texto.slice(0, 40);
 }
-
 function detectarTipoNotificacao(texto) {
   const t = texto.toLowerCase();
   if (t.includes("pix recebido") || t.includes("crédito") || t.includes("recebeu") || t.includes("depósito")) return "receita";
   return "despesa";
 }
-
 function parsearNotificacao(textoNotificacao) {
   const banco = identificarBanco(textoNotificacao);
   const valor = extrairValor(textoNotificacao);
@@ -871,29 +1138,19 @@ function parsearNotificacao(textoNotificacao) {
   const data = new Date().toISOString().slice(0, 10);
   return { banco, valor, descricao, tipo, categoria, natureza, data, textoOriginal: textoNotificacao, origem: "notificacao" };
 }
-
-// Iniciais do banco para o avatar (quando não houver logo)
 function iniciaisBanco(nome) {
   return nome.split(" ").map(p => p[0]).join("").slice(0, 2).toUpperCase();
 }
 
-// =====================================================
-// AVATAR DO BANCO
-// =====================================================
 function AvatarBanco({ banco, size = 44 }) {
   return (
-    <div
-      className="rounded-2xl flex items-center justify-center font-black flex-shrink-0"
-      style={{ width: size, height: size, background: banco.cor, color: banco.corTexto, fontSize: size * 0.32 }}
-    >
+    <div className="rounded-2xl flex items-center justify-center font-black flex-shrink-0"
+      style={{ width: size, height: size, background: banco.cor, color: banco.corTexto, fontSize: size * 0.32 }}>
       {iniciaisBanco(banco.nome)}
     </div>
   );
 }
 
-// =====================================================
-// MODAL DETALHE DO BANCO
-// =====================================================
 function ModalBanco({ banco, transacoes, isOpen, onClose, onCorrigirBanco, bancosDisponiveis }) {
   const [corrigindo, setCorrigindo] = useState(false);
   const [bancoCorrecto, setBancoCorreto] = useState(banco?.id || "");
@@ -907,7 +1164,6 @@ function ModalBanco({ banco, transacoes, isOpen, onClose, onCorrigirBanco, banco
         className="w-full max-w-lg lg-modal rounded-b-none"
         style={{ maxHeight: "82vh", display: "flex", flexDirection: "column" }}
       >
-        {/* Header */}
         <div className="flex items-center gap-3 p-4 border-b" style={{ borderColor: "rgba(210,210,215,0.4)" }}>
           <AvatarBanco banco={banco} size={40} />
           <div className="flex-1 min-w-0">
@@ -918,8 +1174,6 @@ function ModalBanco({ banco, transacoes, isOpen, onClose, onCorrigirBanco, banco
             <X size={16} color="#6b7280" />
           </button>
         </div>
-
-        {/* Stats */}
         <div className="flex gap-2 px-4 py-3">
           <div className="flex-1 rounded-xl p-2.5 text-center" style={{ background: "rgba(254,226,226,0.6)", border: "1px solid rgba(252,165,165,0.3)" }}>
             <div className="text-[10px] lg-text-muted">Saídas</div>
@@ -930,8 +1184,6 @@ function ModalBanco({ banco, transacoes, isOpen, onClose, onCorrigirBanco, banco
             <div className="text-sm font-bold" style={{ color: "#065F46" }}>{formatCurrency(totalReceitas)}</div>
           </div>
         </div>
-
-        {/* Corrigir banco desconhecido */}
         {banco.id === "desconhecido" && (
           <div className="px-4 pb-3">
             {!corrigindo ? (
@@ -950,8 +1202,6 @@ function ModalBanco({ banco, transacoes, isOpen, onClose, onCorrigirBanco, banco
             )}
           </div>
         )}
-
-        {/* Lista de transações */}
         <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-1.5">
           <div className="text-[10px] font-bold lg-text-muted uppercase tracking-widest mb-2">Movimentações detectadas</div>
           {transacoes.length === 0 && (
@@ -978,20 +1228,14 @@ function ModalBanco({ banco, transacoes, isOpen, onClose, onCorrigirBanco, banco
 }
 
 // =====================================================
-// ABA CONEXÕES — estrutura completa
-// (Entrada: manual por texto por enquanto.
-//  No React Native: substituir handleProcessarTexto pelo
-//  NotificationListenerService que chama parsearNotificacao()
-//  automaticamente com o texto da notificação real.)
+// ABA CONEXÕES
 // =====================================================
 function AbaConexoes({ transacoesNotificacao, onAdicionarTransacao, onCorrigirBanco, user }) {
   const [textoNotif, setTextoNotif] = useState("");
   const [preview, setPreview] = useState(null);
-  const [bancosComTransacoes, setBancosComTransacoes] = useState([]);
   const [bancoSelecionado, setBancoSelecionado] = useState(null);
   const [modalAberto, setModalAberto] = useState(false);
 
-  // Agrupa transações por banco
   const grupos = useMemo(() => {
     const map = {};
     transacoesNotificacao.forEach(t => {
@@ -1007,26 +1251,19 @@ function AbaConexoes({ transacoesNotificacao, onAdicionarTransacao, onCorrigirBa
     const resultado = parsearNotificacao(textoNotif);
     setPreview(resultado);
   }
-
   function handleConfirmarPreview() {
     if (!preview) return;
     onAdicionarTransacao({ ...preview, bancoId: preview.banco.id });
     setTextoNotif("");
     setPreview(null);
   }
-
-  function abrirBanco(grupo) {
-    setBancoSelecionado(grupo);
-    setModalAberto(true);
-  }
+  function abrirBanco(grupo) { setBancoSelecionado(grupo); setModalAberto(true); }
 
   const totalGeral = transacoesNotificacao.filter(t => t.tipo === "despesa").reduce((a, t) => a + t.valor, 0);
   const qtdTotal = transacoesNotificacao.length;
 
   return (
     <div className="grid gap-3">
-
-      {/* Cabeçalho informativo */}
       <div className="lg-card p-3">
         <div className="flex items-center gap-2 mb-2">
           <div className="size-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(243,244,246,0.8)", border: "1px solid rgba(210,210,215,0.5)" }}>
@@ -1043,10 +1280,6 @@ function AbaConexoes({ transacoesNotificacao, onAdicionarTransacao, onCorrigirBa
         </div>
       </div>
 
-      {/* INPUT MANUAL (placeholder do NotificationListenerService) */}
-      {/* ⚠️ MIGRATION POINT: no React Native, este bloco inteiro será substituído pelo
-          NotificationListenerService que intercepta notificações automaticamente e chama
-          onAdicionarTransacao(parsearNotificacao(notificacao.text)) diretamente. */}
       <div className="lg-card p-3">
         <div className="text-xs font-bold lg-text-secondary mb-2">Inserir notificação bancária</div>
         <textarea
@@ -1066,10 +1299,8 @@ function AbaConexoes({ transacoesNotificacao, onAdicionarTransacao, onCorrigirBa
           <Send size={14} /> Processar notificação
         </button>
 
-        {/* Preview antes de confirmar */}
         {preview && (
           <div className="mt-3 rounded-2xl p-3 grid gap-2" style={{ background: "rgba(243,244,246,0.7)", border: "1px solid rgba(210,210,215,0.55)" }}>
-            <div className="text-[10px] font-bold lg-text-muted uppercase tracking-wider">Prévia detectada — confirme antes de salvar</div>
             <div className="flex items-center gap-2">
               <AvatarBanco banco={preview.banco} size={36} />
               <div className="flex-1 min-w-0">
@@ -1095,7 +1326,6 @@ function AbaConexoes({ transacoesNotificacao, onAdicionarTransacao, onCorrigirBa
         )}
       </div>
 
-      {/* Lista de bancos detectados */}
       {grupos.length > 0 && (
         <div className="lg-card p-3">
           <div className="text-xs font-bold lg-text-secondary mb-2">Bancos detectados</div>
@@ -1104,11 +1334,7 @@ function AbaConexoes({ transacoesNotificacao, onAdicionarTransacao, onCorrigirBa
               const despesas = grupo.transacoes.filter(t => t.tipo === "despesa").reduce((a, t) => a + t.valor, 0);
               const receitas = grupo.transacoes.filter(t => t.tipo === "receita").reduce((a, t) => a + t.valor, 0);
               return (
-                <button
-                  key={grupo.banco.id}
-                  onClick={() => abrirBanco(grupo)}
-                  className="lg-item-row p-3 flex items-center gap-3 w-full text-left transition-all active:scale-[0.98]"
-                >
+                <button key={grupo.banco.id} onClick={() => abrirBanco(grupo)} className="lg-item-row p-3 flex items-center gap-3 w-full text-left transition-all active:scale-[0.98]">
                   <AvatarBanco banco={grupo.banco} size={44} />
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-bold lg-text-primary">{grupo.banco.nome}</div>
@@ -1126,7 +1352,6 @@ function AbaConexoes({ transacoesNotificacao, onAdicionarTransacao, onCorrigirBa
         </div>
       )}
 
-      {/* Estado vazio */}
       {grupos.length === 0 && (
         <div className="lg-card p-6 flex flex-col items-center justify-center gap-3 text-center">
           <div className="size-14 rounded-3xl flex items-center justify-center" style={{ background: "rgba(243,244,246,0.8)", border: "1px solid rgba(210,210,215,0.5)" }}>
@@ -1139,17 +1364,13 @@ function AbaConexoes({ transacoesNotificacao, onAdicionarTransacao, onCorrigirBa
         </div>
       )}
 
-      {/* Modal detalhe */}
       {bancoSelecionado && (
         <ModalBanco
           banco={bancoSelecionado.banco}
           transacoes={bancoSelecionado.transacoes}
           isOpen={modalAberto}
           onClose={() => setModalAberto(false)}
-          onCorrigirBanco={(novoBancoId) => {
-            onCorrigirBanco(bancoSelecionado.banco.id, novoBancoId);
-            setModalAberto(false);
-          }}
+          onCorrigirBanco={(novoBancoId) => { onCorrigirBanco(bancoSelecionado.banco.id, novoBancoId); setModalAberto(false); }}
           bancosDisponiveis={BANCOS_CATALOGO}
         />
       )}
@@ -1168,7 +1389,6 @@ export default function AppFinanceiroCompleto() {
   const [premiumOpen, setPremiumOpen] = useState(false);
   const [deleteAccountModalOpen, setDeleteAccountModalOpen] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(false);
-  const [aviso, setAviso] = useState("");
   const [activeTab, setActiveTab] = useState("inicio");
   const [lancamentos, setLancamentos] = useState([]);
   const [contas, setContas] = useState([]);
@@ -1180,27 +1400,30 @@ export default function AppFinanceiroCompleto() {
   const [userPhoto, setUserPhoto] = useState(DEFAULT_AVATAR);
   const [valorInput, setValorInput] = useState("");
   const [descricaoInput, setDescricaoInput] = useState("");
-  const [previewLancamento, setPreviewLancamento] = useState(null);
-  const [novaCategoriaInput, setNovaCategoriaInput] = useState("");
   const [mesFiltro, setMesFiltro] = useState(new Date().toISOString().slice(0, 7));
-  const [dataSelecionada, setDataSelecionada] = useState(new Date().toISOString().slice(0, 10));
-  const [contaSelecionada, setContaSelecionada] = useState("");
-  const [editandoId, setEditandoId] = useState(null);
   const [tipoAnalise, setTipoAnalise] = useState("despesa");
   const [analiseSelecionadaReceita, setAnaliseSelecionadaReceita] = useState("renda");
   const [analiseSelecionadaDespesa, setAnaliseSelecionadaDespesa] = useState("luz");
   const [periodoAnalise, setPeriodoAnalise] = useState(1);
-  const [contaNome, setContaNome] = useState("");
-  const [contaBanco, setContaBanco] = useState("");
-  const [cartaoNome, setCartaoNome] = useState("");
-  const [limiteCartao, setLimiteCartao] = useState("");
   const [gastoFixoNome, setGastoFixoNome] = useState("");
   const [gastoFixoValor, setGastoFixoValor] = useState("");
   const [gastoFixoDia, setGastoFixoDia] = useState("");
   const [gastoFixoAviso, setGastoFixoAviso] = useState("3");
   const [metaMensalInput, setMetaMensalInput] = useState("");
-  // CONEXÕES — transações detectadas por notificação (salvas no Supabase)
   const [transacoesNotificacao, setTransacoesNotificacao] = useState([]);
+
+  // Modal unificado de lançamento
+  const [modalLancamentoOpen, setModalLancamentoOpen] = useState(false);
+  const [lancamentoEditando, setLancamentoEditando] = useState(null); // null = novo
+  const [tipoParaNovoLancamento, setTipoParaNovoLancamento] = useState("despesa");
+
+  // Toast
+  const [toast, setToast] = useState(null);
+  const toastKey = useRef(0);
+  function showToast(msg) {
+    toastKey.current += 1;
+    setToast({ msg, key: toastKey.current });
+  }
 
   useEffect(() => {
     const viewport = document.querySelector('meta[name="viewport"]');
@@ -1229,103 +1452,97 @@ export default function AppFinanceiroCompleto() {
     if (gastosData) setGastosFixos(gastosData);
     const { data: metaData } = await supabase.from('user_settings').select('meta_mensal').eq('user_id', userId).single();
     if (metaData) setMetaMensal(metaData.meta_mensal || 0);
-    // Carrega transações vindas de notificações
     const { data: notifData } = await supabase.from('notification_transactions').select('*').eq('user_id', userId).order('data', { ascending: false });
     if (notifData) setTransacoesNotificacao(notifData);
   }
 
   const handleLogin = async () => { const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } }); if (error) console.error(error); };
-  const handleLogout = async () => { await supabase.auth.signOut(); setAviso("Você saiu da conta."); };
+  const handleLogout = async () => { await supabase.auth.signOut(); showToast("Você saiu da conta."); };
 
   async function excluirConta() {
     const userId = user?.id;
     if (userId) { await supabase.from('transactions').delete().eq('user_id', userId); await supabase.from('accounts').delete().eq('user_id', userId); await supabase.from('fixed_expenses').delete().eq('user_id', userId); await supabase.from('user_settings').delete().eq('user_id', userId); }
-    await supabase.auth.signOut(); setDeleteAccountModalOpen(false); setAviso("Conta excluída com sucesso.");
+    await supabase.auth.signOut(); setDeleteAccountModalOpen(false); showToast("Conta excluída com sucesso.");
   }
 
-  async function salvarLancamento(lancamento) {
+  // ── MODAL UNIFICADO: abrir para NOVO lançamento ──
+  function abrirNovoLancamento(tipo) {
+    setLancamentoEditando({ tipo }); // passa tipo pré-selecionado, sem id
+    setModalLancamentoOpen(true);
+  }
+
+  // ── MODAL UNIFICADO: abrir para EDIÇÃO ──
+  function iniciarEdicao(lancamento) {
+    setLancamentoEditando(lancamento);
+    setModalLancamentoOpen(true);
+  }
+
+  // ── SALVAR (novo ou edição) vindo do modal ──
+  async function handleSalvarModal(payload) {
     const userId = user?.id; if (!userId) return;
-    const novoLancamento = { user_id: userId, descricao: lancamento.descricao, valor: lancamento.valor, tipo: lancamento.tipo, categoria: lancamento.categoria, natureza: lancamento.natureza, data: lancamento.data, conta_id: lancamento.contaId || null };
-    if (editandoId) {
-      const { error } = await supabase.from('transactions').update(novoLancamento).eq('id', editandoId).eq('user_id', userId);
-      if (!error) { setLancamentos(prev => prev.map(l => l.id === editandoId ? { ...l, ...novoLancamento } : l)); setAviso("Movimentação atualizada."); }
+    const registro = {
+      user_id: userId,
+      descricao: payload.descricao,
+      valor: payload.valor,
+      tipo: payload.tipo,
+      categoria: payload.categoria,
+      subcategoria: payload.subcategoria || null,
+      natureza: payload.natureza,
+      data: payload.data,
+    };
+
+    if (payload.id) {
+      // EDIÇÃO
+      const { error } = await supabase.from('transactions').update(registro).eq('id', payload.id).eq('user_id', userId);
+      if (!error) {
+        setLancamentos(prev => prev.map(l => l.id === payload.id ? { ...l, ...registro } : l));
+        showToast("Registro atualizado!");
+      }
     } else {
-      const { data, error } = await supabase.from('transactions').insert([novoLancamento]).select();
-      if (!error && data) { setLancamentos(prev => [data[0], ...prev]); setAviso("Movimentação registrada."); }
+      // NOVO
+      const { data, error } = await supabase.from('transactions').insert([registro]).select();
+      if (!error && data) {
+        setLancamentos(prev => [data[0], ...prev]);
+        showToast(payload.tipo === "receita" ? "Receita registrada!" : "Despesa registrada!");
+      }
     }
-    setPreviewLancamento(null); limparFormulario();
   }
 
-  function limparFormulario() { setValorInput(""); setDescricaoInput(""); setContaSelecionada(""); setEditandoId(null); }
-  function registradorBase(payload) { salvarLancamento(payload); }
-  function registrarMovimentoManual(tipoOverride) {
-    if (!descricaoInput.trim() || !valorInput.trim()) return;
-    const valor = parseCurrencyInput(valorInput); if (Number.isNaN(valor)) return;
-    const categoriaEncontrada = categorias.find(c => c.nome === categorize(descricaoInput) && c.tipo === tipoOverride);
-    const categoriaFinal = categoriaEncontrada ? categoriaEncontrada.nome : categorize(descricaoInput);
-    setPreviewLancamento({ descricao: descricaoInput.trim(), valor, tipo: tipoOverride, categoria: categoriaFinal, natureza: detectNature(descricaoInput), data: dataSelecionada, contaId: contaSelecionada || null });
-    setAviso("Confira a prévia antes de confirmar.");
-  }
-  function confirmarLancamentoPreview() { if (!previewLancamento) return; registradorBase(previewLancamento); }
-  function cancelarLancamentoPreview() { setPreviewLancamento(null); }
-  function iniciarEdicao(lancamento) { setDescricaoInput(lancamento.descricao); setValorInput(formatCurrency(lancamento.valor)); setContaSelecionada(lancamento.conta_id || ""); setDataSelecionada(lancamento.data); setEditandoId(lancamento.id); setAviso("Editando lançamento."); }
   async function excluirLancamento(id) {
     const userId = user?.id; if (!userId) return;
     const { error } = await supabase.from('transactions').delete().eq('id', id).eq('user_id', userId);
-    if (!error) { setLancamentos(prev => prev.filter(l => l.id !== id)); setAviso("Lançamento excluído."); }
+    if (!error) { setLancamentos(prev => prev.filter(l => l.id !== id)); showToast("Lançamento excluído."); }
   }
   async function desconectarConta(id) {
     const userId = user?.id; if (!userId) return;
     await supabase.from('accounts').delete().eq('id', id).eq('user_id', userId);
-    setContas(prev => prev.filter(c => c.id !== id)); setCartoes(prev => prev.filter(c => c.id !== id)); setAviso("Conta desconectada.");
+    setContas(prev => prev.filter(c => c.id !== id)); setCartoes(prev => prev.filter(c => c.id !== id)); showToast("Conta desconectada.");
   }
   async function desconectarCartao(id) { await desconectarConta(id); }
 
-  // CONEXÕES — adicionar transação de notificação
   async function adicionarTransacaoNotificacao(transacao) {
     const userId = user?.id; if (!userId) return;
-    const registro = {
-      user_id: userId,
-      descricao: transacao.descricao,
-      valor: transacao.valor,
-      tipo: transacao.tipo,
-      categoria: transacao.categoria,
-      natureza: transacao.natureza,
-      data: transacao.data,
-      banco_id: transacao.bancoId || "desconhecido",
-      texto_original: transacao.textoOriginal || "",
-      origem: "notificacao",
-    };
+    const registro = { user_id: userId, descricao: transacao.descricao, valor: transacao.valor, tipo: transacao.tipo, categoria: transacao.categoria, natureza: transacao.natureza, data: transacao.data, banco_id: transacao.bancoId || "desconhecido", texto_original: transacao.textoOriginal || "", origem: "notificacao" };
     const { data, error } = await supabase.from('notification_transactions').insert([registro]).select();
     if (!error && data) {
       setTransacoesNotificacao(prev => [data[0], ...prev]);
-      // Também salva como lançamento normal para aparecer no fluxo financeiro
-      await supabase.from('transactions').insert([{
-        user_id: userId,
-        descricao: transacao.descricao,
-        valor: transacao.valor,
-        tipo: transacao.tipo,
-        categoria: transacao.categoria,
-        natureza: transacao.natureza,
-        data: transacao.data,
-      }]).select().then(({ data: ld }) => {
-        if (ld) setLancamentos(prev => [ld[0], ...prev]);
-      });
-      setAviso("Movimentação detectada e salva!");
+      await supabase.from('transactions').insert([{ user_id: userId, descricao: transacao.descricao, valor: transacao.valor, tipo: transacao.tipo, categoria: transacao.categoria, natureza: transacao.natureza, data: transacao.data }]).select().then(({ data: ld }) => { if (ld) setLancamentos(prev => [ld[0], ...prev]); });
+      showToast("Movimentação detectada e salva!");
     }
   }
-
-  // CONEXÕES — corrigir banco de um grupo de transações
   async function corrigirBancoTransacoes(bancoAntigoId, novoBancoId) {
     const userId = user?.id; if (!userId) return;
-    await supabase.from('notification_transactions')
-      .update({ banco_id: novoBancoId })
-      .eq('user_id', userId)
-      .eq('banco_id', bancoAntigoId);
-    setTransacoesNotificacao(prev =>
-      prev.map(t => t.banco_id === bancoAntigoId ? { ...t, banco_id: novoBancoId } : t)
-    );
-    setAviso("Banco atualizado!");
+    await supabase.from('notification_transactions').update({ banco_id: novoBancoId }).eq('user_id', userId).eq('banco_id', bancoAntigoId);
+    setTransacoesNotificacao(prev => prev.map(t => t.banco_id === bancoAntigoId ? { ...t, banco_id: novoBancoId } : t));
+    showToast("Banco atualizado!");
+  }
+
+  // Categorias dinâmicas (de DB + adicionadas manualmente)
+  function adicionarCategoria(nome, tipo) {
+    setCategorias(prev => {
+      if (prev.some(c => c.nome === nome && c.tipo === tipo)) return prev;
+      return [...prev, { nome, tipo }];
+    });
   }
 
   const mesAtual = new Date().toISOString().slice(0, 7);
@@ -1334,8 +1551,19 @@ export default function AppFinanceiroCompleto() {
   const totalDespesasMes = lancamentosMesAtual.filter(l => l.tipo === "despesa").reduce((acc, l) => acc + l.valor, 0);
   const saldoMes = totalEntradasMes - totalDespesasMes;
   const percentualMeta = metaMensal > 0 ? Math.min((totalDespesasMes / metaMensal) * 100, 100) : 0;
-  const categoriasReceita = useMemo(() => [...new Set(lancamentos.filter(l => l.tipo === "receita").map(l => l.categoria))], [lancamentos]);
-  const categoriasDespesa = useMemo(() => [...new Set(lancamentos.filter(l => l.tipo === "despesa").map(l => l.categoria))], [lancamentos]);
+
+  const categoriasReceita = useMemo(() => {
+    const base = [...new Set(lancamentos.filter(l => l.tipo === "receita").map(l => l.categoria))];
+    const extras = categorias.filter(c => c.tipo === "receita").map(c => c.nome);
+    return [...new Set([...base, ...extras])];
+  }, [lancamentos, categorias]);
+
+  const categoriasDespesa = useMemo(() => {
+    const base = [...new Set(lancamentos.filter(l => l.tipo === "despesa").map(l => l.categoria))];
+    const extras = categorias.filter(c => c.tipo === "despesa").map(c => c.nome);
+    return [...new Set([...base, ...extras, "outros"])];
+  }, [lancamentos, categorias]);
+
   const dadosPizza = useMemo(() => { const cats = {}; lancamentosMesAtual.filter(l => l.tipo === "despesa").forEach(l => { cats[l.categoria] = (cats[l.categoria] || 0) + l.valor; }); return Object.entries(cats).map(([categoria, valor]) => ({ categoria, valor })); }, [lancamentosMesAtual]);
   const lancamentosFiltrados = useMemo(() => lancamentos.filter(l => String(l.data).startsWith(mesFiltro)), [lancamentos, mesFiltro]);
   const analiseSelecionada = tipoAnalise === "receita" ? analiseSelecionadaReceita : analiseSelecionadaDespesa;
@@ -1363,6 +1591,11 @@ export default function AppFinanceiroCompleto() {
       <InjectLGStyles />
       <FitaMetalicaElite gastoAtual={totalDespesasMes} receitaAtual={totalEntradasMes} metaMensal={metaMensal} />
 
+      {/* Toast de confirmação */}
+      {toast && (
+        <Toast key={toast.key} message={toast.msg} onDone={() => setToast(null)} />
+      )}
+
       {/* Avatar fixo */}
       <div className="fixed top-4 left-4 z-[200]">
         <button onClick={() => setProfileOpen(true)} className="size-10 rounded-full overflow-hidden active:scale-90 transition-transform lg-avatar-ring">
@@ -1372,22 +1605,22 @@ export default function AppFinanceiroCompleto() {
 
       {/* HEADER FIXO */}
       <div className="flex-shrink-0 pt-14 px-3 sm:px-4 max-w-6xl mx-auto w-full">
-        {aviso && (
-          <div className="text-xs text-center mb-1 px-3 py-1 rounded-full lg-text-muted" style={{ background: "rgba(255,255,255,0.65)", border: "1px solid rgba(210,210,215,0.5)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9)" }}>
-            {aviso}
-          </div>
-        )}
-
-        {/* Card de input */}
+        {/* Card de input rápido — abre o modal unificado */}
         <div className="lg-card mb-2">
           <div className="p-3 grid gap-2">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <Input placeholder="Valor (R$)" inputMode="numeric" value={valorInput} onChange={(e) => setValorInput(formatCurrencyInput(e.target.value))} className="text-right font-semibold" />
-              <Input placeholder="Descrição do gasto" value={descricaoInput} onChange={(e) => setDescricaoInput(e.target.value)} className="text-center font-semibold" />
-            </div>
             <div className="grid grid-cols-2 gap-2">
-              <button onClick={() => registrarMovimentoManual("receita")} className="lg-btn lg-btn-green py-2 text-sm font-bold rounded-2xl">Adicionar Receita</button>
-              <button onClick={() => registrarMovimentoManual("despesa")} className="lg-btn lg-btn-red py-2 text-sm font-bold rounded-2xl">Adicionar Despesa</button>
+              <button
+                onClick={() => abrirNovoLancamento("receita")}
+                className="lg-btn lg-btn-green py-2.5 text-sm font-bold rounded-2xl"
+              >
+                + Receita
+              </button>
+              <button
+                onClick={() => abrirNovoLancamento("despesa")}
+                className="lg-btn lg-btn-red py-2.5 text-sm font-bold rounded-2xl"
+              >
+                + Despesa
+              </button>
             </div>
           </div>
         </div>
@@ -1455,7 +1688,7 @@ export default function AppFinanceiroCompleto() {
                   <div className="text-[10px] lg-text-muted">Valor máximo:</div>
                   <Input type="text" inputMode="decimal" pattern="[0-9.,]*" placeholder="Ex: 2000" value={metaMensalInput} onChange={(e) => setMetaMensalInput(e.target.value)} onBlur={() => { const cleaned = metaMensalInput.replace(/[^0-9,\.]/g, ""); const numeric = parseFloat(cleaned.replace(",", ".")); setMetaMensal(Number.isNaN(numeric) ? 0 : numeric); }} className="text-center font-bold" style={{ fontSize: 14, height: 40 }} />
                   <button className="lg-btn lg-btn-dark py-1 text-[10px] font-bold text-white rounded-xl"
-                    onClick={async () => { if (user?.id) { await supabase.from('user_settings').upsert({ user_id: user.id, meta_mensal: metaMensal }); setAviso("Meta mensal atualizada."); } }}>
+                    onClick={async () => { if (user?.id) { await supabase.from('user_settings').upsert({ user_id: user.id, meta_mensal: metaMensal }); showToast("Meta mensal atualizada!"); } }}>
                     Salvar meta
                   </button>
                   <div className="text-[8px] lg-text-muted text-center">Aviso de limite</div>
@@ -1484,7 +1717,7 @@ export default function AppFinanceiroCompleto() {
                           <span className="w-2.5 h-2.5 rounded-full" style={{ background: l.tipo === "receita" ? "#10b981" : "#ef4444" }} />
                           {l.descricao}
                         </div>
-                        <div className="text-[10px] lg-text-muted">{l.categoria} • {l.natureza}{l.conta_id ? ` • ${getContaNomeById(l.conta_id)}` : ""}</div>
+                        <div className="text-[10px] lg-text-muted">{l.categoria}{l.subcategoria ? ` › ${l.subcategoria}` : ""} • {l.natureza}{l.conta_id ? ` • ${getContaNomeById(l.conta_id)}` : ""}</div>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="font-semibold text-sm" style={{ color: l.tipo === "receita" ? "#00875a" : "#c81e3a" }}>{formatCurrency(Number(l.valor || 0))}</div>
@@ -1518,7 +1751,7 @@ export default function AppFinanceiroCompleto() {
                   const userId = user?.id; if (!userId) return;
                   const novo = { user_id: userId, nome: gastoFixoNome, valor: Number(gastoFixoValor.replace(",", ".")), dia_vencimento: Number(gastoFixoDia), dias_aviso: Number(gastoFixoAviso || 3), ativa: true, categoria: null };
                   const { data, error } = await supabase.from('fixed_expenses').insert([novo]).select();
-                  if (!error && data) { setGastosFixos(prev => [...prev, data[0]]); setGastoFixoNome(""); setGastoFixoValor(""); setGastoFixoDia(""); setGastoFixoAviso("3"); setAviso("Despesa fixa cadastrada."); }
+                  if (!error && data) { setGastosFixos(prev => [...prev, data[0]]); setGastoFixoNome(""); setGastoFixoValor(""); setGastoFixoDia(""); setGastoFixoAviso("3"); showToast("Despesa fixa cadastrada!"); }
                 }}>Adicionar despesa fixa</button>
               <div className="grid gap-2">
                 {gastosFixos.map((g) => (
@@ -1527,7 +1760,7 @@ export default function AppFinanceiroCompleto() {
                       <div className="font-medium text-sm lg-text-primary">{g.nome}</div>
                       <div className="text-xs lg-text-muted">{formatCurrency(g.valor)} • vence dia {g.dia_vencimento} • próximo: {calcularProximaData(g.dia_vencimento)} • aviso {g.dias_aviso} dias antes</div>
                     </div>
-                    <Button variant="destructive" className="px-2 py-1 text-xs" onClick={async () => { await supabase.from('fixed_expenses').delete().eq('id', g.id); setGastosFixos(prev => prev.filter(x => x.id !== g.id)); setAviso("Despesa fixa removida."); }}>Excluir</Button>
+                    <Button variant="destructive" className="px-2 py-1 text-xs" onClick={async () => { await supabase.from('fixed_expenses').delete().eq('id', g.id); setGastosFixos(prev => prev.filter(x => x.id !== g.id)); showToast("Despesa fixa removida."); }}>Excluir</Button>
                   </div>
                 ))}
               </div>
@@ -1598,57 +1831,17 @@ export default function AppFinanceiroCompleto() {
 
       </div>
 
-      {/* MODAL PREVIEW LANÇAMENTO */}
-      {previewLancamento && (
-        <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-md grid gap-3 p-5 lg-modal">
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-bold lg-text-primary">Prévia do lançamento</h2>
-              <div className="text-[10px] font-semibold lg-text-muted uppercase">Revise antes de salvar</div>
-            </div>
-            <div className="flex items-center justify-between rounded-2xl px-3 py-3" style={{ background: "rgba(243,244,246,0.7)", border: "1px solid rgba(210,210,215,0.55)" }}>
-              <span className="text-sm font-semibold lg-text-secondary">Valor do lançamento</span>
-              <Input inputMode="decimal" pattern="[0-9.,]*" value={formatCurrency(previewLancamento.valor)} onChange={(e) => setPreviewLancamento(prev => prev ? { ...prev, valor: parseCurrencyInput(e.target.value) } : prev)} className="w-28 text-right text-lg font-bold" style={{ background: "transparent", border: "none", boxShadow: "none" }} />
-            </div>
-            <div className="flex items-center justify-between rounded-2xl px-3 py-2" style={{ background: "rgba(243,244,246,0.7)", border: "1px solid rgba(210,210,215,0.55)" }}>
-              <span className="text-sm font-semibold lg-text-secondary">Descrição</span>
-              <Input value={previewLancamento.descricao} onChange={(e) => setPreviewLancamento(prev => prev ? { ...prev, descricao: e.target.value } : prev)} className="w-40 text-right font-bold" style={{ background: "transparent", border: "none", boxShadow: "none" }} />
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="grid gap-0.5">
-                <span className="text-xs lg-text-muted">Data</span>
-                <div className="relative group">
-                  <input type="date" value={previewLancamento.data} onChange={(e) => { const novaData = e.target.value; setDataSelecionada(novaData); setPreviewLancamento(prev => prev ? { ...prev, data: novaData } : prev); }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-                  <div className="flex items-center justify-between rounded-xl px-2 py-1.5" style={{ background: "rgba(243,244,246,0.8)", border: "1px solid rgba(210,210,215,0.55)" }}>
-                    <span className="text-sm font-semibold lg-text-primary">{new Date(previewLancamento.data).toLocaleDateString("pt-BR")}</span>
-                  </div>
-                </div>
-              </div>
-              <div className="grid gap-0.5">
-                <span className="text-xs lg-text-muted">Tipo</span>
-                <div className="flex rounded-xl p-0.5" style={{ background: "rgba(243,244,246,0.8)", border: "1px solid rgba(210,210,215,0.55)" }}>
-                  <button onClick={() => setPreviewLancamento(prev => prev ? { ...prev, tipo: "receita" } : prev)} className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all`} style={previewLancamento.tipo === "receita" ? { background: "rgba(209,250,229,0.8)", color: "#065F46", border: "1px solid rgba(110,231,183,0.5)" } : { color: "#94a3b8" }}>Receita</button>
-                  <button onClick={() => setPreviewLancamento(prev => prev ? { ...prev, tipo: "despesa" } : prev)} className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all`} style={previewLancamento.tipo === "despesa" ? { background: "rgba(254,226,226,0.8)", color: "#991B1B", border: "1px solid rgba(252,165,165,0.5)" } : { color: "#94a3b8" }}>Despesa</button>
-                </div>
-              </div>
-            </div>
-            <div className="grid gap-0.5">
-              <span className="text-xs lg-text-muted">Categoria</span>
-              <select value={previewLancamento.categoria} onChange={(e) => setPreviewLancamento(prev => prev ? { ...prev, categoria: e.target.value } : prev)} className="lg-select p-2 text-sm rounded-xl">
-                {(previewLancamento?.tipo === "receita" ? categoriasReceita : categoriasDespesa).map((cat) => <option key={cat} value={cat}>{cat}</option>)}
-              </select>
-            </div>
-            <div className="flex gap-2">
-              <Input placeholder="Nova categoria" value={novaCategoriaInput} onChange={(e) => setNovaCategoriaInput(e.target.value)} className="text-sm" />
-              <button onClick={() => { const nova = novaCategoriaInput.trim().toLowerCase(); if (nova && !categoriasReceita.includes(nova) && !categoriasDespesa.includes(nova)) { setCategorias(prev => [...prev, { nome: nova, tipo: previewLancamento?.tipo || "despesa" }]); setNovaCategoriaInput(""); } }} className="lg-btn lg-btn-dark px-3 text-sm text-white font-bold" style={{ borderRadius: 14, minWidth: 40 }}>+</button>
-            </div>
-            <div className="grid grid-cols-2 gap-2 pt-1">
-              <Button variant="secondary" onClick={cancelarLancamentoPreview} className="rounded-xl font-semibold text-sm">Cancelar</Button>
-              <Button onClick={confirmarLancamentoPreview} className="rounded-xl font-semibold text-sm">Confirmar</Button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* MODAL UNIFICADO DE LANÇAMENTO */}
+      <ModalLancamento
+        isOpen={modalLancamentoOpen}
+        onClose={() => setModalLancamentoOpen(false)}
+        onConfirm={handleSalvarModal}
+        lancamento={lancamentoEditando}
+        categorias={categorias}
+        categoriasReceita={categoriasReceita}
+        categoriasDespesa={categoriasDespesa}
+        onAddCategoria={adicionarCategoria}
+      />
 
       <UserProfile isOpen={profileOpen} onClose={() => setProfileOpen(false)} onLogout={handleLogout}
         user={{ name: userName, email: user?.email || "usuario@email.com", photo: userPhoto, isPro: false }}
