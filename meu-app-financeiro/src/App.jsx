@@ -618,7 +618,8 @@ function ModalLancamento({
   // Popula campos ao abrir (edição ou novo)
   useEffect(() => {
     if (!isOpen) return;
-    if (lancamento) {
+    if (lancamento?.id) {
+      // EDIÇÃO real
       setValor(formatCurrency(lancamento.valor));
       setDescricao(lancamento.descricao || "");
       setTipo(lancamento.tipo || "despesa");
@@ -627,12 +628,13 @@ function ModalLancamento({
       setNatureza(lancamento.natureza || "variavel");
       setData(lancamento.data || new Date().toISOString().slice(0, 10));
     } else {
-      setValor("");
-      setDescricao("");
-      setTipo("despesa");
-      setCategoria("outros");
+      // NOVO — usa valores pré-preenchidos do header se houver
+      setValor(lancamento?.valorPreenchido || "");
+      setDescricao(lancamento?.descricaoPreenchida || "");
+      setTipo(lancamento?.tipo || "despesa");
+      setCategoria(lancamento?.descricaoPreenchida ? categorize(lancamento.descricaoPreenchida) : "outros");
       setSubcategoria("");
-      setNatureza("variavel");
+      setNatureza(lancamento?.descricaoPreenchida ? detectNature(lancamento.descricaoPreenchida) : "variavel");
       setData(new Date().toISOString().slice(0, 10));
     }
     setNovaCat("");
@@ -1006,13 +1008,26 @@ function ChatGemini() {
       <input ref={imageInputRef} type="file" accept="image/*" multiple className="hidden" onChange={(e) => { appendAttachments(e.currentTarget.files, "image"); e.currentTarget.value = ""; }} />
       <input ref={fileInputRef} type="file" accept="*/*" multiple className="hidden" onChange={(e) => { appendAttachments(e.currentTarget.files, "file"); e.currentTarget.value = ""; }} />
       {isOpen && (
-        <motion.div initial={{ opacity: 0, y: 16, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ type: "spring", damping: 28, stiffness: 320 }}
-          className="fixed bottom-20 z-[300] overflow-hidden flex flex-col lg-modal"
-          style={{ height: 450, left: "50%", transform: "translateX(-50%)", width: "calc(100vw - 32px)", maxWidth: 400 }}>
-          <div className="p-4 flex items-center justify-center" style={{ borderBottom: "1px solid rgba(210,210,215,0.45)", background: "rgba(248,248,249,0.6)" }}>
+        <motion.div initial={{ opacity: 0, y: 20, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ type: "spring", damping: 28, stiffness: 320 }}
+          className="fixed z-[300] overflow-hidden flex flex-col lg-modal"
+          style={{
+            height: 480,
+            top: "50%", left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "calc(100vw - 32px)", maxWidth: 420
+          }}>
+          <div className="p-4 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(210,210,215,0.45)", background: "rgba(248,248,249,0.6)" }}>
             <div className="size-8 rounded-full flex items-center justify-center" style={{ background: "rgba(240,240,240,0.8)", border: "1px solid rgba(210,210,215,0.6)" }}>
               <Sparkles className="size-4" color="#6b7280" />
             </div>
+            <span className="text-xs font-bold lg-text-muted">IA Financeira</span>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="size-8 rounded-full flex items-center justify-center transition-colors active:scale-90"
+              style={{ background: "rgba(243,244,246,0.9)", border: "1px solid rgba(210,210,215,0.6)" }}
+            >
+              <X size={15} color="#6b7280" />
+            </button>
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-4 flex flex-col">
             {mensagens.length === 0 && (
@@ -1080,7 +1095,7 @@ function ChatGemini() {
           </div>
         </motion.div>
       )}
-      {isOpen && <div className="fixed inset-0 z-[290] bg-black/5 backdrop-blur-[1px]" onClick={() => setIsOpen(false)} />}
+      {isOpen && <div className="fixed inset-0 z-[290] bg-black/10 backdrop-blur-[2px]" onClick={() => setIsOpen(false)} />}
     </>
   );
 }
@@ -1451,7 +1466,7 @@ export default function AppFinanceiroCompleto() {
     const { data: gastosData } = await supabase.from('fixed_expenses').select('*').eq('user_id', userId);
     if (gastosData) setGastosFixos(gastosData);
     const { data: metaData } = await supabase.from('user_settings').select('meta_mensal').eq('user_id', userId).single();
-    if (metaData) setMetaMensal(metaData.meta_mensal || 0);
+    if (metaData) { setMetaMensal(metaData.meta_mensal || 0); setMetaMensalInput(metaData.meta_mensal ? String(metaData.meta_mensal) : ""); }
     const { data: notifData } = await supabase.from('notification_transactions').select('*').eq('user_id', userId).order('data', { ascending: false });
     if (notifData) setTransacoesNotificacao(notifData);
   }
@@ -1475,6 +1490,12 @@ export default function AppFinanceiroCompleto() {
   function iniciarEdicao(lancamento) {
     setLancamentoEditando(lancamento);
     setModalLancamentoOpen(true);
+  }
+
+  function fecharModalLancamento() {
+    setModalLancamentoOpen(false);
+    setValorInput("");
+    setDescricaoInput("");
   }
 
   // ── SALVAR (novo ou edição) vindo do modal ──
@@ -1605,18 +1626,39 @@ export default function AppFinanceiroCompleto() {
 
       {/* HEADER FIXO */}
       <div className="flex-shrink-0 pt-14 px-3 sm:px-4 max-w-6xl mx-auto w-full">
-        {/* Card de input rápido — abre o modal unificado */}
+        {/* Card de input rápido — campos de valor e descrição + abre o modal */}
         <div className="lg-card mb-2">
           <div className="p-3 grid gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <Input
+                placeholder="Valor (R$)"
+                inputMode="numeric"
+                value={valorInput}
+                onChange={(e) => setValorInput(formatCurrencyInput(e.target.value))}
+                className="text-right font-semibold"
+              />
+              <Input
+                placeholder="Descrição do gasto"
+                value={descricaoInput}
+                onChange={(e) => setDescricaoInput(e.target.value)}
+                className="text-center font-semibold"
+              />
+            </div>
             <div className="grid grid-cols-2 gap-2">
               <button
-                onClick={() => abrirNovoLancamento("receita")}
+                onClick={() => {
+                  setLancamentoEditando({ tipo: "receita", valorPreenchido: valorInput, descricaoPreenchida: descricaoInput });
+                  setModalLancamentoOpen(true);
+                }}
                 className="lg-btn lg-btn-green py-2.5 text-sm font-bold rounded-2xl"
               >
                 + Receita
               </button>
               <button
-                onClick={() => abrirNovoLancamento("despesa")}
+                onClick={() => {
+                  setLancamentoEditando({ tipo: "despesa", valorPreenchido: valorInput, descricaoPreenchida: descricaoInput });
+                  setModalLancamentoOpen(true);
+                }}
                 className="lg-btn lg-btn-red py-2.5 text-sm font-bold rounded-2xl"
               >
                 + Despesa
@@ -1686,9 +1728,18 @@ export default function AppFinanceiroCompleto() {
                 </div>
                 <div className="flex-[3] rounded-2xl p-2 flex flex-col gap-1.5 min-w-[120px]" style={{ background: "rgba(243,244,246,0.7)", border: "1px solid rgba(210,210,215,0.55)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9)" }}>
                   <div className="text-[10px] lg-text-muted">Valor máximo:</div>
-                  <Input type="text" inputMode="decimal" pattern="[0-9.,]*" placeholder="Ex: 2000" value={metaMensalInput} onChange={(e) => setMetaMensalInput(e.target.value)} onBlur={() => { const cleaned = metaMensalInput.replace(/[^0-9,\.]/g, ""); const numeric = parseFloat(cleaned.replace(",", ".")); setMetaMensal(Number.isNaN(numeric) ? 0 : numeric); }} className="text-center font-bold" style={{ fontSize: 14, height: 40 }} />
+                  <Input type="text" inputMode="decimal" pattern="[0-9.,]*" placeholder="Ex: 2000" value={metaMensalInput} onChange={(e) => setMetaMensalInput(e.target.value)} className="text-center font-bold" style={{ fontSize: 14, height: 40 }} />
                   <button className="lg-btn lg-btn-dark py-1 text-[10px] font-bold text-white rounded-xl"
-                    onClick={async () => { if (user?.id) { await supabase.from('user_settings').upsert({ user_id: user.id, meta_mensal: metaMensal }); showToast("Meta mensal atualizada!"); } }}>
+                    onClick={async () => {
+                      if (!user?.id) return;
+                      const cleaned = metaMensalInput.replace(/[^0-9,\.]/g, "");
+                      const numeric = parseFloat(cleaned.replace(",", "."));
+                      const valorFinal = Number.isNaN(numeric) ? 0 : numeric;
+                      setMetaMensal(valorFinal);
+                      const { error } = await supabase.from('user_settings').upsert({ user_id: user.id, meta_mensal: valorFinal }, { onConflict: 'user_id' });
+                      if (!error) showToast("Meta mensal atualizada!");
+                      else showToast("Erro ao salvar meta.");
+                    }}>
                     Salvar meta
                   </button>
                   <div className="text-[8px] lg-text-muted text-center">Aviso de limite</div>
@@ -1834,7 +1885,7 @@ export default function AppFinanceiroCompleto() {
       {/* MODAL UNIFICADO DE LANÇAMENTO */}
       <ModalLancamento
         isOpen={modalLancamentoOpen}
-        onClose={() => setModalLancamentoOpen(false)}
+        onClose={fecharModalLancamento}
         onConfirm={handleSalvarModal}
         lancamento={lancamentoEditando}
         categorias={categorias}
