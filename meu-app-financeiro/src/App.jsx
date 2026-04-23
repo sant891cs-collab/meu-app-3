@@ -422,7 +422,7 @@ function buildMonthlyCategorySeries(lancamentos, months) {
 }
 
 // =====================================================
-// PERFIL DO USUÁRIO
+// PERFIL DO USUÁRIO — fonte padronizada
 // =====================================================
 function UserProfile({ isOpen, onClose, onLogout, user, contas, cartoes, onDisconnectConta, onDisconnectCartao, onOpenPremium, onOpenPrivacy, onOpenDeleteAccount, onUpdateName }) {
   const [editingName, setEditingName] = useState(false);
@@ -479,6 +479,7 @@ function UserProfile({ isOpen, onClose, onLogout, user, contas, cartoes, onDisco
               )}
               {user.isPro && <Crown size={18} className="text-amber-500 fill-amber-500" />}
             </div>
+            {/* EMAIL — mesma fonte/peso do restante */}
             <p
               className="lg-text-muted mt-0.5"
               style={{ fontSize: 12, fontFamily: "inherit", fontWeight: 500, letterSpacing: 0 }}
@@ -596,7 +597,7 @@ function ModalLancamento({
   isOpen,
   onClose,
   onConfirm,
-  lancamento,
+  lancamento,        // null = novo, object = editando
   categorias,
   categoriasReceita,
   categoriasDespesa,
@@ -614,6 +615,7 @@ function ModalLancamento({
   const [novaCat, setNovaCat] = useState("");
   const [catAdicionada, setCatAdicionada] = useState(false);
 
+  // Popula campos ao abrir (edição ou novo)
   useEffect(() => {
     if (!isOpen) return;
     if (lancamento) {
@@ -637,6 +639,7 @@ function ModalLancamento({
     setCatAdicionada(false);
   }, [isOpen, lancamento]);
 
+  // Auto-detecta categoria e natureza pela descrição
   useEffect(() => {
     if (!lancamento && descricao) {
       setCategoria(categorize(descricao));
@@ -684,6 +687,7 @@ function ModalLancamento({
         className="w-full max-w-md lg-modal p-5 grid gap-3"
         style={{ maxHeight: "90vh", overflowY: "auto" }}
       >
+        {/* Cabeçalho */}
         <div className="flex items-center justify-between">
           <h2 className="text-base font-black lg-text-primary">
             {isEdicao ? "Editar lançamento" : "Novo lançamento"}
@@ -693,6 +697,7 @@ function ModalLancamento({
           </button>
         </div>
 
+        {/* Tipo */}
         <div className="flex rounded-2xl p-1 gap-1" style={{ background: "rgba(243,244,246,0.8)", border: "1px solid rgba(210,210,215,0.55)" }}>
           <button
             onClick={() => setTipo("receita")}
@@ -710,6 +715,7 @@ function ModalLancamento({
           >Despesa</button>
         </div>
 
+        {/* Valor */}
         <div className="grid gap-0.5">
           <span className="text-xs lg-text-muted">Valor</span>
           <Input
@@ -721,6 +727,7 @@ function ModalLancamento({
           />
         </div>
 
+        {/* Descrição */}
         <div className="grid gap-0.5">
           <span className="text-xs lg-text-muted">Descrição</span>
           <Input
@@ -730,6 +737,7 @@ function ModalLancamento({
           />
         </div>
 
+        {/* Data + Natureza */}
         <div className="grid grid-cols-2 gap-2">
           <div className="grid gap-0.5">
             <span className="text-xs lg-text-muted">Data</span>
@@ -754,6 +762,7 @@ function ModalLancamento({
           </div>
         </div>
 
+        {/* Categoria */}
         <div className="grid gap-0.5">
           <span className="text-xs lg-text-muted">Categoria</span>
           <select
@@ -765,6 +774,7 @@ function ModalLancamento({
           </select>
         </div>
 
+        {/* Adicionar nova categoria */}
         <div className="grid gap-0.5">
           <span className="text-xs lg-text-muted">Nova categoria</span>
           <div className="flex gap-2">
@@ -788,6 +798,7 @@ function ModalLancamento({
           )}
         </div>
 
+        {/* Subcategoria */}
         <div className="grid gap-0.5">
           <span className="text-xs lg-text-muted">Subcategoria <span className="opacity-50">(opcional)</span></span>
           <Input
@@ -798,6 +809,7 @@ function ModalLancamento({
           />
         </div>
 
+        {/* Botões */}
         <div className="grid grid-cols-2 gap-2 pt-1">
           <Button variant="secondary" onClick={onClose} className="rounded-xl font-semibold text-sm">Cancelar</Button>
           <button
@@ -961,7 +973,7 @@ function TelaInicialLogin({ onLogin }) {
 }
 
 // =====================================================
-// CHAT GEMINI (CENTRALIZADO)
+// CHAT GEMINI - CORRIGIDO A CENTRALIZAÇÃO
 // =====================================================
 function ChatGemini() {
   const [isOpen, setIsOpen] = useState(false);
@@ -984,16 +996,15 @@ function ChatGemini() {
     <>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[300] lg-ai-pill flex items-center justify-center px-8 py-3.5 active:scale-95 transition-all"
+        className="fixed bottom-6 z-[300] lg-ai-pill flex items-center justify-center px-8 py-3.5 active:scale-97 transition-all"
+        style={{ left: "50%", transform: "translateX(-50%)", minWidth: 180 }}
       >
         <span className="text-[15px] font-semibold tracking-tight text-white">
           {isOpen ? "Fechar" : "Conversar com IA"}
         </span>
       </button>
-
       <input ref={imageInputRef} type="file" accept="image/*" multiple className="hidden" onChange={(e) => { appendAttachments(e.currentTarget.files, "image"); e.currentTarget.value = ""; }} />
       <input ref={fileInputRef} type="file" accept="*/*" multiple className="hidden" onChange={(e) => { appendAttachments(e.currentTarget.files, "file"); e.currentTarget.value = ""; }} />
-
       {isOpen && (
         <>
           <div className="fixed inset-0 z-[290] bg-black/20 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
@@ -1415,6 +1426,8 @@ export default function AppFinanceiroCompleto() {
   const [categorias, setCategorias] = useState([]);
   const [userName, setUserName] = useState("Usuário");
   const [userPhoto, setUserPhoto] = useState(DEFAULT_AVATAR);
+  const [valorInput, setValorInput] = useState("");
+  const [descricaoInput, setDescricaoInput] = useState("");
   const [mesFiltro, setMesFiltro] = useState(new Date().toISOString().slice(0, 7));
   const [tipoAnalise, setTipoAnalise] = useState("despesa");
   const [analiseSelecionadaReceita, setAnaliseSelecionadaReceita] = useState("renda");
@@ -1427,9 +1440,12 @@ export default function AppFinanceiroCompleto() {
   const [metaMensalInput, setMetaMensalInput] = useState("");
   const [transacoesNotificacao, setTransacoesNotificacao] = useState([]);
 
+  // Modal unificado de lançamento
   const [modalLancamentoOpen, setModalLancamentoOpen] = useState(false);
-  const [lancamentoEditando, setLancamentoEditando] = useState(null);
+  const [lancamentoEditando, setLancamentoEditando] = useState(null); // null = novo
+  const [tipoParaNovoLancamento, setTipoParaNovoLancamento] = useState("despesa");
 
+  // Toast
   const [toast, setToast] = useState(null);
   const toastKey = useRef(0);
   function showToast(msg) {
@@ -1477,16 +1493,19 @@ export default function AppFinanceiroCompleto() {
     await supabase.auth.signOut(); setDeleteAccountModalOpen(false); showToast("Conta excluída com sucesso.");
   }
 
+  // ── MODAL UNIFICADO: abrir para NOVO lançamento ──
   function abrirNovoLancamento(tipo) {
-    setLancamentoEditando({ tipo });
+    setLancamentoEditando({ tipo }); // passa tipo pré-selecionado, sem id
     setModalLancamentoOpen(true);
   }
 
+  // ── MODAL UNIFICADO: abrir para EDIÇÃO ──
   function iniciarEdicao(lancamento) {
     setLancamentoEditando(lancamento);
     setModalLancamentoOpen(true);
   }
 
+  // ── SALVAR (novo ou edição) vindo do modal ──
   async function handleSalvarModal(payload) {
     const userId = user?.id; if (!userId) return;
     const registro = {
@@ -1501,12 +1520,14 @@ export default function AppFinanceiroCompleto() {
     };
 
     if (payload.id) {
+      // EDIÇÃO
       const { error } = await supabase.from('transactions').update(registro).eq('id', payload.id).eq('user_id', userId);
       if (!error) {
         setLancamentos(prev => prev.map(l => l.id === payload.id ? { ...l, ...registro } : l));
         showToast("Registro atualizado!");
       }
     } else {
+      // NOVO
       const { data, error } = await supabase.from('transactions').insert([registro]).select();
       if (!error && data) {
         setLancamentos(prev => [data[0], ...prev]);
@@ -1544,6 +1565,7 @@ export default function AppFinanceiroCompleto() {
     showToast("Banco atualizado!");
   }
 
+  // Categorias dinâmicas (de DB + adicionadas manualmente)
   function adicionarCategoria(nome, tipo) {
     setCategorias(prev => {
       if (prev.some(c => c.nome === nome && c.tipo === tipo)) return prev;
@@ -1597,17 +1619,21 @@ export default function AppFinanceiroCompleto() {
       <InjectLGStyles />
       <FitaMetalicaElite gastoAtual={totalDespesasMes} receitaAtual={totalEntradasMes} metaMensal={metaMensal} />
 
+      {/* Toast de confirmação */}
       {toast && (
         <Toast key={toast.key} message={toast.msg} onDone={() => setToast(null)} />
       )}
 
+      {/* Avatar fixo */}
       <div className="fixed top-4 left-4 z-[200]">
         <button onClick={() => setProfileOpen(true)} className="size-10 rounded-full overflow-hidden active:scale-90 transition-transform lg-avatar-ring">
           <img src={userPhoto} alt="Perfil" className="w-full h-full object-cover" />
         </button>
       </div>
 
+      {/* HEADER FIXO */}
       <div className="flex-shrink-0 pt-14 px-3 sm:px-4 max-w-6xl mx-auto w-full">
+        {/* Card de input rápido — abre o modal unificado */}
         <div className="lg-card mb-2">
           <div className="p-3 grid gap-2">
             <div className="grid grid-cols-2 gap-2">
@@ -1627,6 +1653,7 @@ export default function AppFinanceiroCompleto() {
           </div>
         </div>
 
+        {/* Barra de abas */}
         <div className="lg-tab-bar flex overflow-x-auto gap-1 p-1 mb-2 scrollbar-hide" style={{ scrollbarWidth: "none" }}>
           {[
             { key: "inicio", label: "Início" },
@@ -1644,8 +1671,10 @@ export default function AppFinanceiroCompleto() {
         </div>
       </div>
 
+      {/* ÁREA ROLÁVEL */}
       <div className="flex-1 overflow-y-auto px-3 sm:px-4 max-w-6xl mx-auto w-full pb-24 scrollbar-hide">
 
+        {/* ABA INÍCIO */}
         {activeTab === "inicio" && (
           <div className="lg-card">
             <div className="p-3">
@@ -1668,6 +1697,7 @@ export default function AppFinanceiroCompleto() {
           </div>
         )}
 
+        {/* ABA META */}
         {activeTab === "meta" && (
           <div className="lg-card">
             <div className="p-3">
@@ -1697,6 +1727,7 @@ export default function AppFinanceiroCompleto() {
           </div>
         )}
 
+        {/* ABA MOVIMENTOS */}
         {activeTab === "movimentos" && (
           <div className="lg-card">
             <div className="grid gap-2 p-3">
@@ -1731,6 +1762,7 @@ export default function AppFinanceiroCompleto() {
           </div>
         )}
 
+        {/* ABA FIXOS */}
         {activeTab === "fixos" && (
           <div className="lg-card">
             <div className="grid gap-3 p-3">
@@ -1764,6 +1796,7 @@ export default function AppFinanceiroCompleto() {
           </div>
         )}
 
+        {/* ABA ANÁLISES */}
         {activeTab === "analises" && (
           <div className="lg-card">
             <div className="p-3 grid gap-2">
@@ -1810,6 +1843,7 @@ export default function AppFinanceiroCompleto() {
           </div>
         </div>
 
+        {/* ABA CONEXÕES */}
         {activeTab === "conexoes" && (
           <AbaConexoes
             transacoesNotificacao={transacoesNotificacao.map(t => ({
@@ -1825,6 +1859,7 @@ export default function AppFinanceiroCompleto() {
 
       </div>
 
+      {/* MODAL UNIFICADO DE LANÇAMENTO */}
       <ModalLancamento
         isOpen={modalLancamentoOpen}
         onClose={() => setModalLancamentoOpen(false)}
@@ -1843,6 +1878,7 @@ export default function AppFinanceiroCompleto() {
         onOpenPremium={() => setPremiumOpen(true)} onOpenPrivacy={() => setPrivacyOpen(true)}
         onOpenDeleteAccount={() => setDeleteAccountModalOpen(true)} onUpdateName={(name) => setUserName(name)} />
 
+      {/* MODAL PRIVACIDADE */}
       {privacyOpen && (
         <div className="fixed inset-0 z-[270] bg-slate-900/30 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="w-full max-w-md p-5 shadow-2xl overflow-y-auto max-h-[80vh] lg-modal">
@@ -1855,6 +1891,7 @@ export default function AppFinanceiroCompleto() {
         </div>
       )}
 
+      {/* MODAL EXCLUIR CONTA */}
       {deleteAccountModalOpen && (
         <div className="fixed inset-0 z-[280] bg-slate-900/30 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="w-full max-w-md p-5 shadow-2xl space-y-3 lg-modal">
