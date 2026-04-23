@@ -1493,9 +1493,42 @@ export default function AppFinanceiroCompleto() {
     await supabase.auth.signOut(); setDeleteAccountModalOpen(false); showToast("Conta excluída com sucesso.");
   }
 
-  // ── MODAL UNIFICADO: abrir para NOVO lançamento ──
+  // ── ADIÇÃO RÁPIDA (usando os inputs da tela) ──
+  async function adicionarRapido(tipo) {
+    if (!descricaoInput.trim() || !valorInput.trim()) {
+      showToast("Preencha valor e descrição!");
+      return;
+    }
+    const valor = parseCurrencyInput(valorInput);
+    if (Number.isNaN(valor) || valor <= 0) {
+      showToast("Valor inválido!");
+      return;
+    }
+    const categoria = categorize(descricaoInput);
+    const natureza = detectNature(descricaoInput);
+    const registro = {
+      user_id: user.id,
+      descricao: descricaoInput.trim(),
+      valor,
+      tipo,
+      categoria,
+      natureza,
+      data: new Date().toISOString().slice(0, 10),
+    };
+    const { data, error } = await supabase.from('transactions').insert([registro]).select();
+    if (!error && data) {
+      setLancamentos(prev => [data[0], ...prev]);
+      setValorInput("");
+      setDescricaoInput("");
+      showToast(tipo === "receita" ? "Receita registrada!" : "Despesa registrada!");
+    } else {
+      showToast("Erro ao salvar.");
+    }
+  }
+
+  // ── MODAL UNIFICADO: abrir para NOVO lançamento (detalhado) ──
   function abrirNovoLancamento(tipo) {
-    setLancamentoEditando({ tipo }); // passa tipo pré-selecionado, sem id
+    setLancamentoEditando({ tipo });
     setModalLancamentoOpen(true);
   }
 
@@ -1633,21 +1666,44 @@ export default function AppFinanceiroCompleto() {
 
       {/* HEADER FIXO */}
       <div className="flex-shrink-0 pt-14 px-3 sm:px-4 max-w-6xl mx-auto w-full">
-        {/* Card de input rápido — abre o modal unificado */}
+        {/* Card de input rápido */}
         <div className="lg-card mb-2">
           <div className="p-3 grid gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <Input
+                placeholder="Valor (R$)"
+                inputMode="numeric"
+                value={valorInput}
+                onChange={(e) => setValorInput(formatCurrencyInput(e.target.value))}
+                className="text-right font-semibold"
+              />
+              <Input
+                placeholder="Descrição do gasto"
+                value={descricaoInput}
+                onChange={(e) => setDescricaoInput(e.target.value)}
+                className="text-center font-semibold"
+              />
+            </div>
             <div className="grid grid-cols-2 gap-2">
               <button
-                onClick={() => abrirNovoLancamento("receita")}
+                onClick={() => adicionarRapido("receita")}
                 className="lg-btn lg-btn-green py-2.5 text-sm font-bold rounded-2xl"
               >
-                + Receita
+                Adicionar Receita
               </button>
               <button
-                onClick={() => abrirNovoLancamento("despesa")}
+                onClick={() => adicionarRapido("despesa")}
                 className="lg-btn lg-btn-red py-2.5 text-sm font-bold rounded-2xl"
               >
-                + Despesa
+                Adicionar Despesa
+              </button>
+            </div>
+            <div className="flex justify-end">
+              <button
+                onClick={() => abrirNovoLancamento("despesa")}
+                className="text-xs lg-text-muted underline"
+              >
+                + Adicionar com mais detalhes
               </button>
             </div>
           </div>
