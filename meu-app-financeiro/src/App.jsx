@@ -422,7 +422,7 @@ function buildMonthlyCategorySeries(lancamentos, months) {
 }
 
 // =====================================================
-// PERFIL DO USUÁRIO — fonte padronizada
+// PERFIL DO USUÁRIO
 // =====================================================
 function UserProfile({ isOpen, onClose, onLogout, user, contas, cartoes, onDisconnectConta, onDisconnectCartao, onOpenPremium, onOpenPrivacy, onOpenDeleteAccount, onUpdateName }) {
   const [editingName, setEditingName] = useState(false);
@@ -479,7 +479,6 @@ function UserProfile({ isOpen, onClose, onLogout, user, contas, cartoes, onDisco
               )}
               {user.isPro && <Crown size={18} className="text-amber-500 fill-amber-500" />}
             </div>
-            {/* EMAIL — mesma fonte/peso do restante */}
             <p
               className="lg-text-muted mt-0.5"
               style={{ fontSize: 12, fontFamily: "inherit", fontWeight: 500, letterSpacing: 0 }}
@@ -597,7 +596,7 @@ function ModalLancamento({
   isOpen,
   onClose,
   onConfirm,
-  lancamento,        // null = novo, object = editando
+  lancamento,
   categorias,
   categoriasReceita,
   categoriasDespesa,
@@ -615,7 +614,6 @@ function ModalLancamento({
   const [novaCat, setNovaCat] = useState("");
   const [catAdicionada, setCatAdicionada] = useState(false);
 
-  // Popula campos ao abrir (edição ou novo)
   useEffect(() => {
     if (!isOpen) return;
     if (lancamento) {
@@ -629,7 +627,7 @@ function ModalLancamento({
     } else {
       setValor("");
       setDescricao("");
-      setTipo("despesa");
+      setTipo(lancamento?.tipo || "despesa");
       setCategoria("outros");
       setSubcategoria("");
       setNatureza("variavel");
@@ -639,7 +637,6 @@ function ModalLancamento({
     setCatAdicionada(false);
   }, [isOpen, lancamento]);
 
-  // Auto-detecta categoria e natureza pela descrição
   useEffect(() => {
     if (!lancamento && descricao) {
       setCategoria(categorize(descricao));
@@ -687,7 +684,6 @@ function ModalLancamento({
         className="w-full max-w-md lg-modal p-5 grid gap-3"
         style={{ maxHeight: "90vh", overflowY: "auto" }}
       >
-        {/* Cabeçalho */}
         <div className="flex items-center justify-between">
           <h2 className="text-base font-black lg-text-primary">
             {isEdicao ? "Editar lançamento" : "Novo lançamento"}
@@ -697,7 +693,6 @@ function ModalLancamento({
           </button>
         </div>
 
-        {/* Tipo */}
         <div className="flex rounded-2xl p-1 gap-1" style={{ background: "rgba(243,244,246,0.8)", border: "1px solid rgba(210,210,215,0.55)" }}>
           <button
             onClick={() => setTipo("receita")}
@@ -715,7 +710,6 @@ function ModalLancamento({
           >Despesa</button>
         </div>
 
-        {/* Valor */}
         <div className="grid gap-0.5">
           <span className="text-xs lg-text-muted">Valor</span>
           <Input
@@ -727,7 +721,6 @@ function ModalLancamento({
           />
         </div>
 
-        {/* Descrição */}
         <div className="grid gap-0.5">
           <span className="text-xs lg-text-muted">Descrição</span>
           <Input
@@ -737,7 +730,6 @@ function ModalLancamento({
           />
         </div>
 
-        {/* Data + Natureza */}
         <div className="grid grid-cols-2 gap-2">
           <div className="grid gap-0.5">
             <span className="text-xs lg-text-muted">Data</span>
@@ -762,7 +754,6 @@ function ModalLancamento({
           </div>
         </div>
 
-        {/* Categoria */}
         <div className="grid gap-0.5">
           <span className="text-xs lg-text-muted">Categoria</span>
           <select
@@ -774,7 +765,6 @@ function ModalLancamento({
           </select>
         </div>
 
-        {/* Adicionar nova categoria */}
         <div className="grid gap-0.5">
           <span className="text-xs lg-text-muted">Nova categoria</span>
           <div className="flex gap-2">
@@ -798,7 +788,6 @@ function ModalLancamento({
           )}
         </div>
 
-        {/* Subcategoria */}
         <div className="grid gap-0.5">
           <span className="text-xs lg-text-muted">Subcategoria <span className="opacity-50">(opcional)</span></span>
           <Input
@@ -809,7 +798,6 @@ function ModalLancamento({
           />
         </div>
 
-        {/* Botões */}
         <div className="grid grid-cols-2 gap-2 pt-1">
           <Button variant="secondary" onClick={onClose} className="rounded-xl font-semibold text-sm">Cancelar</Button>
           <button
@@ -973,7 +961,7 @@ function TelaInicialLogin({ onLogin }) {
 }
 
 // =====================================================
-// CHAT GEMINI
+// CHAT GEMINI (CENTRALIZADO)
 // =====================================================
 function ChatGemini() {
   const [isOpen, setIsOpen] = useState(false);
@@ -996,91 +984,120 @@ function ChatGemini() {
     <>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 z-[300] lg-ai-pill flex items-center justify-center px-8 py-3.5 active:scale-97 transition-all"
-        style={{ left: "50%", transform: "translateX(-50%)", minWidth: 180 }}
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[300] lg-ai-pill flex items-center justify-center px-8 py-3.5 active:scale-95 transition-all"
       >
         <span className="text-[15px] font-semibold tracking-tight text-white">
           {isOpen ? "Fechar" : "Conversar com IA"}
         </span>
       </button>
+
       <input ref={imageInputRef} type="file" accept="image/*" multiple className="hidden" onChange={(e) => { appendAttachments(e.currentTarget.files, "image"); e.currentTarget.value = ""; }} />
       <input ref={fileInputRef} type="file" accept="*/*" multiple className="hidden" onChange={(e) => { appendAttachments(e.currentTarget.files, "file"); e.currentTarget.value = ""; }} />
+
       {isOpen && (
-        <motion.div initial={{ opacity: 0, y: 16, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ type: "spring", damping: 28, stiffness: 320 }}
-          className="fixed bottom-20 z-[300] overflow-hidden flex flex-col lg-modal"
-          style={{ height: 450, left: "50%", transform: "translateX(-50%)", width: "calc(100vw - 32px)", maxWidth: 400 }}>
-          <div className="p-4 flex items-center justify-center" style={{ borderBottom: "1px solid rgba(210,210,215,0.45)", background: "rgba(248,248,249,0.6)" }}>
-            <div className="size-8 rounded-full flex items-center justify-center" style={{ background: "rgba(240,240,240,0.8)", border: "1px solid rgba(210,210,215,0.6)" }}>
-              <Sparkles className="size-4" color="#6b7280" />
-            </div>
-          </div>
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 flex flex-col">
-            {mensagens.length === 0 && (
-              <div className="flex-1 flex flex-col justify-center px-2">
-                <div className="w-full text-left font-bold lg-text-primary" style={{ fontSize: 18 }}>Olá,</div>
-                <div className="w-full text-left lg-text-secondary font-normal" style={{ fontSize: 20, marginTop: 4 }}>Por onde começamos?</div>
-              </div>
-            )}
-            {mensagens.map((msg) => (
-              <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                {msg.role === "user"
-                  ? <div className="max-w-[85%] lg-chat-bubble-user px-4 py-3 text-sm font-medium"><div>{msg.text}</div></div>
-                  : <div className="max-w-[85%] px-1 py-1 text-sm font-medium lg-chat-bubble-bot leading-relaxed"><div>{msg.text}</div></div>
-                }
-              </div>
-            ))}
-          </div>
-          {attachments.length > 0 && (
-            <div className="px-4 pt-3 pb-2 flex flex-wrap gap-2" style={{ borderTop: "1px solid rgba(210,210,215,0.45)" }}>
-              {attachments.map((att) => (
-                <div key={att.id} className="relative">
-                  {att.kind === "image"
-                    ? <img src={att.url} alt={att.name} className="h-16 w-16 rounded-2xl object-cover" style={{ border: "1px solid rgba(210,210,215,0.5)" }} />
-                    : <div className="h-16 max-w-[180px] rounded-2xl px-3 py-2 flex items-center gap-2 text-xs lg-text-secondary" style={{ background: "rgba(243,244,246,0.8)", border: "1px solid rgba(210,210,215,0.5)" }}>
-                        {att.kind === "audio" ? <Mic size={14} /> : <Paperclip size={14} />}
-                        <span className="truncate">{att.name}</span>
-                      </div>
-                  }
-                  <button onClick={() => removeAttachment(att.id)} className="absolute -top-2 -right-2 size-5 rounded-full flex items-center justify-center" style={{ background: "#1e293b", border: "1px solid rgba(255,255,255,0.3)" }}>
-                    <X size={11} color="white" />
-                  </button>
+        <>
+          <div className="fixed inset-0 z-[290] bg-black/20 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ type: "spring", damping: 28, stiffness: 320 }}
+            className="fixed inset-0 z-[300] flex items-center justify-center p-4"
+          >
+            <div className="w-full max-w-[400px] lg-modal overflow-hidden flex flex-col" style={{ height: 520 }}>
+              {/* Header */}
+              <div className="p-4 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(210,210,215,0.45)", background: "rgba(248,248,249,0.6)" }}>
+                <div className="flex items-center gap-3">
+                  <div className="size-10 rounded-full flex items-center justify-center" style={{ background: "rgba(240,240,240,0.8)", border: "1px solid rgba(210,210,215,0.6)" }}>
+                    <Sparkles className="size-5" color="#6b7280" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold lg-text-primary lowercase">manim</h3>
+                    <p className="text-[10px] lg-text-muted">assistente financeiro</p>
+                  </div>
                 </div>
-              ))}
-            </div>
-          )}
-          <div className="p-4 flex gap-2" style={{ borderTop: "1px solid rgba(210,210,215,0.45)" }}>
-            <div className="relative flex items-center">
-              <button type="button" onClick={() => setMenuOpen((prev) => !prev)} className="size-10 rounded-full flex items-center justify-center transition-colors" style={{ background: "rgba(243,244,246,0.9)", border: "1px solid rgba(210,210,215,0.6)", color: "#4b5563" }}>
-                <span className="text-xl font-bold">+</span>
-              </button>
-              {menuOpen && (
-                <div className="absolute bottom-12 left-0 p-2 flex flex-col gap-2 z-50 lg-modal" style={{ borderRadius: 18 }}>
-                  {[
-                    { label: "Câmera", icon: <Camera size={14} />, action: async () => { try { const stream = await navigator.mediaDevices.getUserMedia({ video: true }); const track = stream.getVideoTracks()[0]; const ic = new ImageCapture(track); const blob = await ic.takePhoto(); const url = URL.createObjectURL(blob); const now = new Date(); setAttachments(p => [...p, { id: `${Date.now()}`, kind: "image", name: `Foto ${now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`, url }]); track.stop(); setMenuOpen(false); } catch {} } },
-                    { label: "Galeria", icon: <Image size={14} />, action: () => { imageInputRef.current?.click(); setMenuOpen(false); } },
-                    { label: "Arquivo", icon: <Paperclip size={14} />, action: () => { fileInputRef.current?.click(); setMenuOpen(false); } },
-                  ].map(item => (
-                    <button key={item.label} type="button" onClick={item.action} className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm lg-text-secondary hover:opacity-80 transition-opacity">
-                      {item.icon} {item.label}
-                    </button>
+                <button onClick={() => setIsOpen(false)} className="p-2 rounded-full hover:bg-white/40 transition-colors">
+                  <X size={18} color="#6b7280" />
+                </button>
+              </div>
+
+              {/* Mensagens */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-4 flex flex-col">
+                {mensagens.length === 0 && (
+                  <div className="flex-1 flex flex-col justify-center items-center text-center px-4 h-full">
+                    <div className="size-16 rounded-full flex items-center justify-center mb-3" style={{ background: "rgba(240,240,240,0.8)", border: "1px solid rgba(210,210,215,0.6)" }}>
+                      <Sparkles className="size-8" color="#6b7280" />
+                    </div>
+                    <div className="text-lg font-bold lg-text-primary">Olá,</div>
+                    <div className="text-sm lg-text-secondary mt-1">Deixe-me te ajudar!</div>
+                  </div>
+                )}
+                {mensagens.map((msg) => (
+                  <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                    {msg.role === "user" ? (
+                      <div className="max-w-[85%] lg-chat-bubble-user px-4 py-3 text-sm font-medium"><div>{msg.text}</div></div>
+                    ) : (
+                      <div className="max-w-[85%] px-1 py-1 text-sm font-medium lg-chat-bubble-bot leading-relaxed"><div>{msg.text}</div></div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Anexos */}
+              {attachments.length > 0 && (
+                <div className="px-4 pt-3 pb-2 flex flex-wrap gap-2" style={{ borderTop: "1px solid rgba(210,210,215,0.45)" }}>
+                  {attachments.map((att) => (
+                    <div key={att.id} className="relative">
+                      {att.kind === "image" ? (
+                        <img src={att.url} alt={att.name} className="h-16 w-16 rounded-2xl object-cover" style={{ border: "1px solid rgba(210,210,215,0.5)" }} />
+                      ) : (
+                        <div className="h-16 max-w-[180px] rounded-2xl px-3 py-2 flex items-center gap-2 text-xs lg-text-secondary" style={{ background: "rgba(243,244,246,0.8)", border: "1px solid rgba(210,210,215,0.5)" }}>
+                          {att.kind === "audio" ? <Mic size={14} /> : <Paperclip size={14} />}
+                          <span className="truncate">{att.name}</span>
+                        </div>
+                      )}
+                      <button onClick={() => removeAttachment(att.id)} className="absolute -top-2 -right-2 size-5 rounded-full flex items-center justify-center" style={{ background: "#1e293b", border: "1px solid rgba(255,255,255,0.3)" }}>
+                        <X size={11} color="white" />
+                      </button>
+                    </div>
                   ))}
                 </div>
               )}
+
+              {/* Input */}
+              <div className="p-4 flex gap-2" style={{ borderTop: "1px solid rgba(210,210,215,0.45)" }}>
+                <div className="relative flex items-center">
+                  <button type="button" onClick={() => setMenuOpen((prev) => !prev)} className="size-10 rounded-full flex items-center justify-center transition-colors" style={{ background: "rgba(243,244,246,0.9)", border: "1px solid rgba(210,210,215,0.6)", color: "#4b5563" }}>
+                    <span className="text-xl font-bold">+</span>
+                  </button>
+                  {menuOpen && (
+                    <div className="absolute bottom-12 left-0 p-2 flex flex-col gap-2 z-50 lg-modal" style={{ borderRadius: 18 }}>
+                      {[
+                        { label: "Câmera", icon: <Camera size={14} />, action: async () => { try { const stream = await navigator.mediaDevices.getUserMedia({ video: true }); const track = stream.getVideoTracks()[0]; const ic = new ImageCapture(track); const blob = await ic.takePhoto(); const url = URL.createObjectURL(blob); const now = new Date(); setAttachments(p => [...p, { id: `${Date.now()}`, kind: "image", name: `Foto ${now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`, url }]); track.stop(); setMenuOpen(false); } catch {} } },
+                        { label: "Galeria", icon: <Image size={14} />, action: () => { imageInputRef.current?.click(); setMenuOpen(false); } },
+                        { label: "Arquivo", icon: <Paperclip size={14} />, action: () => { fileInputRef.current?.click(); setMenuOpen(false); } },
+                      ].map(item => (
+                        <button key={item.label} type="button" onClick={item.action} className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm lg-text-secondary hover:opacity-80 transition-opacity">
+                          {item.icon} {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div className="relative flex-1">
+                  <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSend()} placeholder="Pergunte algo..." className="w-full py-2 px-4 pr-12 text-sm focus:outline-none lg-chat-input" />
+                  <button type="button" onClick={toggleRecording} className={`absolute right-2 top-1/2 -translate-y-1/2 size-8 rounded-full flex items-center justify-center transition-colors border border-white/40 ${isRecording ? "bg-rose-500/80 text-white animate-pulse" : "bg-white/40 text-gray-700 hover:bg-white/60"}`} title={isRecording ? "Parar gravação" : "Gravar áudio"}>
+                    {isRecording ? <Square size={14} /> : <Mic size={16} />}
+                  </button>
+                </div>
+                <button onClick={handleSend} className="bg-black/40 backdrop-blur-md text-white p-2 rounded-full active:scale-90 transition-transform hover:bg-black/60 border border-white/40 shadow-md">
+                  <ArrowLeft className="rotate-180 size-5" />
+                </button>
+              </div>
             </div>
-            <div className="relative flex-1">
-              <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSend()} placeholder="Ex: Gastei 50 no mercado..." className="w-full py-2 px-4 pr-12 text-sm focus:outline-none lg-chat-input" />
-              <button type="button" onClick={toggleRecording} className="absolute right-2 top-1/2 -translate-y-1/2 size-8 rounded-full flex items-center justify-center transition-colors"
-                style={isRecording ? { background: "rgba(239,68,68,0.85)", color: "white" } : { background: "rgba(243,244,246,0.9)", color: "#4b5563", border: "1px solid rgba(210,210,215,0.6)" }}>
-                {isRecording ? <Square size={12} color="white" /> : <Mic size={14} color="#4b5563" />}
-              </button>
-            </div>
-            <button onClick={handleSend} className="p-2 rounded-full active:scale-90 transition-transform" style={{ background: "linear-gradient(135deg, rgba(55,65,81,0.92) 0%, rgba(31,41,55,0.95) 100%)", border: "1px solid rgba(156,163,175,0.35)" }}>
-              <ArrowLeft className="rotate-180 size-5" color="white" />
-            </button>
-          </div>
-        </motion.div>
+          </motion.div>
+        </>
       )}
-      {isOpen && <div className="fixed inset-0 z-[290] bg-black/5 backdrop-blur-[1px]" onClick={() => setIsOpen(false)} />}
     </>
   );
 }
@@ -1398,8 +1415,6 @@ export default function AppFinanceiroCompleto() {
   const [categorias, setCategorias] = useState([]);
   const [userName, setUserName] = useState("Usuário");
   const [userPhoto, setUserPhoto] = useState(DEFAULT_AVATAR);
-  const [valorInput, setValorInput] = useState("");
-  const [descricaoInput, setDescricaoInput] = useState("");
   const [mesFiltro, setMesFiltro] = useState(new Date().toISOString().slice(0, 7));
   const [tipoAnalise, setTipoAnalise] = useState("despesa");
   const [analiseSelecionadaReceita, setAnaliseSelecionadaReceita] = useState("renda");
@@ -1412,12 +1427,9 @@ export default function AppFinanceiroCompleto() {
   const [metaMensalInput, setMetaMensalInput] = useState("");
   const [transacoesNotificacao, setTransacoesNotificacao] = useState([]);
 
-  // Modal unificado de lançamento
   const [modalLancamentoOpen, setModalLancamentoOpen] = useState(false);
-  const [lancamentoEditando, setLancamentoEditando] = useState(null); // null = novo
-  const [tipoParaNovoLancamento, setTipoParaNovoLancamento] = useState("despesa");
+  const [lancamentoEditando, setLancamentoEditando] = useState(null);
 
-  // Toast
   const [toast, setToast] = useState(null);
   const toastKey = useRef(0);
   function showToast(msg) {
@@ -1465,19 +1477,16 @@ export default function AppFinanceiroCompleto() {
     await supabase.auth.signOut(); setDeleteAccountModalOpen(false); showToast("Conta excluída com sucesso.");
   }
 
-  // ── MODAL UNIFICADO: abrir para NOVO lançamento ──
   function abrirNovoLancamento(tipo) {
-    setLancamentoEditando({ tipo }); // passa tipo pré-selecionado, sem id
+    setLancamentoEditando({ tipo });
     setModalLancamentoOpen(true);
   }
 
-  // ── MODAL UNIFICADO: abrir para EDIÇÃO ──
   function iniciarEdicao(lancamento) {
     setLancamentoEditando(lancamento);
     setModalLancamentoOpen(true);
   }
 
-  // ── SALVAR (novo ou edição) vindo do modal ──
   async function handleSalvarModal(payload) {
     const userId = user?.id; if (!userId) return;
     const registro = {
@@ -1492,14 +1501,12 @@ export default function AppFinanceiroCompleto() {
     };
 
     if (payload.id) {
-      // EDIÇÃO
       const { error } = await supabase.from('transactions').update(registro).eq('id', payload.id).eq('user_id', userId);
       if (!error) {
         setLancamentos(prev => prev.map(l => l.id === payload.id ? { ...l, ...registro } : l));
         showToast("Registro atualizado!");
       }
     } else {
-      // NOVO
       const { data, error } = await supabase.from('transactions').insert([registro]).select();
       if (!error && data) {
         setLancamentos(prev => [data[0], ...prev]);
@@ -1537,7 +1544,6 @@ export default function AppFinanceiroCompleto() {
     showToast("Banco atualizado!");
   }
 
-  // Categorias dinâmicas (de DB + adicionadas manualmente)
   function adicionarCategoria(nome, tipo) {
     setCategorias(prev => {
       if (prev.some(c => c.nome === nome && c.tipo === tipo)) return prev;
@@ -1591,21 +1597,17 @@ export default function AppFinanceiroCompleto() {
       <InjectLGStyles />
       <FitaMetalicaElite gastoAtual={totalDespesasMes} receitaAtual={totalEntradasMes} metaMensal={metaMensal} />
 
-      {/* Toast de confirmação */}
       {toast && (
         <Toast key={toast.key} message={toast.msg} onDone={() => setToast(null)} />
       )}
 
-      {/* Avatar fixo */}
       <div className="fixed top-4 left-4 z-[200]">
         <button onClick={() => setProfileOpen(true)} className="size-10 rounded-full overflow-hidden active:scale-90 transition-transform lg-avatar-ring">
           <img src={userPhoto} alt="Perfil" className="w-full h-full object-cover" />
         </button>
       </div>
 
-      {/* HEADER FIXO */}
       <div className="flex-shrink-0 pt-14 px-3 sm:px-4 max-w-6xl mx-auto w-full">
-        {/* Card de input rápido — abre o modal unificado */}
         <div className="lg-card mb-2">
           <div className="p-3 grid gap-2">
             <div className="grid grid-cols-2 gap-2">
@@ -1625,7 +1627,6 @@ export default function AppFinanceiroCompleto() {
           </div>
         </div>
 
-        {/* Barra de abas */}
         <div className="lg-tab-bar flex overflow-x-auto gap-1 p-1 mb-2 scrollbar-hide" style={{ scrollbarWidth: "none" }}>
           {[
             { key: "inicio", label: "Início" },
@@ -1643,10 +1644,8 @@ export default function AppFinanceiroCompleto() {
         </div>
       </div>
 
-      {/* ÁREA ROLÁVEL */}
       <div className="flex-1 overflow-y-auto px-3 sm:px-4 max-w-6xl mx-auto w-full pb-24 scrollbar-hide">
 
-        {/* ABA INÍCIO */}
         {activeTab === "inicio" && (
           <div className="lg-card">
             <div className="p-3">
@@ -1669,7 +1668,6 @@ export default function AppFinanceiroCompleto() {
           </div>
         )}
 
-        {/* ABA META */}
         {activeTab === "meta" && (
           <div className="lg-card">
             <div className="p-3">
@@ -1699,7 +1697,6 @@ export default function AppFinanceiroCompleto() {
           </div>
         )}
 
-        {/* ABA MOVIMENTOS */}
         {activeTab === "movimentos" && (
           <div className="lg-card">
             <div className="grid gap-2 p-3">
@@ -1734,7 +1731,6 @@ export default function AppFinanceiroCompleto() {
           </div>
         )}
 
-        {/* ABA FIXOS */}
         {activeTab === "fixos" && (
           <div className="lg-card">
             <div className="grid gap-3 p-3">
@@ -1768,7 +1764,6 @@ export default function AppFinanceiroCompleto() {
           </div>
         )}
 
-        {/* ABA ANÁLISES */}
         {activeTab === "analises" && (
           <div className="lg-card">
             <div className="p-3 grid gap-2">
@@ -1815,7 +1810,6 @@ export default function AppFinanceiroCompleto() {
           </div>
         </div>
 
-        {/* ABA CONEXÕES */}
         {activeTab === "conexoes" && (
           <AbaConexoes
             transacoesNotificacao={transacoesNotificacao.map(t => ({
@@ -1831,7 +1825,6 @@ export default function AppFinanceiroCompleto() {
 
       </div>
 
-      {/* MODAL UNIFICADO DE LANÇAMENTO */}
       <ModalLancamento
         isOpen={modalLancamentoOpen}
         onClose={() => setModalLancamentoOpen(false)}
@@ -1850,7 +1843,6 @@ export default function AppFinanceiroCompleto() {
         onOpenPremium={() => setPremiumOpen(true)} onOpenPrivacy={() => setPrivacyOpen(true)}
         onOpenDeleteAccount={() => setDeleteAccountModalOpen(true)} onUpdateName={(name) => setUserName(name)} />
 
-      {/* MODAL PRIVACIDADE */}
       {privacyOpen && (
         <div className="fixed inset-0 z-[270] bg-slate-900/30 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="w-full max-w-md p-5 shadow-2xl overflow-y-auto max-h-[80vh] lg-modal">
@@ -1863,7 +1855,6 @@ export default function AppFinanceiroCompleto() {
         </div>
       )}
 
-      {/* MODAL EXCLUIR CONTA */}
       {deleteAccountModalOpen && (
         <div className="fixed inset-0 z-[280] bg-slate-900/30 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="w-full max-w-md p-5 shadow-2xl space-y-3 lg-modal">
